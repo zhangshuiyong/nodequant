@@ -2,7 +2,7 @@
 ## Nodequant简介
 国内的量化交易平台大多是C、C++、C#、Java、Python等语言编写量化策略。从事量化交易的人员在学会金融数据的分析的同时也要学好一门编程语言，往往学好一门编程语言对于很多人是一个不小的门槛。Javascript语言是一门简单轻便的脚本语言，学习和编写Javascipt程序都非常简单。脚本语言具有弱类型的特点，不需要开发者在编写程序的过程中适配各种数据类型，入门快速。
 
-而且Javascipt有大量的开发者，它是GitHub上最热门的语言
+而且Javascipt有大量的开发者，它是GitHub上最热门的编程语言
 ![image](http://thumbnail0.baidupcs.com/thumbnail/5f251068d500ba14625c1dbe5de7deaa?fid=1007916211-250528-185312675350557&time=1499306400&rt=sh&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-GkTaxgs0FwBcDkEjwCpm%2BmL9PDc%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=4323663314721508459&dp-callid=0&size=c710_u400&quality=100&vuk=-&ft=video)
 
 Javascript语言借助Node.js运行环境,可以使得Javascipt也可以像C++、C#等高级语言一样运行在服务器端，可以进行读写文件，数据库，访问网络等操作。
