@@ -27,9 +27,9 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 2. 下载Mongodb数据库—— [到Mongodb官网下载Windows版本](https://www.mongodb.com/download-center/)
 3. 安装Monogodb并且启动Monogodb作为Windows服务——[请参考教程](https://jingyan.baidu.com/article/6b97984dbeef881ca2b0bf3e.html)
 4. 下载NodeQuant源代码。右上角 -> Clone or download -> Download ZIP ->解压
-5. 安装NodeQuant的第三方模块，打开cmd命令窗口，输入npm安装命令
+5. 安装NodeQuant的第三方模块，打开cmd命令窗口，用命令行去到NodeQuant项目根目录，根目录中有package.json文件，输入如下命令会安装package.json中的第三方模块
 ``` javascript
-npm install -g
+npm install
 ```
 6. 下载WebStorm集成开发软件——[到WebStorm官网下载Windows版本](http://www.jetbrains.com/webstorm/)
 7. Webtorm打开NodeQuant项目,在Settings中设置使用Es6语法。 ![image](http://thumbnail0.baidupcs.com/thumbnail/99071cc3c8ce699f9931f362b13ae825?fid=1007916211-250528-237062125461746&time=1499835600&rt=sh&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-ik1ao87HAmoaci66zbzeIz7GfkE%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=4465957038041940708&dp-callid=0&size=c710_u400&quality=100&vuk=-&ft=video)
