@@ -480,12 +480,11 @@ class ctpMdClient{
         ctpMdClient.ctpMdApi.on("RspError",function (error,requestId,isLast) {
             if(error==undefined)
             {
-                error={}
+                error={};
             }
 
-            error.Source=ctpMdClient.ctpClient.ClientName;
-            error.ErrorType=ErrorType.ClientRspError;
-            error.ErrorMsg="Market Front Response Error. ErrorId:"+error.ErrorID+",ErrorMsg:"+error.ErrorMsg;
+            error.ErrorMsg="Market Front Response Error. ErrorId:"+error.ErrorID+",ErrorMsg:"+error.Message;
+            let error = new NodeQuantError(ctpMdClient.ctpClient.ClientName,ErrorType.ClientRspError, error.ErrorMsg);
             ctpMdClient.ctpClient.OnError(error);
         });
 
@@ -568,7 +567,7 @@ class ctpMdClient{
                 ctpMdClient.ctpClient.OnInfo("Market Subscribe "+ contractName+" Successfully.RequestId:"+requestId);
             }else
             {
-                let message="Subscribe "+contractName+" Failed,Error Id:"+error.ErrorID+",Error Msg:"+error.ErrorMsg;
+                let message="Subscribe "+contractName+" Failed,Error Id:"+error.ErrorID+",Error Msg:"+error.Message;
                 let error=new NodeQuantError(ctpMdClient.ctpClient.ClientName,ErrorType.ClientRspError,message);
 
                 ctpMdClient.ctpClient.OnError(error);
@@ -680,9 +679,9 @@ class ctpMdClient{
                 ctpMdClient.ctpClient.OnInfo("Market UnSubscribe "+ contractName+" Successfully.RequestId:"+requestId);
             }else
             {
-                error.Source = ctpMdClient.ctpClient.ClientName;
-                error.ErrorType=ErrorType.ClientRspError;
                 error.ErrorMsg="UnSubscribe "+contractName+" Failed,ErrorId:"+error.ErrorID+",ErrorMsg:"+error.ErrorMsg;
+                let error=new NodeQuantError(ctpMdClient.ctpClient.ClientName,ErrorType.ClientRspError,error.ErrorMsg);
+
                 ctpMdClient.ctpClient.OnError(error);
             }
             global.AppEventEmitter.emit(EVENT.OnUnSubscribeContract,contractName,error);
@@ -780,10 +779,8 @@ class ctpTdClient{
                 error={};
             }
 
-            error.Source = ctpTdClient.ctpClient.ClientName;
-            error.ErrorType=ErrorType.ClientRspError;
             error.ErrorMsg="Trade Front Respond Error.ErrorId:"+error.ErrorID+",ErrorMsg:"+error.ErrorMsg;
-
+            let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.ClientRspError,error.ErrorMsg);
             ctpTdClient.ctpClient.OnError(error);
         });
 
@@ -849,9 +846,9 @@ class ctpTdClient{
                 //查询所有合约
                 ctpTdClient.queryContracts();
             }else{
-                error.Source = ctpTdClient.ctpClient.ClientName;
-                error.ErrorType=ErrorType.ClientRspError;
+
                 error.ErrorMsg="Confirm Settlement Failed. Error Id:"+error.ErrorID+"，Error msg:"+error.ErrorMsg;
+                let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.ClientRspError,error.ErrorMsg);
                 ctpTdClient.ctpClient.OnError(error);
             }
         });
@@ -883,9 +880,8 @@ class ctpTdClient{
             //"""查询合约回应"""
             if(error!=undefined && error.ErrorID!=0)
             {
-                error.Source = ctpTdClient.ctpClient.ClientName;
-                error.ErrorType=ErrorType.ClientRspError;
                 error.ErrorMsg="Query All Contract Failed. Error Id:"+error.ErrorID+",Error msg:"+error.ErrorMsg;
+                let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.ClientRspError,error.ErrorMsg);
                 ctpTdClient.ctpClient.OnError(error);
                 return;
             }
@@ -1249,9 +1245,10 @@ class ctpTdClient{
                 error = {};
             }
 
-            error.Source = ctpTdClient.ctpClient.ClientName;
-            error.ErrorType=ErrorType.ClientRspError;
             error.ErrorMsg="Cancel Order Failed. Error:Order Action Invalide";
+
+            let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.ClientRspError,error.ErrorMsg);
+
             ctpTdClient.ctpClient.OnError(error);
         });
 
@@ -1262,9 +1259,8 @@ class ctpTdClient{
                 error = {};
             }
 
-            error.ErrorType=ErrorType.ClientRspError;
             error.ErrorMsg="Cancel Order Failed. Error:Order Action Return Error";
-            error.Source = ctpTdClient.ctpClient.ClientName;
+            let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.ClientRspError,error.ErrorMsg);
 
             ctpTdClient.ctpClient.OnError(error);
         });
