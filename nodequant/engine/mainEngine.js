@@ -140,10 +140,10 @@ function _registerEvent(myEngine) {
 
     global.AppEventEmitter.on(EVENT.OnError,function (error) {
 
-        let log=new NodeQuantLog(error.Source,LogType.ERROR,new Date().toLocaleString(),error.ErrorMsg);
+        let log=new NodeQuantLog(error.Source,LogType.ERROR,new Date().toLocaleString(),error.Message);
         global.AppEventEmitter.emit(EVENT.OnLog,log);
 
-        console.log("出现错误来源"+error.Source+" ,Msg:"+error.ErrorMsg);
+        console.log("出现错误来源"+error.Source+" ,Msg:"+error.Message);
     });
 
     global.AppEventEmitter.on(EVENT.OnLog,function (log) {
