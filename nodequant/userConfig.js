@@ -22,8 +22,8 @@ StrategyEngineConfig={
 ClientConfig={
     CTP:{
         isPowerOn:true,
-        userID:"***",
-        password: "***",
+        userID:"073572",
+        password: "*********",
         brokerID:"9999",
         mdAddress: "tcp://218.202.237.33:10012",
         tdAddress: "tcp://218.202.237.33:10002"
