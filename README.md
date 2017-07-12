@@ -31,8 +31,7 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 ``` javascript
 npm install -g
 ```
-   
-5. 下载WebStorm集成开发软件——[到WebStorm官网下载Windows版本](http://www.jetbrains.com/webstorm/)
-6. Webtorm打开NodeQuant项目,在Settings中设置使用Es6语法。 ![image](http://thumbnail0.baidupcs.com/thumbnail/99071cc3c8ce699f9931f362b13ae825?fid=1007916211-250528-237062125461746&time=1499835600&rt=sh&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-ik1ao87HAmoaci66zbzeIz7GfkE%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=4465957038041940708&dp-callid=0&size=c710_u400&quality=100&vuk=-&ft=video)
-7. Webtorm添加一个Node.js的运行和调试环境。![image](http://thumbnail0.baidupcs.com/thumbnail/ed730805c9b638912962296f36eab027?fid=1007916211-250528-89609900916507&time=1499835600&rt=sh&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-IQfH2w6maN05wMbUpaIqjzzgcD4%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=4466154054712520568&dp-callid=0&size=c710_u400&quality=100&vuk=-&ft=video)
-8. 配置运行和调试环境，nodequant文件夹为工作目录，bin文件夹的www文件为项目的启动文件![image](http://thumbnail0.baidupcs.com/thumbnail/a29598fae5fee1112eec9505f65ee1f0?fid=1007916211-250528-160036252262837&time=1499835600&rt=sh&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-s8pp9XQi3ri0iJv8I5qJNHEtaMY%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=4466095661363208493&dp-callid=0&size=c710_u400&quality=100&vuk=-&ft=video)
+6. 下载WebStorm集成开发软件——[到WebStorm官网下载Windows版本](http://www.jetbrains.com/webstorm/)
+7. Webtorm打开NodeQuant项目,在Settings中设置使用Es6语法。 ![image](http://thumbnail0.baidupcs.com/thumbnail/99071cc3c8ce699f9931f362b13ae825?fid=1007916211-250528-237062125461746&time=1499835600&rt=sh&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-ik1ao87HAmoaci66zbzeIz7GfkE%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=4465957038041940708&dp-callid=0&size=c710_u400&quality=100&vuk=-&ft=video)
+8. Webtorm添加一个Node.js的运行和调试环境。![image](http://thumbnail0.baidupcs.com/thumbnail/ed730805c9b638912962296f36eab027?fid=1007916211-250528-89609900916507&time=1499835600&rt=sh&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-IQfH2w6maN05wMbUpaIqjzzgcD4%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=4466154054712520568&dp-callid=0&size=c710_u400&quality=100&vuk=-&ft=video)
+9. 配置运行和调试环境，nodequant文件夹为工作目录，bin文件夹的www文件为项目的启动文件![image](http://thumbnail0.baidupcs.com/thumbnail/a29598fae5fee1112eec9505f65ee1f0?fid=1007916211-250528-160036252262837&time=1499835600&rt=sh&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-s8pp9XQi3ri0iJv8I5qJNHEtaMY%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=4466095661363208493&dp-callid=0&size=c710_u400&quality=100&vuk=-&ft=video)
