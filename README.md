@@ -26,7 +26,7 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 ## 搭建NodeQuant运行环境
 1. 下载安装Node.js v6.11.1 版本（NodeQuant目前支持Node.js v6版本）—— [到Node.js官网下载Windows版本](https://nodejs.org/en/)
 2. 下载Mongodb数据库—— [到Mongodb官网下载Windows版本](https://www.mongodb.com/download-center/)
-3. 安装Monogodb并且启动Monogodb作为Windows服务——[请参考教程](https://jingyan.baidu.com/article/6b97984dbeef881ca2b0bf3e.html)
+3. 安装Monogodb并且启动Monogodb作为Windows服务——[请参考教程](http://blog.csdn.net/u010874036/article/details/51921206)
 4. 下载NodeQuant源代码。右上角 -> Clone or download -> Download ZIP ->解压
 5. 安装NodeQuant的第三方模块。打开cmd命令窗口，用命令行去到NodeQuant项目根目录，根目录中有package.json文件，输入如下命令会安装package.json中的第三方模块
 ``` javascript
