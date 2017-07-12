@@ -477,14 +477,14 @@ class ctpMdClient{
             ctpMdClient.ctpClient.OnMdFrontDisconnected();
         });
 
-        ctpMdClient.ctpMdApi.on("RspError",function (error,requestId,isLast) {
-            if(error==undefined)
+        ctpMdClient.ctpMdApi.on("RspError",function (err,requestId,isLast) {
+            if(err==undefined)
             {
-                error={};
+                err={};
             }
 
-            error.ErrorMsg="Market Front Response Error. ErrorId:"+error.ErrorID+",ErrorMsg:"+error.Message;
-            let error = new NodeQuantError(ctpMdClient.ctpClient.ClientName,ErrorType.ClientRspError, error.ErrorMsg);
+            err.ErrorMsg="Market Front Response Error. ErrorId:"+err.ErrorID+",ErrorMsg:"+err.Message;
+            let error = new NodeQuantError(ctpMdClient.ctpClient.ClientName,ErrorType.ClientRspError, err.ErrorMsg);
             ctpMdClient.ctpClient.OnError(error);
         });
 
@@ -560,20 +560,20 @@ class ctpMdClient{
             return;
         }
 
-        ctpMdClient.ctpMdApi.on("RspSubMarketData",function (contractName,error,requestId,isLast) {
+        ctpMdClient.ctpMdApi.on("RspSubMarketData",function (contractName,err,requestId,isLast) {
 
-            if(error.ErrorID==0)
+            if(err.ErrorID==0)
             {
                 ctpMdClient.ctpClient.OnInfo("Market Subscribe "+ contractName+" Successfully.RequestId:"+requestId);
             }else
             {
-                let message="Subscribe "+contractName+" Failed,Error Id:"+error.ErrorID+",Error Msg:"+error.Message;
+                let message="Subscribe "+contractName+" Failed,Error Id:"+err.ErrorID+",Error Msg:"+err.Message;
                 let error=new NodeQuantError(ctpMdClient.ctpClient.ClientName,ErrorType.ClientRspError,message);
 
                 ctpMdClient.ctpClient.OnError(error);
             }
 
-            global.AppEventEmitter.emit(EVENT.OnSubscribeContract,contractName,error);
+            global.AppEventEmitter.emit(EVENT.OnSubscribeContract,contractName,err);
         });
 
         ctpMdClient.ctpMdApi.on("RtnDepthMarketData",function (marketData) {
@@ -673,18 +673,18 @@ class ctpMdClient{
             return;
         }
 
-        ctpMdClient.ctpMdApi.on("RspUnSubMarketData",function (contractName,error,requestId,isLast) {
-            if(error.ErrorID==0)
+        ctpMdClient.ctpMdApi.on("RspUnSubMarketData",function (contractName,err,requestId,isLast) {
+            if(err.ErrorID==0)
             {
                 ctpMdClient.ctpClient.OnInfo("Market UnSubscribe "+ contractName+" Successfully.RequestId:"+requestId);
             }else
             {
-                error.ErrorMsg="UnSubscribe "+contractName+" Failed,ErrorId:"+error.ErrorID+",ErrorMsg:"+error.ErrorMsg;
-                let error=new NodeQuantError(ctpMdClient.ctpClient.ClientName,ErrorType.ClientRspError,error.ErrorMsg);
+                err.ErrorMsg="UnSubscribe "+contractName+" Failed,ErrorId:"+err.ErrorID+",ErrorMsg:"+err.ErrorMsg;
+                let error=new NodeQuantError(ctpMdClient.ctpClient.ClientName,ErrorType.ClientRspError,err.ErrorMsg);
 
                 ctpMdClient.ctpClient.OnError(error);
             }
-            global.AppEventEmitter.emit(EVENT.OnUnSubscribeContract,contractName,error);
+            global.AppEventEmitter.emit(EVENT.OnUnSubscribeContract,contractName,err);
         });
 
         ctpMdClient.ctpMdApi.unSubscribeMarketData(contractName, function (ret) {
@@ -773,14 +773,14 @@ class ctpTdClient{
             ctpTdClient.ctpClient.OnTdFrontDisconnected();
         });
 
-        ctpTdClient.ctpTdApi.on("RspError",function (error,requestId,isLast) {
-            if(error==undefined)
+        ctpTdClient.ctpTdApi.on("RspError",function (err,requestId,isLast) {
+            if(err==undefined)
             {
-                error={};
+                err={};
             }
 
-            error.ErrorMsg="Trade Front Respond Error.ErrorId:"+error.ErrorID+",ErrorMsg:"+error.ErrorMsg;
-            let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.ClientRspError,error.ErrorMsg);
+            err.ErrorMsg="Trade Front Respond Error.ErrorId:"+err.ErrorID+",ErrorMsg:"+err.ErrorMsg;
+            let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.ClientRspError,err.ErrorMsg);
             ctpTdClient.ctpClient.OnError(error);
         });
 
@@ -839,16 +839,16 @@ class ctpTdClient{
 
     confirmSettlement() {
         let ctpTdClient=this;
-        ctpTdClient.ctpTdApi.on("RspSettlementInfoConfirm",function (response,error,requestId,isLast) {
-            if(error.ErrorID==0)
+        ctpTdClient.ctpTdApi.on("RspSettlementInfoConfirm",function (response,err,requestId,isLast) {
+            if(err.ErrorID==0)
             {
                 ctpTdClient.ctpClient.OnInfo("Trade Front confirm settlementInfo successfully. --> Then query all contracts.");
                 //查询所有合约
                 ctpTdClient.queryContracts();
             }else{
 
-                error.ErrorMsg="Confirm Settlement Failed. Error Id:"+error.ErrorID+"，Error msg:"+error.ErrorMsg;
-                let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.ClientRspError,error.ErrorMsg);
+                err.ErrorMsg="Confirm Settlement Failed. Error Id:"+err.ErrorID+"，Error msg:"+err.ErrorMsg;
+                let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.ClientRspError,err.ErrorMsg);
                 ctpTdClient.ctpClient.OnError(error);
             }
         });
@@ -876,12 +876,12 @@ class ctpTdClient{
             return;
         }
 
-        ctpTdClient.ctpTdApi.on("RspQryInstrument",function (instrument,error,requestId,isLast) {
+        ctpTdClient.ctpTdApi.on("RspQryInstrument",function (instrument,err,requestId,isLast) {
             //"""查询合约回应"""
-            if(error!=undefined && error.ErrorID!=0)
+            if(err!=undefined && err.ErrorID!=0)
             {
-                error.ErrorMsg="Query All Contract Failed. Error Id:"+error.ErrorID+",Error msg:"+error.ErrorMsg;
-                let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.ClientRspError,error.ErrorMsg);
+                err.ErrorMsg="Query All Contract Failed. Error Id:"+err.ErrorID+",Error msg:"+err.ErrorMsg;
+                let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.ClientRspError,err.ErrorMsg);
                 ctpTdClient.ctpClient.OnError(error);
                 return;
             }
@@ -1238,29 +1238,29 @@ class ctpTdClient{
 
 
         //撤单响应。交易核心返回的含有错误信息的撤单响应
-        ctpTdClient.ctpTdApi.on("RspOrderAction",function (response,error,requestID,isLast) {
+        ctpTdClient.ctpTdApi.on("RspOrderAction",function (response,err,requestID,isLast) {
 
-            if(error==undefined)
+            if(err==undefined)
             {
-                error = {};
+                err = {};
             }
 
-            error.ErrorMsg="Cancel Order Failed. Error:Order Action Invalide";
+            err.ErrorMsg="Cancel Order Failed. Error:Order Action Invalide";
 
-            let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.ClientRspError,error.ErrorMsg);
+            let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.ClientRspError,err.ErrorMsg);
 
             ctpTdClient.ctpClient.OnError(error);
         });
 
         //交易所会再次验证撤单指令的合法性，如果交易所认为该指令不合法，交易核心通过此函数转发交易所给出的错误。
-        ctpTdClient.ctpTdApi.on("ErrRtnOrderAction",function (response,error) {
-            if(error==undefined)
+        ctpTdClient.ctpTdApi.on("ErrRtnOrderAction",function (response,err) {
+            if(err==undefined)
             {
-                error = {};
+                err = {};
             }
 
-            error.ErrorMsg="Cancel Order Failed. Error:Order Action Return Error";
-            let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.ClientRspError,error.ErrorMsg);
+            err.ErrorMsg="Cancel Order Failed. Error:Order Action Return Error";
+            let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.ClientRspError,err.ErrorMsg);
 
             ctpTdClient.ctpClient.OnError(error);
         });
