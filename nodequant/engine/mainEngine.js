@@ -252,7 +252,7 @@ class MainEngine{
                     let message="启动连接"+clientName+"失败.错误号:"+ret;
                     let error=new NodeQuantError(clientName,ErrorType.Disconnected,message);
 
-                    global.AppEventEmitter.on(EVENT.OnError,error);
+                    global.AppEventEmitter.emit(EVENT.OnError,error);
 
                 }
             });

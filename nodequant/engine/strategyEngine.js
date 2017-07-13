@@ -293,7 +293,7 @@ class StrategyEngine {
             let message= "New Strategy Instance Failed.Strategy Name:" + strategyConfig.name + ",Error Msg:" + ex.message;
             let error=new NodeQuantError(strategyConfig.name,ErrorType.StrategyError,message);
 
-            global.AppEventEmitter.on(EVENT.OnError,error);
+            global.AppEventEmitter.emit(EVENT.OnError,error);
         }
 
         return strategyInstance;
