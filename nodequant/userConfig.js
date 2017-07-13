@@ -32,11 +32,11 @@ ClientConfig={
 
 StrategyConfig={
     //策略所在的文件夹的绝对地址
-    StrategyDir:"E:/NodeQuant/nodequantjs/strategy/",
+    StrategyDir:"F:/nodequant/nodequant/strategy/",
     Strategys:[
         {
-            name:"FiveMA",
-            className:"FiveMAStrategy",
+            name:"Demo",
+            className:"DemoStrategy",
             symbols:{"m1709":{
                 fee:0.00006,
                 closeTodayFee:0.00024,
