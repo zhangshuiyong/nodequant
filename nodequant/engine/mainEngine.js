@@ -105,7 +105,7 @@ function _registerEvent(myEngine) {
     global.AppEventEmitter.on(EVENT.OnDisconnected,function (clientName) {
         //响应连接断开
         let message=clientName+"  Disconnected";
-        let log = new NodeQuantLog(this.ClientName,LogType.INFO,new Date().toLocaleString(),message);
+        let log = new NodeQuantLog(clientName,LogType.INFO,new Date().toLocaleString(),message);
 
         global.AppEventEmitter.emit(EVENT.OnLog,log);
     });
