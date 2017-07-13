@@ -1,10 +1,10 @@
 /**
  * Created by Administrator on 2017/6/8.
  */
-var fs = require("fs");
+let fs = require("fs");
 require("../../common.js");
 require("../../userConfig.js");
-var CTP=require("./CTP/NodeQuant.node");
+let CTP=require("./CTP/NodeQuant.node");
 
 let NodeQuantError=require("../../util/NodeQuantError");
 let NodeQuantLog=require("../../util/NodeQuantLog");
@@ -223,8 +223,8 @@ class ctpClient{
 
     //FAK单
     SendFillAndKillLimitOrder(contractName,direction,openClose,volume,limitPrice) {
-        var ctpClient=this;
-        var sendOrderReq={};
+        let ctpClient=this;
+        let sendOrderReq={};
 
         //4项
         sendOrderReq.InstrumentID=contractName;
@@ -355,6 +355,7 @@ class ctpClient{
     OnMdFrontLoginSuccess() {
         let ctpClient=this;
         //行情接口登录上，再登录交易接口
+
         this.isMdConnected=true;
         this.isConnected = false;
         this.isGetAllContract=false;
@@ -411,6 +412,9 @@ class ctpClient{
     }
 
     OnTick(tick) {
+        let message=tick.symbol+" Tick: date"+tick.date+",time:"+tick.time+",lastPrice:"+tick.lastPrice;
+        let log=new NodeQuantLog(this.ClientName,LogType.INFO,new Date().toLocaleString(),message);
+        global.AppEventEmitter.emit(EVENT.OnLog,log);
         global.AppEventEmitter.emit(EVENT.OnTick,tick);
     }
 
@@ -441,6 +445,9 @@ class ctpMdClient{
         this.address=address;
 
         this.ctpMdApi = CTP.CreateMdApi();
+
+        //统一交易日,郑商所的交易日是自然日
+        this.UnitTradingDay="";
 
         //ctp的市场信息客户端，需要有的状态：
         // 1.是否已经连接：isConnected
@@ -531,6 +538,8 @@ class ctpMdClient{
 
                 ctpMdClient.ctpClient.OnInfo("Market Front login successfully");
 
+                //市场前置登录上,获取统一的交易日
+                ctpMdClient.UnitTradingDay=ctpMdClient.getTradingDay();
             }else{
                 ctpMdClient.ctpClient.OnMdFrontLoginFailed();
             }
@@ -597,23 +606,18 @@ class ctpMdClient{
 
             //自定义数据
             tick.clientName = ctpMdClient.ctpClient.ClientName;
-            //# 这里由于交易所夜盘时段的交易日数据有误，所以选择本地获取
-            tick.date = marketData.TradingDay;
-
-            if(tick.date=="")
-            {
-                tick.date=ctpMdClient.getTradingDay();
-                console.log(tick.date);
-            }
+            //tick.date = marketData.TradingDay;
+            //统一交易日
+            tick.date = ctpMdClient.UnitTradingDay;
 
             tick.time =marketData.UpdateTime+'.'+marketData.UpdateMillisec;
 
-            var year=parseInt(tick.date.substring(0,4));
-            var month=parseInt(tick.date.substring(4,6))-1; //js Date对象从0开始的月份
-            var day=parseInt(tick.date.substring(6,8));
-            var hour=parseInt(marketData.UpdateTime.substring(0,2));
-            var minute=parseInt(marketData.UpdateTime.substring(3,5));
-            var second=parseInt(marketData.UpdateTime.substring(6,8));
+            let year=parseInt(tick.date.substring(0,4));
+            let month=parseInt(tick.date.substring(4,6))-1; //js Date对象从0开始的月份
+            let day=parseInt(tick.date.substring(6,8));
+            let hour=parseInt(marketData.UpdateTime.substring(0,2));
+            let minute=parseInt(marketData.UpdateTime.substring(3,5));
+            let second=parseInt(marketData.UpdateTime.substring(6,8));
             tick.datetime = new Date(year,month,day,hour,minute,second,marketData.UpdateMillisec);
             tick.timeStamp=tick.datetime.getTime();
             //五档价格无效值Double的最大值转换为0
@@ -959,9 +963,9 @@ class ctpTdClient{
             //获取持仓缓存对象
             //唯一定义一条记录的仓位
             //一个合约的开仓，可能有多条持仓记录？
-            var posName = positionInfo.InstrumentID+"."+ positionInfo.PosiDirection;
+            let posName = positionInfo.InstrumentID+"."+ positionInfo.PosiDirection;
             console.log("持仓ID:"+posName);
-            var pos;
+            let pos;
             if(ctpTdClient.posDic.posName==undefined) {
                 pos = {};
 

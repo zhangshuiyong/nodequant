@@ -1,18 +1,18 @@
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
+let express = require('express');
+let path = require('path');
+let favicon = require('serve-favicon');
+let logger = require('morgan');
+let cookieParser = require('cookie-parser');
+let bodyParser = require('body-parser');
 
-var index = require('./routes/index');
+let index = require('./routes/index');
 
-var NodeQuantApp=require("./NodeQuantApp");
+let NodeQuantApp=require("./NodeQuantApp");
 
-var app = express();
+let app = express();
 
 
-var NodeQuantApplication = new NodeQuantApp(app);
+let NodeQuantApplication = new NodeQuantApp(app);
 global.Application = NodeQuantApplication;
 
 //主引擎启动,界面可以手动下单
@@ -37,7 +37,7 @@ app.use('/', index);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  var err = new Error('Not Found');
+  let err = new Error('Not Found');
   err.status = 404;
   next(err);
 });
@@ -56,7 +56,7 @@ app.use(function(err, req, res, next) {
 function NodeQuantAppExit(){
     console.log('NodeQuant Exit');
     global.Application.MainEngine.Stop();
-};
+}
 
 
 process.on('uncaughtException',function (err) {

@@ -15,17 +15,17 @@ class NodeQuantApp{
         console.log(">>>>>>>>>>  NodeQuant <<<<<<<<<<");
         console.log("Date :" + new Date(Date.now()).toLocaleTimeString());
 
-        var connectTdClient = require('./routes/presenter_end/connectTdClient');
-        var sendMarketOrder = require('./routes/presenter_end/sendMarketOrder');
-        var sendLimitOrder = require('./routes/presenter_end/sendLimitOrder');
-        var sendStopLimitOrder = require('./routes/presenter_end/sendStopLimitOrder');
-        var sendMarketIfTouchedOrder = require('./routes/presenter_end/sendMarketIfTouchedOrder');
-        var sendFillOrKillLimitOrder = require('./routes/presenter_end/sendFillOrKillLimitOrder');
-        var sendFillAndKillLimitOrder = require('./routes/presenter_end/sendFillAndKillLimitOrder');
-        var queryInvestorPosition = require('./routes/presenter_end/queryInvestorPosition');
-        var cancelOrder = require('./routes/presenter_end/cancelOrder');
-        var subscribeContract = require('./routes/presenter_end/subscribeContract');
-        var unSubscribeContract = require('./routes/presenter_end/unSubscribeContract');
+        let connectTdClient = require('./routes/presenter_end/connectTdClient');
+        let sendMarketOrder = require('./routes/presenter_end/sendMarketOrder');
+        let sendLimitOrder = require('./routes/presenter_end/sendLimitOrder');
+        let sendStopLimitOrder = require('./routes/presenter_end/sendStopLimitOrder');
+        let sendMarketIfTouchedOrder = require('./routes/presenter_end/sendMarketIfTouchedOrder');
+        let sendFillOrKillLimitOrder = require('./routes/presenter_end/sendFillOrKillLimitOrder');
+        let sendFillAndKillLimitOrder = require('./routes/presenter_end/sendFillAndKillLimitOrder');
+        let queryInvestorPosition = require('./routes/presenter_end/queryInvestorPosition');
+        let cancelOrder = require('./routes/presenter_end/cancelOrder');
+        let subscribeContract = require('./routes/presenter_end/subscribeContract');
+        let unSubscribeContract = require('./routes/presenter_end/unSubscribeContract');
 
         application.use('/connectTdClient', connectTdClient);
         application.use('/sendMarketOrder',sendMarketOrder);
