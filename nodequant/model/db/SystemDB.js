@@ -29,7 +29,7 @@ db.on('error',function (err) {
 
     let message='Mongoose connection error: ' + err;
     let error=new NodeQuantError(System_DB_Name,ErrorType.DBError,message);
-    global.AppEventEmitter.OnError(error);
+    global.AppEventEmitter.emit(EVENT.OnError,error);
 });
 
 /**
@@ -38,7 +38,7 @@ db.on('error',function (err) {
 db.on('disconnected', function () {
     let message='Mongoose connection disconnected';
     let error=new NodeQuantError(System_DB_Name,ErrorType.DBError,message);
-    global.AppEventEmitter.OnError(error);
+    global.AppEventEmitter.emit(EVENT.OnError,error);
 });
 
 module.exports = db;
