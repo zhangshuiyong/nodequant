@@ -24,7 +24,7 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 
 
 ## 搭建NodeQuant运行环境
-1. 支持Win7和Win10,暂且不支持Win8.1
+1. 支持Win7和Win10,暂且不支持Win8
 2. 下载安装32位的Node.js v6.11.1 版本（NodeQuant目前支持Node.js v6版本）—— [到Node.js官网下载Windows版本](https://nodejs.org/en/download/)
 3. 下载Mongodb数据库—— [到Mongodb官网下载Windows版本](https://www.mongodb.com/download-center/)
 4. 安装Mongodb并且启动Mongodb作为Windows服务——[请参考教程](http://www.jb51.net/article/85605.htm)
