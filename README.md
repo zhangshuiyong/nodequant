@@ -24,18 +24,19 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 
 
 ## 搭建NodeQuant运行环境
-1. 下载安装32位的Node.js v6.11.1 版本（NodeQuant目前支持Node.js v6版本）—— [到Node.js官网下载Windows版本](https://nodejs.org/en/download/)
-2. 下载Mongodb数据库—— [到Mongodb官网下载Windows版本](https://www.mongodb.com/download-center/)
-3. 安装Mongodb并且启动Mongodb作为Windows服务——[请参考教程](http://www.jb51.net/article/85605.htm)
-4. 下载NodeQuant源代码。右上角 -> Clone or download -> Download ZIP ->解压
-5. 安装NodeQuant的第三方模块。打开cmd命令窗口，用命令行去到NodeQuant项目根目录，根目录中有package.json文件，输入如下命令会安装package.json中的第三方模块
+1. 支持Win7和Win10,暂且不支持Win8.1
+2. 下载安装32位的Node.js v6.11.1 版本（NodeQuant目前支持Node.js v6版本）—— [到Node.js官网下载Windows版本](https://nodejs.org/en/download/)
+3. 下载Mongodb数据库—— [到Mongodb官网下载Windows版本](https://www.mongodb.com/download-center/)
+4. 安装Mongodb并且启动Mongodb作为Windows服务——[请参考教程](http://www.jb51.net/article/85605.htm)
+5. 下载NodeQuant源代码。右上角 -> Clone or download -> Download ZIP ->解压
+6. 安装NodeQuant的第三方模块。打开cmd命令窗口，用命令行去到NodeQuant项目根目录，根目录中有package.json文件，输入如下命令会安装package.json中的第三方模块
 ``` javascript
 npm install
 ```
-6. 下载WebStorm集成开发软件——[到WebStorm官网下载Windows版本](http://www.jetbrains.com/webstorm/)
-7. Webtorm打开NodeQuant项目,在Settings中设置使用Es6语法。 ![image](http://i2.kiimg.com/1949/c8ce699f9931f362.png)
-8. Webtorm添加一个Node.js的运行和调试环境。点击Edit Configurations->点击+号按钮添加Node.js环境![image](http://i2.kiimg.com/1949/14c190724f06d14e.png)
-9. 配置运行和调试环境，nodequant文件夹为工作目录，bin文件夹的www文件为项目的启动文件![image](http://i2.kiimg.com/1949/e5fee1112eec9505.png)
-10. 在NodeQuant项目根目录中，userConfig.js文件中ClientConfig项中配置自己的期货账号，密码，行情地址，交易地址![image](http://i2.kiimg.com/1949/8ec64b786a491c98.png)
-11. 点击调试运行。看到运行调试信息，运行成功。打印出log：“Demo策略启动成功 ”等log,说明样例策略启动成功。这个空策略的配置在userConfig.js用户配置文件中的StrategyConfig中
+7. 下载WebStorm集成开发软件——[到WebStorm官网下载Windows版本](http://www.jetbrains.com/webstorm/)
+8. Webtorm打开NodeQuant项目,在Settings中设置使用Es6语法。 ![image](http://i2.kiimg.com/1949/c8ce699f9931f362.png)
+9. Webtorm添加一个Node.js的运行和调试环境。点击Edit Configurations->点击+号按钮添加Node.js环境![image](http://i2.kiimg.com/1949/14c190724f06d14e.png)
+10. 配置运行和调试环境，nodequant文件夹为工作目录，bin文件夹的www文件为项目的启动文件![image](http://i2.kiimg.com/1949/e5fee1112eec9505.png)
+11. 在NodeQuant项目根目录中，userConfig.js文件中ClientConfig项中配置自己的期货账号，密码，行情地址，交易地址![image](http://i2.kiimg.com/1949/8ec64b786a491c98.png)
+12. 点击调试运行。看到运行调试信息，运行成功。打印出log：“Demo策略启动成功 ”等log,说明样例策略启动成功。这个空策略的配置在userConfig.js用户配置文件中的StrategyConfig中
 ![image](http://i1.buimg.com/1949/4536d5524e146b29.png)
