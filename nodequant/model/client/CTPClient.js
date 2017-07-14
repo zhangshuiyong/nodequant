@@ -26,6 +26,12 @@ class ctpClient{
         this.isConnected=false;
         this.isGetAllContract=false;
 
+        //CTP客户端今天是否重连过,初始为-1,第一次mdClient主动连接+1=0,重连次数为0
+        //如果断线再连,重连次数+1=1
+        // 重连次数大于0,代表重连过
+        //mdClient.connect重置为-1
+        this.ReConnectedTimes=-1;
+
         this.mdClient = new ctpMdClient(this,this.userID,this.password,this.brokerID,this.mdAddress);
         this.tdClient=new ctpTdClient(this,this.userID,this.password,this.brokerID,this.tdAddress);
     }
@@ -42,6 +48,8 @@ class ctpClient{
     }
 
     Connect() {
+
+        this.ReConnectedTimes=-1;
         //创建行情和交易接口对象
         //先登录行情接口，行情接口连接上，再登录
         this.mdClient.connect();
@@ -470,6 +478,11 @@ class ctpMdClient{
     connect(){
         let ctpMdClient=this;
         ctpMdClient.ctpMdApi.on("FrontConnected",function () {
+            ctpMdClient.ctpClient.OnInfo("Market Front connected. --> Then Login");
+
+            //增加重连次数,用于区别第一次连接成功Event,还是重新连接成功Event
+            ctpMdClient.ctpClient.ReConnectedTimes++;
+
             ctpMdClient.isConnected = true;
 
             if(ctpMdClient.isLogined==false && ctpMdClient.isLoginFinish==true)
@@ -477,7 +490,6 @@ class ctpMdClient{
                 ctpMdClient.login();
             }
 
-            ctpMdClient.ctpClient.OnInfo("Market Front connected. --> Then Login");
         });
 
         ctpMdClient.ctpMdApi.on("FrontDisconnected", function (reasonId) {
@@ -535,11 +547,11 @@ class ctpMdClient{
 
             if(error.ErrorID==0)
             {
+                ctpMdClient.ctpClient.OnInfo("Market Front login successfully");
+
                 ctpMdClient.isLogined=true;
 
                 ctpMdClient.ctpClient.OnMdFrontLoginSuccess();
-
-                ctpMdClient.ctpClient.OnInfo("Market Front login successfully");
 
                 //市场前置登录上,获取统一的交易日
                 ctpMdClient.UnitTradingDate=ctpMdClient.getTradingDay();
@@ -761,8 +773,9 @@ class ctpTdClient{
 
         ctpTdClient.ctpTdApi.on("FrontConnected",function () {
 
-            ctpTdClient.isConnected = true;
             ctpTdClient.ctpClient.OnInfo("Trade Front connected.");
+
+            ctpTdClient.isConnected = true;
 
             //如果断线,Market Front再次连上再登录Trade Front
             if(ctpTdClient.ctpClient.mdClient.isConnected) {
@@ -803,11 +816,13 @@ class ctpTdClient{
         if(!ctpTdClient.isConnected)
         {
             //如果已经连接上是不会再回应
+
             ctpTdClient.ctpTdApi.connect(this.address,tdFlowPath,function (ret) {
                 finishCallback(ret);
             });
         }else
         {
+            //如果交易客户端是Connected,说明交易前置没问题
             ctpTdClient.ctpClient.OnInfo("Trader Font have connected. --> Then Login");
 
             ctpTdClient.login();

@@ -303,6 +303,34 @@ class StrategyEngine {
         return this.StrategyDic[strategyName];
     }
 
+    SubscribeStrategySymbolsOfClient(clientName)
+    {
+        let strategyConfigs = StrategyConfig.Strategys;
+        for (let index in strategyConfigs) {
+            let strategyConfig = strategyConfigs[index];
+            //策略的订阅的品种是否在这个client
+            for (let symbol in strategyConfig.symbols) {
+                let contract = global.Application.MainEngine.GetContract(symbol);
+                if (contract != undefined && contract.clientName==clientName) {
+
+                    let message= clientName+"发出重新订阅" + strategyConfig.name + "策略的品种:" + symbol+"的请求";
+                    let log=new NodeQuantLog(strategyConfig.name,LogType.INFO,message);
+                    global.AppEventEmitter.emit(EVENT.OnLog, log);
+
+                    global.Application.MainEngine.Subscribe(contract.clientName, symbol, function (clientName, ret) {
+                        if (ret != 0) {
+
+                            let message = strategyName + "在" + clientName + "客户端订阅" + symbol + "请求发送失败,错误码：" + ret;
+                            let error = new NodeQuantError(strategyName, ErrorType.StrategyError, message);
+                            global.AppEventEmitter.emit(EVENT.OnError, error);
+
+                        }
+                    });
+                }
+            }
+        }
+    }
+
     SubscribeStrategySymbols(strategyName, strategySymbolDic) {
         for (let symbol in strategySymbolDic) {
             let contract = global.Application.MainEngine.GetContract(symbol);

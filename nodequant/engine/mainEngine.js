@@ -67,33 +67,43 @@ function _registerEvent(myEngine) {
 
     global.AppEventEmitter.on(EVENT.OnReceivedAllContract,function (clientName) {
 
-        //检查一次所有客户端实例是否已经都连接上
-        for (let clientName in myEngine.clientDic)
+        //策略引擎是否已经启动
+        if(global.Application.StrategyEngine.IsWorking)
         {
-            if(myEngine.clientDic[clientName].isGetAllContract==false)
-            {
-                return;
-            }
-        }
+            if (myEngine.clientDic[clientName].ReConnectedTimes > 0) {
 
-        global.AppEventEmitter.emit(EVENT.OnAllConfigClientReadyed,"AllConfigClientReadyed");
+                let message = clientName+"重连成功,重新订阅运行策略的品种";
+                let log = new NodeQuantLog("MainEngine", LogType.INFO, new Date().toLocaleString(), message);
+                global.AppEventEmitter.emit(EVENT.OnLog,log);
+
+                //策略引擎重新订阅策略中的合约
+                global.Application.StrategyEngine.SubscribeStrategySymbolsOfClient(clientName);
+            }
+        }else {
+            //策略引擎还没启动,检查所有策略引擎所需要的交易客户端是否已经都启动了
+            //检查所有交易客户端是否已经都连接上
+            for (let clientNameInstance in myEngine.clientDic) {
+                if (myEngine.clientDic[clientNameInstance].isGetAllContract == false) {
+                    return;
+                }
+            }
+
+            global.AppEventEmitter.emit(EVENT.OnAllConfigClientReadyed, "AllConfigClientReadyed");
+        }
     });
 
 
     global.AppEventEmitter.on(EVENT.OnAllConfigClientReadyed,function (msg) {
-        //所有配置的交易客户端的合约已经接收了,可以启动上层的数据记录引擎,yu
-        //启动各大引擎
-        //主引擎启动,策略引擎可以不启动吗?
-        /*
-        if(TickRecordEngineConfig.PowerOn)
-        {
-            global.Application.TickRecordEngine.Start();
-        }*/
 
-        //主引擎启动,策略引擎也要启动
+        //所有配置的客户端，启动策略引擎
+
         if(StrategyEngineConfig.PowerOn)
         {
-            global.Application.StrategyEngine.Start();
+            if(global.Application.StrategyEngine.IsWorking==false)
+            {
+                //没有启动过,但是所有客户端已经连接成功,策略引擎启动过，策略启动过
+                global.Application.StrategyEngine.Start();
+            }
         }
 
     });
