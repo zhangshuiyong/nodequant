@@ -33,9 +33,9 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 npm install
 ```
 6. 下载WebStorm集成开发软件——[到WebStorm官网下载Windows版本](http://www.jetbrains.com/webstorm/)
-7. Webtorm打开NodeQuant项目,在Settings中设置使用Es6语法。 ![image](http://thumbnail0.baidupcs.com/thumbnail/99071cc3c8ce699f9931f362b13ae825?fid=1007916211-250528-237062125461746&time=1499835600&rt=sh&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-ik1ao87HAmoaci66zbzeIz7GfkE%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=4465957038041940708&dp-callid=0&size=c710_u400&quality=100&vuk=-&ft=video)
-8. Webtorm添加一个Node.js的运行和调试环境。点击Edit Configurations->点击+号按钮添加Node.js环境![image](http://thumbnail0.baidupcs.com/thumbnail/ed730805c9b638912962296f36eab027?fid=1007916211-250528-89609900916507&time=1499835600&rt=sh&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-IQfH2w6maN05wMbUpaIqjzzgcD4%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=4466154054712520568&dp-callid=0&size=c710_u400&quality=100&vuk=-&ft=video)
-9. 配置运行和调试环境，nodequant文件夹为工作目录，bin文件夹的www文件为项目的启动文件![image](http://thumbnail0.baidupcs.com/thumbnail/a29598fae5fee1112eec9505f65ee1f0?fid=1007916211-250528-160036252262837&time=1499835600&rt=sh&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-s8pp9XQi3ri0iJv8I5qJNHEtaMY%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=4466095661363208493&dp-callid=0&size=c710_u400&quality=100&vuk=-&ft=video)
-10. 在NodeQuant项目根目录中，userConfig.js文件中ClientConfig项中配置自己的期货账号，密码，行情地址，交易地址![image](http://thumbnail0.baidupcs.com/thumbnail/c5614fc18ec64b786a491c98a5b72f08?fid=1007916211-250528-635153244519350&time=1499839200&rt=sh&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-t5jK8xjRMkFl8tPpVtf%2FxjIr2eU%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=4466685923565345750&dp-callid=0&size=c710_u400&quality=100&vuk=-&ft=video)
-11. 点击调试运行。看到运行调试信息，运行成功。打印出log：“FiveMA策略启动成功 ”等log,说明样例空策略启动成功，已经成功启动了一个FiveMA空策略，这个空策略的配置在userConfig用户配置文件中的StrategyConfig配置项中
-![image](http://thumbnail0.baidupcs.com/thumbnail/27975dde06a7a6035a021f2b336db9e3?fid=1007916211-250528-1082672822298456&time=1499839200&rt=sh&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-fJ3ZiPzYgs6Bd1eZGiKpyFnTY90%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=4466820918077425089&dp-callid=0&size=c710_u400&quality=100&vuk=-&ft=video)
+7. Webtorm打开NodeQuant项目,在Settings中设置使用Es6语法。 ![image](http://i2.kiimg.com/1949/c8ce699f9931f362.png)
+8. Webtorm添加一个Node.js的运行和调试环境。点击Edit Configurations->点击+号按钮添加Node.js环境![image](http://i2.kiimg.com/1949/14c190724f06d14e.png)
+9. 配置运行和调试环境，nodequant文件夹为工作目录，bin文件夹的www文件为项目的启动文件![image](http://i2.kiimg.com/1949/e5fee1112eec9505.png)
+10. 在NodeQuant项目根目录中，userConfig.js文件中ClientConfig项中配置自己的期货账号，密码，行情地址，交易地址![image](http://i2.kiimg.com/1949/8ec64b786a491c98.png)
+11. 点击调试运行。看到运行调试信息，运行成功。打印出log：“Demo策略启动成功 ”等log,说明样例策略启动成功。这个空策略的配置在userConfig.js用户配置文件中的StrategyConfig中
+![image](http://i1.buimg.com/1949/4536d5524e146b29.png)
