@@ -447,7 +447,10 @@ class ctpMdClient{
         this.ctpMdApi = CTP.CreateMdApi();
 
         //统一交易日,郑商所的交易日是自然日
-        this.UnitTradingDay="";
+        this.UnitTradingDate="";
+        this.UnitTradingYear=0;
+        this.UnitTradingMonth=0;
+        this.UnitTradingDay=0;
 
         //ctp的市场信息客户端，需要有的状态：
         // 1.是否已经连接：isConnected
@@ -539,7 +542,10 @@ class ctpMdClient{
                 ctpMdClient.ctpClient.OnInfo("Market Front login successfully");
 
                 //市场前置登录上,获取统一的交易日
-                ctpMdClient.UnitTradingDay=ctpMdClient.getTradingDay();
+                ctpMdClient.UnitTradingDate=ctpMdClient.getTradingDay();
+                ctpMdClient.UnitTradingYear=parseInt(ctpMdClient.UnitTradingDate.substring(0,4));
+                ctpMdClient.UnitTradingMonth=parseInt(ctpMdClient.UnitTradingDate.substring(4,6));
+                ctpMdClient.UnitTradingDay=parseInt(ctpMdClient.UnitTradingDate.substring(6,8));
             }else{
                 ctpMdClient.ctpClient.OnMdFrontLoginFailed();
             }
@@ -608,17 +614,15 @@ class ctpMdClient{
             tick.clientName = ctpMdClient.ctpClient.ClientName;
             //tick.date = marketData.TradingDay;
             //统一交易日
-            tick.date = ctpMdClient.UnitTradingDay;
+            tick.date = ctpMdClient.UnitTradingDate;
 
             tick.time =marketData.UpdateTime+'.'+marketData.UpdateMillisec;
 
-            let year=parseInt(tick.date.substring(0,4));
-            let month=parseInt(tick.date.substring(4,6))-1; //js Date对象从0开始的月份
-            let day=parseInt(tick.date.substring(6,8));
             let hour=parseInt(marketData.UpdateTime.substring(0,2));
             let minute=parseInt(marketData.UpdateTime.substring(3,5));
             let second=parseInt(marketData.UpdateTime.substring(6,8));
-            tick.datetime = new Date(year,month,day,hour,minute,second,marketData.UpdateMillisec);
+            //js Date对象从0开始的月份
+            tick.datetime = new Date(ctpMdClient.UnitTradingYear,ctpMdClient.UnitTradingMonth-1,ctpMdClient.UnitTradingDay,hour,minute,second,marketData.UpdateMillisec);
             tick.timeStamp=tick.datetime.getTime();
             //五档价格无效值Double的最大值转换为0
             //五档买价
