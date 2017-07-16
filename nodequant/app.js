@@ -10,8 +10,6 @@ let index = require('./routes/index');
 let NodeQuantApp=require("./NodeQuantApp");
 
 let app = express();
-
-
 let NodeQuantApplication = new NodeQuantApp(app);
 global.Application = NodeQuantApplication;
 

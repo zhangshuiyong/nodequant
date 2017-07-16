@@ -3,7 +3,7 @@
  */
 
 AppConfig={
-  Port:"3002"
+    Port:"3001"
 };
 
 SystemConfig={
@@ -16,7 +16,7 @@ SystemConfig={
     NightStopTime: "3:00:00"
 };
 
-FuturesConfig={
+FuturesConfig={CTP:{
     IC:{
         name:"中证500",
         exchange:"CFE",
@@ -569,4 +569,5 @@ FuturesConfig={
         NightOpen:"21:00:00",
         NightClose:"1:00:00"
     }
+}
 };
