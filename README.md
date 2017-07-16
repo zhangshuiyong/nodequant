@@ -1,4 +1,4 @@
-# NodeQuant—一个基于Node.js的量化金融交易平台
+# NodeQuant—一个基于Node.js的开源量化金融交易平台
 
 
 ## NodeQuant的愿景
