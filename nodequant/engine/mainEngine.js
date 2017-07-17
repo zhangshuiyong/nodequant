@@ -14,6 +14,13 @@ let Log=require("../model/db/LogModel");
 
 function _isTimeToWork() {
     let NowDateTime=new Date();
+    //自然馹,的周末一定不需要工作!
+    let weekDay=NowDateTime.getDay();
+    if(weekDay<1 || weekDay>5)
+    {
+        return false;
+    }
+
     let NowDateStr=NowDateTime.toLocaleDateString();
 
     let DayStartDateTimeStr=NowDateStr+" "+SystemConfig.DayStartTime;
@@ -193,8 +200,8 @@ class MainEngine{
 
     Start(){
 
-        //if(false==_isTimeToWork())
-        //    return;
+        if(false==_isTimeToWork())
+            return;
 
         //重置主引擎变量
         this.Reset();

@@ -21,33 +21,39 @@ class KBar{
 }
 //////////////////////////////// Private Method ////////////////////////////////////////////
 function _createBar(myStrategy,tick) {
+
+    if(myStrategy.Symbol_KBarId_TickListDic[tick.symbol]==undefined)
+    {
+        myStrategy.Symbol_KBarId_TickListDic[tick.symbol]={};
+    }
+
     //分钟线结束事件
     if(myStrategy.KBarMillSecondInterval)
     {
         let KBarId = parseInt(tick.timeStamp/myStrategy.KBarMillSecondInterval);
 
         //不存在KBarId,说明有一个新K线产生
-        if(myStrategy.KBarId_TickListDic[KBarId]==undefined)
+        if(myStrategy.Symbol_KBarId_TickListDic[tick.symbol][KBarId]==undefined)
         {
             //创建新K线包含的TickList缓存数组
             _createNewBar(myStrategy,KBarId,tick);
 
             //创建上一个完整K线,加入到策略订阅合约的K线列表
-            for(let barId in myStrategy.KBarId_TickListDic)
+            for(let barId in myStrategy.Symbol_KBarId_TickListDic[tick.symbol])
             {
                 if(barId!=KBarId)
                 {
                     //创建上一个完整K线,加入到策略订阅合约的K线列表
                     _createClosedBar(myStrategy,barId,tick);
                     //创建完删除上一个完整K线的TickList缓存
-                    delete myStrategy.KBarId_TickListDic[barId];
+                    delete myStrategy.Symbol_KBarId_TickListDic[tick.symbol][barId];
                 }
 
                 break;
             }
         }else
         {
-            myStrategy.KBarId_TickListDic[KBarId].push(tick);
+            myStrategy.Symbol_KBarId_TickListDic[tick.symbol][KBarId].push(tick);
         }
     }
 }
@@ -56,7 +62,7 @@ function _createNewBar(myStrategy,barId,tick) {
 
     let KBarTickList=[];
     KBarTickList.push(tick);
-    myStrategy.KBarId_TickListDic[barId]=KBarTickList;
+    myStrategy.Symbol_KBarId_TickListDic[tick.symbol][barId]=KBarTickList;
     //通知策略产生了一个新Bar
     let bar_StartDatetime=KBarTickList[0].datetime;
     let bar_EndDatetime=KBarTickList[KBarTickList.length-1].datetime;
@@ -65,7 +71,7 @@ function _createNewBar(myStrategy,barId,tick) {
 }
 
 function _createClosedBar(myStrategy,barId,tick) {
-    let bar_TickList = myStrategy.KBarId_TickListDic[barId];
+    let bar_TickList = myStrategy.Symbol_KBarId_TickListDic[tick.symbol][barId];
 
     if(bar_TickList.length>0)
     {
@@ -106,7 +112,7 @@ class BaseStrategy{
         this.Symbol_KBarListDic={};
         this.KBarMillSecondInterval=undefined;
 
-        this.KBarId_TickListDic={};
+        this.Symbol_KBarId_TickListDic={};
 
         if(this.KBarType!=undefined && this.KBarInterval!=undefined)
         {

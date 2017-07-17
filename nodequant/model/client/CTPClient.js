@@ -822,11 +822,17 @@ class ctpTdClient{
             });
         }else
         {
-            //如果交易客户端是Connected,说明交易前置没问题
-            ctpTdClient.ctpClient.OnInfo("Trader Font have connected. --> Then Login");
+            if(ctpTdClient.isLogined)
+            {
+                ctpTdClient.ctpClient.OnInfo("Trader Font have connected. -->And Have Logined");
+                global.AppEventEmitter.emit(EVENT.OnReceivedAllContract,ctpTdClient.ctpClient.ClientName);
+            }else
+            {
+                //如果交易客户端是Connected,说明交易前置没问题
+                ctpTdClient.ctpClient.OnInfo("Trader Font have connected. -->Not Login, Then Login");
 
-            ctpTdClient.login();
-
+                ctpTdClient.login();
+            }
         }
     }
 
