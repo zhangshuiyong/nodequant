@@ -48,3 +48,7 @@ npm install
 12. 点击调试运行。看到运行调试信息，运行成功。打印出log：“Demo策略启动成功 ”等log,说明样例策略启动成功。这个空策略的配置在userConfig.js用户配置文件中的StrategyConfig中
 ![image](http://i1.buimg.com/1949/4536d5524e146b29.png)
 
+## 教程
+
+1. [了解NodeQuant的整体框架](http://note.youdao.com/noteshare?id=5566eda4c7b6de424690b62080addccf)
+
