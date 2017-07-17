@@ -420,9 +420,6 @@ class ctpClient{
     }
 
     OnTick(tick) {
-        let message=tick.symbol+" Tick: date"+tick.date+",time:"+tick.time+",lastPrice:"+tick.lastPrice;
-        let log=new NodeQuantLog(this.ClientName,LogType.INFO,new Date().toLocaleString(),message);
-        global.AppEventEmitter.emit(EVENT.OnLog,log);
         global.AppEventEmitter.emit(EVENT.OnTick,tick);
     }
 
