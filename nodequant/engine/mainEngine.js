@@ -69,7 +69,7 @@ function _registerEvent(myEngine) {
                 myEngine.ReStart();
             }
         }
-    },10*1000);
+    },5*60*1000);
 
 
     global.AppEventEmitter.on(EVENT.OnReceivedAllContract,function (clientName) {
