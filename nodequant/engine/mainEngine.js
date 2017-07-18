@@ -203,10 +203,12 @@ class MainEngine{
         if(false==_isTimeToWork())
             return;
 
+
+        let log=new NodeQuantLog("MainEngine",LogType.INFO,new Date().toLocaleString(),"MainEngine Start");
+        global.AppEventEmitter.emit(EVENT.OnLog,log);
+
         //重置主引擎变量
         this.Reset();
-
-
 
         //连接所有客户端
         this.ConnectAllClient();
@@ -225,17 +227,19 @@ class MainEngine{
 
     ReStart() {
 
+        let log=new NodeQuantLog("MainEngine",LogType.INFO,new Date().toLocaleString(),"MainEngine ReStart");
+        global.AppEventEmitter.emit(EVENT.OnLog,log);
+
         //重置主引擎变量
         this.Reset();
 
-        // 1.连接Clients
+        //连接Clients
         this.ConnectAllClient();
-
-        // 2.启动策略 (会订阅合约)
 
     }
 
     Stop() {
+
         //1.停止策略引擎
         global.Application.StrategyEngine.Stop();
 
@@ -247,6 +251,9 @@ class MainEngine{
 
         //设置主引擎停止工作标志
         this.isWorking = false;
+
+        let log=new NodeQuantLog("MainEngine",LogType.INFO,new Date().toLocaleString(),"MainEngine Stop");
+        global.AppEventEmitter.emit(EVENT.OnLog,log);
     }
 
     RecordLog(log){

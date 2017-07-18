@@ -120,6 +120,9 @@ function _registerEvent(myEngine) {
 
 
     global.AppEventEmitter.on(EVENT.OnCreateStrategyFailed,function (strategyName) {
+        let error=new NodeQuantError("StrategyEngine",ErrorType.StrategyError,new Date().toLocaleString(),strategyName+"策略运行环境出错");
+        global.AppEventEmitter.emit(EVENT.OnError,error);
+
         myEngine.StopStrategy(strategyName);
     });
 
@@ -225,6 +228,10 @@ class StrategyEngine {
     ////////////////////////////////////////////////////////////// Public Method //////////////////////////////////////////////////////////
 
     Start() {
+
+        let log=new NodeQuantLog("StrategyEngine",LogType.INFO,new Date().toLocaleString(),"StrategyEngine Start");
+        global.AppEventEmitter.emit(EVENT.OnLog,log);
+
         //启动
         let strategyConfigs = StrategyConfig.Strategys;
         for (let index in strategyConfigs) {
@@ -233,10 +240,10 @@ class StrategyEngine {
         }
 
         this.IsWorking=true;
+
     }
 
     Stop(){
-        //策略引擎停止
 
         //1.停止所有策略
         for(let strategyName in this.StrategyDic)
@@ -254,10 +261,13 @@ class StrategyEngine {
 
         }
 
-        //3.清空事件推送策略列表
+        //3.清空策略列表
         this.StrategyDic={};
 
         this.IsWorking=false;
+
+        let log=new NodeQuantLog("StrategyEngine",LogType.INFO,new Date().toLocaleString(),"StrategyEngine Stop");
+        global.AppEventEmitter.emit(EVENT.OnLog,log);
     }
 
     StartStrategy(strategyConfig) {
@@ -360,6 +370,9 @@ class StrategyEngine {
     StopStrategy(strategyName) {
         //停止策略,策略引擎的order,trade,tick都不会推送
         delete this.StrategyDic[strategyName];
+
+        let log=new NodeQuantLog("StrategyEngine",LogType.INFO,new Date().toLocaleString(),strategyName+"停止策略");
+        global.AppEventEmitter.emit(EVENT.OnLog,log);
     }
 
     SendLimitOrder(strategy, contractName, direction, openclose, volume, limitPrice) {
