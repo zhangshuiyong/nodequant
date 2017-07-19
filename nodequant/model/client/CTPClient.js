@@ -586,7 +586,7 @@ class ctpMdClient{
                 ctpMdClient.ctpClient.OnError(error);
             }
 
-            global.AppEventEmitter.emit(EVENT.OnSubscribeContract,contractName,err);
+            global.AppEventEmitter.emit(EVENT.OnSubscribeContract,contractName,ctpMdClient.ctpClient.ClientName,err);
         });
 
         ctpMdClient.ctpMdApi.on("RtnDepthMarketData",function (marketData) {

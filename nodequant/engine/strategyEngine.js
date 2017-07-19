@@ -160,7 +160,7 @@ function _registerEvent(myEngine) {
             //推送到下单策略
             strategy.OnOrder(order);
 
-            //记录策略的所有Order,文件?
+            //记录策略的所有Order
             let orderDic=myEngine.StrategyName_OrderDic[strategy.name];
             if(orderDic==undefined)
             {
@@ -183,7 +183,7 @@ function _registerEvent(myEngine) {
         {
             strategy.OnTrade(trade);
 
-            //记录策略的所有成交,文件?
+            //记录策略的所有成交
             let tradeDic=myEngine.StrategyName_TradeDic[strategy.name];
             if(tradeDic==undefined)
             {

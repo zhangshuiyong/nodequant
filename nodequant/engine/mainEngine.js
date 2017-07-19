@@ -128,7 +128,7 @@ function _registerEvent(myEngine) {
     });
 
     //绑定事件多次,会有多次回调
-    global.AppEventEmitter.on(EVENT.OnSubscribeContract,function (contractName,error) {
+    global.AppEventEmitter.on(EVENT.OnSubscribeContract,function (contractName,clientName,error) {
         let message="Subscribe "+contractName+",errorID:"+error.ErrorID+",errorMsg:"+error.Message;
         let log=new NodeQuantLog("MainEngine",LogType.INFO,new Date().toLocaleString(),message);
 
