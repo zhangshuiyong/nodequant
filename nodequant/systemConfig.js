@@ -285,7 +285,7 @@ FuturesConfig={CTP:{
         PMOpen:"13:30:00",
         PMClose:"15:00:00"
     },
-    i:{
+    I:{
         name:"铁矿石",
         exchange:"DCE",
         AMOpen:"9:00:00",

@@ -55,6 +55,12 @@ class ctpClient{
         this.mdClient.connect();
     }
 
+    GetTradingDay()
+    {
+        let tradingDay=this.mdClient.getTradingDay();
+        return tradingDay;
+    }
+
     //订阅合约
     Subscribe(contractName) {
         this.mdClient.subscribe(contractName);
@@ -917,6 +923,8 @@ class ctpTdClient{
             contract.symbol = instrument.InstrumentID;
             contract.exchange = instrument.ExchangeID;
             contract.name =instrument.InstrumentName;
+            //合约的所属期货名字
+            contract.futureName=instrument.ProductID;
 
             //合约数值
             contract.size = instrument.VolumeMultiple;

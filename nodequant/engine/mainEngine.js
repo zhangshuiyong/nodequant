@@ -117,6 +117,7 @@ function _registerEvent(myEngine) {
 
     global.AppEventEmitter.on(EVENT.OnContract,function (contract) {
         myEngine.contractDic[contract.symbol]=contract;
+
     });
 
     global.AppEventEmitter.on(EVENT.OnDisconnected,function (clientName) {
@@ -129,7 +130,15 @@ function _registerEvent(myEngine) {
 
     //绑定事件多次,会有多次回调
     global.AppEventEmitter.on(EVENT.OnSubscribeContract,function (contractName,clientName,error) {
-        let message="Subscribe "+contractName+",errorID:"+error.ErrorID+",errorMsg:"+error.Message;
+        let message="";
+        if(error.ErrorID!=0)
+        {
+            message="Subscribe "+contractName+" Error,errorID:"+error.ErrorID+",errorMsg:"+error.Message;
+        }else
+        {
+            message="Subscribe "+contractName+",Successful";
+        }
+
         let log=new NodeQuantLog("MainEngine",LogType.INFO,new Date().toLocaleString(),message);
 
         global.AppEventEmitter.emit(EVENT.OnLog,log);
@@ -177,6 +186,8 @@ class MainEngine{
 
         this.clientDic = {};
 
+        this.contractDic={};
+
         for(let clientName in ClientConfig)
         {
             if(SystemConfig.SupportClients[clientName]!=undefined)
@@ -216,11 +227,12 @@ class MainEngine{
 
     Reset()
     {
-        //停止需要重新设置
+        //重置开关
         this.isWorking = true;
-        //停止策略
+        //重置合约字典
         this.contractDic={};
-        //每个行为的function中的变量都是最新的,EventEmitter.on函数会保存旧的函数与函数中的变量
+
+        //重置发送请求回调字典
         this.FinishSendRequestCallBackDic={};
     }
 
