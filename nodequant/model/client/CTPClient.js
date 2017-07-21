@@ -574,7 +574,7 @@ class ctpMdClient{
 
             ctpMdClient.ctpClient.OnError(error);
 
-            global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.Subscribe,ctpMdClient.ctpClient.ClientName,-99);
+            global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.Subscribe,contractName,ctpMdClient.ctpClient.ClientName,-99);
 
             return;
         }
@@ -676,8 +676,7 @@ class ctpMdClient{
         });
 
         ctpMdClient.ctpMdApi.subscribeMarketData(contractName,function (ret) {
-            ctpMdClient.ctpClient.OnInfo("Market Front Subscribe "+contractName+" Request sended. Return:"+ret);
-            global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.Subscribe,ctpMdClient.ctpClient.ClientName,ret);
+            global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.Subscribe,contractName,ctpMdClient.ctpClient.ClientName,ret);
         });
 
     }

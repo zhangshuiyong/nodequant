@@ -12,7 +12,7 @@ router.get('/', function(req, res, next) {
 
     var SubscribeReq = URL.parse(req.url, true).query;
     var contractName=SubscribeReq.contractName;
-    global.Application.MainEngine.Subscribe("CTP",contractName,function (clientName,ret) {
+    global.Application.MainEngine.Subscribe("CTP",contractName,function (contractName,clientName,ret) {
 
         if(ret==-99)
             res.render('index', { title: clientName+' Subscribe Failed.Error: Trader client have not logined' });

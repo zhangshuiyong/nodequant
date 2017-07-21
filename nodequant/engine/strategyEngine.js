@@ -327,7 +327,7 @@ class StrategyEngine {
                     let log=new NodeQuantLog(strategyConfig.name,LogType.INFO,message);
                     global.AppEventEmitter.emit(EVENT.OnLog, log);
 
-                    global.Application.MainEngine.Subscribe(contract.clientName, symbol, function (clientName, ret) {
+                    global.Application.MainEngine.Subscribe(contract.clientName, symbol, function (contractName,clientName, ret) {
                         if (ret != 0) {
 
                             let message = strategyName + "在" + clientName + "客户端订阅" + symbol + "请求发送失败,错误码：" + ret;
@@ -345,10 +345,10 @@ class StrategyEngine {
         for (let symbol in strategySymbolDic) {
             let contract = global.Application.MainEngine.GetContract(symbol);
             if (contract != undefined) {
-                global.Application.MainEngine.Subscribe(contract.clientName, symbol, function (clientName, ret) {
+                global.Application.MainEngine.Subscribe(contract.clientName, symbol, function (contractName,clientName, ret) {
                     if (ret != 0) {
 
-                        let message=strategyName + "在" + clientName + "客户端订阅" + symbol + "请求发送失败,错误码：" + ret;
+                        let message=strategyName + "在" + clientName + "客户端订阅" + contractName + "请求发送失败,错误码：" + ret;
                         let error=new NodeQuantError(strategyName,ErrorType.StrategyError,message);
                         global.AppEventEmitter.emit(EVENT.OnError, error);
 
