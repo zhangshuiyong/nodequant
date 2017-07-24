@@ -3,8 +3,8 @@ require("./common");
 ClientConfig={
     CTP:{
         PowerOn:true,
-        userID:"073572",
-        password: "qq632386504",
+        userID:"888888",
+        password: "888888",
         brokerID:"9999",
         mdAddress: "tcp://218.202.237.33:10012",
         tdAddress: "tcp://218.202.237.33:10002"
