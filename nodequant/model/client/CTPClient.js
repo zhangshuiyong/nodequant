@@ -827,6 +827,8 @@ class ctpTdClient{
             if(ctpTdClient.isLogined)
             {
                 ctpTdClient.ctpClient.OnInfo("Trader Font have connected. -->And Have Logined");
+                ctpTdClient.ctpClient.OnInfo("Trade Front Have Received all contracts.");
+                ctpTdClient.ctpClient.isGetAllContract = true;
                 global.AppEventEmitter.emit(EVENT.OnReceivedAllContract,ctpTdClient.ctpClient.ClientName);
             }else
             {
@@ -1206,7 +1208,7 @@ class ctpTdClient{
             //价格、报单量等数值
             trade.price = tradeInfo.Price;
             trade.volume = tradeInfo.Volume;
-            trade.tradeDay=tradeInfo.TradingDay;
+            trade.tradingDay=tradeInfo.TradingDay;
             trade.tradeTime = tradeInfo.TradeTime;
 
             //自定义 Trade属性
