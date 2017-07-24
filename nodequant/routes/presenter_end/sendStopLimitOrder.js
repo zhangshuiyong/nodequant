@@ -58,11 +58,11 @@ router.get('/', function(req, res, next) {
      else
      res.render('index', { title: 'SendStopLimitOrder successfully'});
      });*/
-    let FiveMAStrategy=global.Application.StrategyEngine.GetStrategy("FiveMA");
-    if(FiveMAStrategy)
+    let DemoStrategy=global.Application.StrategyEngine.GetStrategy("Demo");
+    if(DemoStrategy)
     {
         let lastTick = global.Application.StrategyEngine.Symbol_LastTickDic[contractName];
-        FiveMAStrategy.SendOrder(contractName,limitPrice,volume,direction,openclose,OrderType.Condition,undefined,stopPriceCondition,stopPrice);
+        DemoStrategy.SendOrder(contractName,limitPrice,volume,direction,openclose,OrderType.Condition,undefined,stopPriceCondition,stopPrice);
     }
 
     res.render('index', { title: 'FiveMAStrategy Send Stop Limit Order'});

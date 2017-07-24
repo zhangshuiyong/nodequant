@@ -39,10 +39,10 @@ router.get('/', function(req, res, next) {
      res.render('index', { title: 'SendFillAndKillLimitOrder successfully'});
      });*/
 
-    let FiveMAStrategy=global.Application.StrategyEngine.GetStrategy("FiveMA");
-    if(FiveMAStrategy)
+    let DemoStrategy=global.Application.StrategyEngine.GetStrategy("Demo");
+    if(DemoStrategy)
     {
-        FiveMAStrategy.SendOrder(contractName,limitPrice,volume,direction,openclose,OrderType.FAK);
+        DemoStrategy.SendOrder(contractName,limitPrice,volume,direction,openclose,OrderType.FAK);
     }
 
     res.render('index', { title: 'FiveMAStrategy Send FAK Order'});

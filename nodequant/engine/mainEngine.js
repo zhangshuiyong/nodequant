@@ -104,13 +104,10 @@ function _registerEvent(myEngine) {
 
         //所有配置的客户端，启动策略引擎
 
-        if(StrategyEngineConfig.PowerOn)
+        if(global.Application.StrategyEngine.IsWorking==false)
         {
-            if(global.Application.StrategyEngine.IsWorking==false)
-            {
-                //没有启动过,但是所有客户端已经连接成功,策略引擎启动过，策略启动过
-                global.Application.StrategyEngine.Start();
-            }
+            //没有启动过,但是所有客户端已经连接成功,策略引擎启动过，策略启动过
+            global.Application.StrategyEngine.Start();
         }
 
     });
@@ -152,7 +149,7 @@ function _registerEvent(myEngine) {
         global.AppEventEmitter.emit(EVENT.OnLog,log);
     });
 
-    global.AppEventEmitter.on(EVENT.FinishSendRequest,function (requestType,clientName,ret) {
+    global.AppEventEmitter.on(EVENT.FinishSendRequest,function (requestType,clientName,ret,contractName) {
         //界面类绑定事件
         //绑定事件多次，res会是多次的变量，会抛出异常
         //如果请求函数没有写回调，就不会调用！
@@ -161,7 +158,7 @@ function _registerEvent(myEngine) {
         //2.global.Application.MainEngine.Connect("CTP"); //不需要处理请求发送完成
 
         if(myEngine.FinishSendRequestCallBackDic[requestType]!=undefined)
-            myEngine.FinishSendRequestCallBackDic[requestType](clientName,ret);
+            myEngine.FinishSendRequestCallBackDic[requestType](clientName,ret,contractName);
     });
 
     global.AppEventEmitter.on(EVENT.OnError,function (error) {
@@ -195,7 +192,7 @@ class MainEngine{
                 switch(clientName)
                 {
                     case "CTP":
-                        if(ClientConfig[clientName].isPowerOn)
+                        if(ClientConfig[clientName].PowerOn)
                         {
                             this.clientDic[clientName] = new CtpClient();
                         }
@@ -213,7 +210,6 @@ class MainEngine{
 
         if(false==_isTimeToWork())
             return;
-
 
         let log=new NodeQuantLog("MainEngine",LogType.INFO,new Date().toLocaleString(),"MainEngine Start");
         global.AppEventEmitter.emit(EVENT.OnLog,log);

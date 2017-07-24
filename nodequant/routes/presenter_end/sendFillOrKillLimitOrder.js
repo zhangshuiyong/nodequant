@@ -39,8 +39,8 @@ router.get('/', function(req, res, next) {
      res.render('index', { title: 'SendFillOrKillLimitOrder successfully'});
      });*/
 
-    let FiveMAStrategy=global.Application.StrategyEngine.GetStrategy("FiveMA");
-    if(FiveMAStrategy)
+    let DemoStrategy=global.Application.StrategyEngine.GetStrategy("Demo");
+    if(DemoStrategy)
     {
         FiveMAStrategy.SendOrder(contractName,limitPrice,volume,direction,openclose,OrderType.FOK);
     }

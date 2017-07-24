@@ -574,7 +574,7 @@ class ctpMdClient{
 
             ctpMdClient.ctpClient.OnError(error);
 
-            global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.Subscribe,contractName,ctpMdClient.ctpClient.ClientName,-99);
+            global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.Subscribe,ctpMdClient.ctpClient.ClientName,-99,contractName);
 
             return;
         }
@@ -676,7 +676,7 @@ class ctpMdClient{
         });
 
         ctpMdClient.ctpMdApi.subscribeMarketData(contractName,function (ret) {
-            global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.Subscribe,contractName,ctpMdClient.ctpClient.ClientName,ret);
+            global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.Subscribe,ctpMdClient.ctpClient.ClientName,ret,contractName);
         });
 
     }
@@ -1244,10 +1244,13 @@ class ctpTdClient{
 
 
         ctpTdClient.ctpTdApi.sendOrder(sendOrderReq,function (ret) {
-            if(ret==0)
-                finishCallBack(ctpTdClient.orderRefID);
-            else
+            if(ret>=0)
+            {
+                finishCallBack(ret);
+            }
+            else{
                 finishCallBack(-99);
+            }
         });
 
     }

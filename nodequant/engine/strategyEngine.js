@@ -16,10 +16,14 @@ class Position{
         this.symbol="";
 
         this.longPosition = 0;
+        //多仓均价
+        this.longPositionAveragePrice=0;
         this.longTdPosition = 0;
         this.longYdPosition = 0;
 
         this.shortPosition = 0;
+        //空仓均价
+        this.shortPositionAveragePrice = 0;
         this.shortTdPosition = 0;
         this.shortYdPosition = 0;
     }
@@ -31,11 +35,21 @@ class Position{
             //多方开仓，则对应多头的持仓和今仓增加
             if(trade.offset == OpenCloseFlagType.Open)
             {
+                this.longPositionAveragePrice = (this.longPosition*this.longPositionAveragePrice+ trade.volume*trade.price)/(this.longPosition+trade.volume);
                 this.longPosition += trade.volume;
                 this.longTdPosition += trade.volume;
             }else if(trade.offset == OpenCloseFlagType.CloseToday){
                 //买入平今，对应空头的持仓和今仓减少
                 if(this.shortPosition>0) {
+                    let restShortPosition = this.shortPosition - trade.volume;
+                    //还剩下仓位,就要改变平均持仓价
+                    if(restShortPosition>0)
+                    {
+                        this.shortPositionAveragePrice = (this.shortPosition * this.shortPositionAveragePrice - trade.volume * trade.price)/restShortPosition;
+                    }else{
+                        this.shortPositionAveragePrice = 0;
+                    }
+
                     this.shortPosition -= trade.volume;
                 }
 
@@ -47,6 +61,15 @@ class Position{
             {
                 //买入平昨，对应空头的持仓和昨仓减少
                 if(this.shortPosition>0){
+                    let restShortPosition = this.shortPosition - trade.volume;
+                    //还剩下仓位,就要改变平均持仓价
+                    if(restShortPosition>0)
+                    {
+                        this.shortPositionAveragePrice = (this.shortPosition * this.shortPositionAveragePrice - trade.volume * trade.price)/restShortPosition;
+                    }else{
+                        this.shortPositionAveragePrice = 0;
+                    }
+
                     this.shortPosition -= trade.volume;
                 }
 
@@ -58,6 +81,16 @@ class Position{
             {
                 //买入平仓,默认先平昨天空仓,再平今空仓
                 if(this.shortPosition>0){
+
+                    let restShortPosition = this.shortPosition - trade.volume;
+                    //还剩下仓位,就要改变平均持仓价
+                    if(restShortPosition>0)
+                    {
+                        this.shortPositionAveragePrice = (this.shortPosition * this.shortPositionAveragePrice - trade.volume * trade.price)/restShortPosition;
+                    }else{
+                        this.shortPositionAveragePrice = 0;
+                    }
+
                     this.shortPosition -= trade.volume;
                 }
 
@@ -73,12 +106,25 @@ class Position{
            // 空头,和多头相同
             if(trade.offset == OpenCloseFlagType.Open){
                 //卖出开仓
+                //计算开仓均价
+                this.shortPositionAveragePrice = (this.shortPosition*this.shortPositionAveragePrice+ trade.volume*trade.price)/(this.shortPosition+trade.volume);
+
                 this.shortPosition += trade.volume;
                 this.shortTdPosition += trade.volume;
             }else if(trade.offset == OpenCloseFlagType.CloseToday)
             {
                 //卖出平今
                 if(this.longPosition){
+
+                    let restLongPosition = this.longPosition - trade.volume;
+                    //还剩下仓位,就要改变平均持仓价
+                    if(restLongPosition>0)
+                    {
+                        this.longPositionAveragePrice = (this.longPosition * this.longPositionAveragePrice - trade.volume * trade.price)/restLongPosition;
+                    }else{
+                        this.longPositionAveragePrice = 0;
+                    }
+
                     this.longPosition -= trade.volume;
                 }
 
@@ -88,6 +134,16 @@ class Position{
             }else if(trade.offset == OpenCloseFlagType.CloseYesterday){
                 //卖出平昨
                 if(this.longPosition>0){
+
+                    let restLongPosition = this.longPosition - trade.volume;
+                    //还剩下仓位,就要改变平均持仓价
+                    if(restLongPosition>0)
+                    {
+                        this.longPositionAveragePrice = (this.longPosition * this.longPositionAveragePrice - trade.volume * trade.price)/restLongPosition;
+                    }else{
+                        this.longPositionAveragePrice = 0;
+                    }
+
                     this.longPosition -= trade.volume;
                 }
 
@@ -98,6 +154,16 @@ class Position{
                 //卖出平仓,默认先平昨天多仓,再平今多仓
                 if(this.longPosition>0)
                 {
+
+                    let restLongPosition = this.longPosition - trade.volume;
+                    //还剩下仓位,就要改变平均持仓价
+                    if(restLongPosition>0)
+                    {
+                        this.longPositionAveragePrice = (this.longPosition * this.longPositionAveragePrice - trade.volume * trade.price)/restLongPosition;
+                    }else{
+                        this.longPositionAveragePrice = 0;
+                    }
+
                     this.longPosition -= trade.volume;
                 }
 
@@ -291,7 +357,7 @@ class StrategyEngine {
 
     CreateStrategy(strategyConfig) {
         let strategyInstance = undefined;
-        let strategyClassPath = StrategyConfig.StrategyDir + strategyConfig.className;
+        let strategyClassPath = __dirname+"/../strategy/" + strategyConfig.className;
 
         try {
             let StrategyClass = require(strategyClassPath);
@@ -327,11 +393,12 @@ class StrategyEngine {
                     let log=new NodeQuantLog(strategyConfig.name,LogType.INFO,message);
                     global.AppEventEmitter.emit(EVENT.OnLog, log);
 
-                    global.Application.MainEngine.Subscribe(contract.clientName, symbol, function (contractName,clientName, ret) {
+                    global.Application.MainEngine.Subscribe(contract.clientName, symbol, function (clientName,ret,contractName) {
+                        
                         if (ret != 0) {
 
-                            let message = strategyName + "在" + clientName + "客户端订阅" + symbol + "请求发送失败,错误码：" + ret;
-                            let error = new NodeQuantError(strategyName, ErrorType.StrategyError, message);
+                            let message = strategyConfig.name + "在" + clientName + "客户端订阅" + symbol + "请求发送失败,错误码：" + ret;
+                            let error = new NodeQuantError(strategyConfig.name, ErrorType.StrategyError, message);
                             global.AppEventEmitter.emit(EVENT.OnError, error);
 
                         }
@@ -345,7 +412,7 @@ class StrategyEngine {
         for (let symbol in strategySymbolDic) {
             let contract = global.Application.MainEngine.GetContract(symbol);
             if (contract != undefined) {
-                global.Application.MainEngine.Subscribe(contract.clientName, symbol, function (contractName,clientName, ret) {
+                global.Application.MainEngine.Subscribe(contract.clientName, symbol, function (clientName,ret,contractName) {
                     if (ret != 0) {
 
                         let message=strategyName + "在" + clientName + "客户端订阅" + contractName + "请求发送失败,错误码：" + ret;
@@ -495,23 +562,45 @@ class StrategyEngine {
     SettleCommission(feeInfo,tradeRecord)
     {
         let symbolFee=0;
-        //确定费率
-        if(tradeRecord.offset==OpenCloseFlagType.CloseToday)
+        let tradeRecordCommission = 0 ;
+
+        if(feeInfo!=undefined)
         {
-            symbolFee=feeInfo.closeTodayFee;
+            //确定费率
+            if(tradeRecord.offset==OpenCloseFlagType.CloseToday)
+            {
+                symbolFee = feeInfo.closeTodayFee;
+            }else
+            {
+                symbolFee = feeInfo.fee;
+            }
+
+            //是否有设置fee,closeTodayFee字段
+
+            if(symbolFee!=undefined)
+            {
+                //确定手续费计算方法
+                if(feeInfo.feeType==FeeType.TradeAmount)
+                {
+                    let contract=global.Application.MainEngine.GetContract(tradeRecord.symbol);
+                    tradeRecordCommission= symbolFee * tradeRecord.volume * tradeRecord.price * contract.size;
+                }else if(feeInfo.feeType==FeeType.TradeVolume){
+                    tradeRecordCommission = symbolFee * tradeRecord.volume;
+                }else
+                {
+
+                    let log=new NodeQuantLog("StrategyEngine",LogType.INFO,new Date().toLocaleString(),"无法正确计算交易记录的手续费,策略没有正确设置feeType字段");
+                    global.AppEventEmitter.emit(EVENT.OnLog,log);
+                }
+            }else
+            {
+                let log=new NodeQuantLog("StrategyEngine",LogType.INFO,new Date().toLocaleString(),"无法正确计算交易记录的手续费,策略没有设置fee,closeTodayFee字段");
+                global.AppEventEmitter.emit(EVENT.OnLog,log);
+            }
         }else
         {
-            symbolFee=feeInfo.fee;
-        }
-
-        let tradeRecordCommission = undefined ;
-        //确定手续费计算方法
-        if(feeInfo.feeType==FeeType.TradeAmount)
-        {
-            let contract=global.Application.MainEngine.GetContract(tradeRecord.symbol);
-            tradeRecordCommission= symbolFee * tradeRecord.volume * tradeRecord.price * contract.size;
-        }else if(feeInfo.feeType==FeeType.TradeVolume){
-            tradeRecordCommission = symbolFee * tradeRecord.volume ;
+            let log=new NodeQuantLog("StrategyEngine",LogType.INFO,new Date().toLocaleString(),"无法正确计算交易记录的手续费,策略没有"+tradeRecord.symbol+"品种的手续费信息");
+            global.AppEventEmitter.emit(EVENT.OnLog,log);
         }
 
         return tradeRecordCommission;
@@ -538,9 +627,16 @@ class StrategyEngine {
         let contract=global.Application.MainEngine.GetContract(symbol_position.symbol);
 
         let symbol_lastTick= this.Symbol_LastTickDic[symbol_position.symbol];
-
-        let currentTradingDay_Exit_Symbol_PositionValue = symbol_position.longPosition * symbol_lastTick.lastPrice * contract.size;
-        currentTradingDay_Exit_Symbol_PositionValue -= symbol_position.shortPosition * symbol_lastTick.lastPrice * contract.size;
+        let currentTradingDay_Exit_Symbol_PositionValue = 0;
+        if(symbol_lastTick!=undefined)
+        {
+            currentTradingDay_Exit_Symbol_PositionValue = symbol_position.longPosition * symbol_lastTick.lastPrice * contract.size;
+            currentTradingDay_Exit_Symbol_PositionValue -= symbol_position.shortPosition * symbol_lastTick.lastPrice * contract.size;
+        }else
+        {
+            let log=new NodeQuantLog("StrategyEngine",LogType.INFO,new Date().toLocaleString(),"无法正确计算当前品种持仓价值,策略没有订阅"+symbol_position.symbol+"品种,却有持仓");
+            global.AppEventEmitter.emit(EVENT.OnLog,log);
+        }
 
         return currentTradingDay_Exit_Symbol_PositionValue;
     }

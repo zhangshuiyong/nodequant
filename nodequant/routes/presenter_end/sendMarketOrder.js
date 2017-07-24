@@ -39,11 +39,11 @@ router.get('/', function(req, res, next) {
      res.render('index', { title: 'sendMarketOrder successfully'});
      });
      */
-    let FiveMAStrategy=global.Application.StrategyEngine.GetStrategy("FiveMA");
-    if(FiveMAStrategy)
+    let DemoStrategy=global.Application.StrategyEngine.GetStrategy("Demo");
+    if(DemoStrategy)
     {
         let lastTick = global.Application.StrategyEngine.Symbol_LastTickDic[contractName];
-        FiveMAStrategy.SendOrder(contractName,undefined,volume,direction,openclose,OrderType.Market,lastTick);
+        DemoStrategy.SendOrder(contractName,undefined,volume,direction,openclose,OrderType.Market,lastTick);
     }
 
     res.render('index', { title: 'FiveMAStrategy Send Market Order'});
