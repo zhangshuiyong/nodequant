@@ -273,7 +273,7 @@ class Position {
         }
         return longPositionAveragePrice;
     }
-    
+
     //获取 空仓 持仓 均价
     GetShortPositionAveragePrice()
     {
@@ -281,7 +281,7 @@ class Position {
         let shortPositionSumVolume=0;
         for(let index in this.shortPositionTradeRecordList)
         {
-            let tradeRecord=this.longPositionTradeRecordList[index];
+            let tradeRecord=this.shortPositionTradeRecordList[index];
             shortPositionSumVolume += tradeRecord.volume;
             shortPositionSumAmount += tradeRecord.price*tradeRecord.volume;
         }
@@ -386,10 +386,10 @@ class Position {
     /// 获取合约的 昨 锁仓 数量
     /// </summary>
     /// <returns>昨 锁仓 数量</returns>
-    GetLockedYesterdayPosition(symbol)
+    GetLockedYesterdayPosition()
     {
-        let longYdPosition = this.GetLongTodayPosition();
-        let shortYdPosition = this.GetShortTodayPosition();
+        let longYdPosition = this.GetLongYesterdayPosition();
+        let shortYdPosition = this.GetShortYesterdayPosition();
 
         let ydLockedPostion=Math.min(longYdPosition,shortYdPosition);
 
@@ -400,7 +400,7 @@ class Position {
     /// 获取合约的 昨 非锁 多仓
     /// </summary>
     /// <returns>昨 非锁 多仓 数量</returns>
-    GetUnLockLongYesterdayPosition(symbol)
+    GetUnLockLongYesterdayPosition()
     {
         let unLockLongYesterdayPosition = 0;
 
@@ -419,7 +419,7 @@ class Position {
     /// 获取合约的 昨 非锁 空仓 数量
     /// </summary>
     /// <returns>昨 非锁 空仓 数量</returns>
-    GetUnLockShortYesterdayPosition(symbol)
+    GetUnLockShortYesterdayPosition()
     {
         let unLockShortYesterdayPosition = 0;
 
