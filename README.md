@@ -10,7 +10,7 @@
 - 一个账号 —— 多策略，支持一个账号多个策略的量化产品模式
 - 一个策略 —— 多合约，支持套利
 - 一个策略 —— 多市场，支持跨市场交易、套利
-- 多个市场 —— NodeQuant 未来将会全部集成上期CTP、飞鼠Sgit 、富途证券、盈透证券IB的程序化API交易客户端，未来可在多市场中交易和套利。**目前已经集成上期CTP的API客户端**
+- 多个市场 —— NodeQuant 未来将会全部集成CTP、飞鼠Sgit 、富途证券、盈透证券IB的程序化API交易客户端，未来可在多市场中交易和套利。**目前已经集成上期CTP的API客户端**
 - 上期CTP  —— 中金所、上期所、大商所、郑商所的商品期货、期权合约
 - 飞鼠Sgit —— 期货、上海黄金交易所的贵金属现货
 - 富途证券 —— 港股、美股、A股
@@ -44,10 +44,11 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 
 8. 下载WebStorm集成开发软件——[到WebStorm官网下载Windows版本](http://www.jetbrains.com/webstorm/)
 9. WebStorm打开NodeQuant项目,在Settings中设置使用Es6语法。 ![image](http://i2.kiimg.com/1949/c8ce699f9931f362.png)
-10. WebStorm添加一个Node.js的运行和调试环境。点击Edit Configurations->点击+号按钮添加Node.js环境![image](http://i1.buimg.com/1949/c9b638912962296f.png)
-11. 配置运行和调试环境，nodequant文件夹为工作目录，bin文件夹的www文件为项目的启动文件![image](http://i2.kiimg.com/1949/e5fee1112eec9505.png)
-12. 在NodeQuant项目根目录中，userConfig.js文件中ClientConfig项中配置自己的期货账号，密码，行情地址，交易地址![image](http://i2.kiimg.com/1949/8ec64b786a491c98.png)
-13. 点击调试运行。看到运行调试信息，运行成功。打印出log：“Demo策略启动成功 ”等log,说明样例策略启动成功。这个空策略的配置在userConfig.js用户配置文件中的StrategyConfig中
+10. 在WebStorm中打开Node.js的代码提示功能，可以在编写代码的时候自动提示对象的函数，属性等名字，更方便编写Node.js程序。在WebStorm的Settings -> Languages & Frameworks -> Node.js and NPM -> Node.js Core library is not enabled -> 点击Enable，就启用了Node.js的代码提示功能了。![image](http://i2.kiimg.com/1949/9762caca3f7503f6.png)
+11. WebStorm添加一个Node.js的运行和调试环境。点击Edit Configurations->点击+号按钮添加Node.js环境![image](http://i1.buimg.com/1949/c9b638912962296f.png)
+12. 配置运行和调试环境，nodequant文件夹为工作目录，bin文件夹的www文件为项目的启动文件![image](http://i2.kiimg.com/1949/e5fee1112eec9505.png)
+13. 在NodeQuant项目根目录中，userConfig.js文件中ClientConfig项中配置自己的期货账号，密码，行情地址，交易地址![image](http://i2.kiimg.com/1949/8ec64b786a491c98.png)
+14. 点击调试运行。看到运行调试信息，运行成功。打印出log：“Demo策略启动成功 ”等log,说明样例策略启动成功。这个空策略的配置在userConfig.js用户配置文件中的StrategyConfig中
 ![image](http://i1.buimg.com/1949/4536d5524e146b29.png)
 ## NodeQuant的整体架构
 
