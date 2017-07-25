@@ -103,6 +103,18 @@ function _createClosedBar(myStrategy,barId,tick) {
     }
 }
 
+/// <summary>
+/// 对期货价格进行整理。如果价格不是最小单位的整数倍,则调整为最小价格的整数倍。
+/// </summary>
+/// <param name="price">原下单价格</param>
+/// <param name="priceTick">每跳价格</param>
+/// <returns name="trimPrice">price相对priceTick进行下舍入的价格</returns>
+function _trimPriceByPriceTick(price,priceTick){
+    let tickTime=price/priceTick;
+    let trimPrice=tickTime*priceTick;
+    return trimPrice;
+}
+
 class BaseStrategy{
     constructor(strategyConfig){
         this.name=strategyConfig.name;
@@ -185,9 +197,6 @@ class BaseStrategy{
         let position = global.Application.StrategyEngine.GetPosition(this.name,symbol);
         return position;
     }
-
-
-
 
     /// <summary>
     /// 下单接口
@@ -361,7 +370,7 @@ class BaseStrategy{
         let contract = global.Application.MainEngine.GetContract(symbol);
         let priceTick=contract.priceTick;
 
-        let orderPrice= this.TrimPriceByPriceTick(price,priceTick);
+        let orderPrice= _trimPriceByPriceTick(price,priceTick);
 
         let worsePrice=undefined;
         if(direction==Direction.Buy)
@@ -390,7 +399,7 @@ class BaseStrategy{
         let contract = global.Application.MainEngine.GetContract(symbol);
         let priceTick=contract.priceTick;
 
-        let orderPrice= this.TrimPriceByPriceTick(price,priceTick);
+        let orderPrice= _trimPriceByPriceTick(price,priceTick);
 
         let betterPrice=undefined;
         if(direction==Direction.Buy)
@@ -400,19 +409,6 @@ class BaseStrategy{
 
         return betterPrice;
     }
-
-    /// <summary>
-    /// 对期货价格进行整理。如果价格不是最小单位的整数倍,则调整为最小价格的整数倍。
-    /// </summary>
-    /// <param name="price">原下单价格</param>
-    /// <param name="priceTick">每跳价格</param>
-    /// <returns name="trimPrice">price相对priceTick进行下舍入的价格</returns>
-    TrimPriceByPriceTick(price,priceTick){
-        let tickTime=price/priceTick;
-        let trimPrice=tickTime*priceTick;
-        return trimPrice;
-    }
-
 }
 
 module.exports=BaseStrategy;
