@@ -1174,8 +1174,10 @@ class StrategyEngine {
         let currentTradingDay_Exit_Symbol_PositionValue = 0;
         if(symbol_lastTick!=undefined)
         {
-            currentTradingDay_Exit_Symbol_PositionValue = symbol_position.longPosition * symbol_lastTick.lastPrice * contract.size;
-            currentTradingDay_Exit_Symbol_PositionValue -= symbol_position.shortPosition * symbol_lastTick.lastPrice * contract.size;
+            let longPosition = symbol_position.GetLongPosition();
+            let shortPosition = symbol_position.GetShortPosition();
+            currentTradingDay_Exit_Symbol_PositionValue =  longPosition  * symbol_lastTick.lastPrice * contract.size;
+            currentTradingDay_Exit_Symbol_PositionValue -= shortPosition * symbol_lastTick.lastPrice * contract.size;
         }else
         {
             let log=new NodeQuantLog("StrategyEngine",LogType.INFO,new Date().toLocaleString(),"无法正确计算当前品种持仓价值,策略没有订阅"+symbol_position.symbol+"品种,却有持仓");
@@ -1359,12 +1361,9 @@ class StrategyEngine {
                             //空方开仓，持仓
                             PositionDic[tradeRecord.symbol].shortPositionTradeRecordList.push(tradeRecord);
                         }
-
-
-                        db.close();
-
                     });
 
+                    db.close();
                 });
             } else {
                 throw new Error(strategyName+"策略加载Position失败，原因是打开数据库失败.");
