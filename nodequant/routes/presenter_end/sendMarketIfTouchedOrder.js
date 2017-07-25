@@ -44,7 +44,6 @@ router.get('/', function(req, res, next) {
 
     var stopPrice=parseFloat(marketIfTouchedOrderReq.stopPrice);
 
-    //this.SendMarketIfTouchedOrder = function (contractName,direction,openClose,volume,stopPrice,stopPriceCondition)
     global.Application.MainEngine.SendMarketIfTouchedOrder("CTP",contractName,direction,openclose,volume,stopPriceCondition,stopPrice,function (clientName,ret) {
 
         if(ret==-99)

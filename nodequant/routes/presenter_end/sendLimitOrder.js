@@ -29,15 +29,6 @@ router.get('/', function(req, res, next) {
 
     var limitPrice=parseFloat(limitOrderReq.limitPrice);
 
-    /*
-    global.Application.MainEngine.SendLimitOrder("CTP",contractName,direction,openclose,volume,limitPrice,function (clientName,ret) {
-        if(ret==-99)
-            res.render('index', { title: 'sendLimitOrder Failed.Error: Trader client have not logined' });
-        else if(ret!=0)
-            res.render('index', { title: 'sendLimitOrder failed, err:'+ret });
-        else
-            res.render('index', { title: 'sendLimitOrder successfully'});
-    });*/
 
     let DemoStrategy=global.Application.StrategyEngine.GetStrategy("Demo");
     if(DemoStrategy)

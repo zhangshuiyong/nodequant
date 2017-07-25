@@ -49,19 +49,10 @@ router.get('/', function(req, res, next) {
 
     var stopPrice=parseFloat(stopLimitOrderReq.stopPrice);
 
-    /*
-     global.Application.MainEngine.SendStopLimitOrder("CTP",contractName,direction,openclose,volume,limitPrice,stopPriceCondition,stopPrice,function (clientName,ret) {
-     if(ret==-99)
-     res.render('index', { title: 'SendStopLimitOrder Failed.Error: Trader client have not logined' });
-     else if(ret!=0)
-     res.render('index', { title: 'SendStopLimitOrder failed, err:'+ret });
-     else
-     res.render('index', { title: 'SendStopLimitOrder successfully'});
-     });*/
+
     let DemoStrategy=global.Application.StrategyEngine.GetStrategy("Demo");
     if(DemoStrategy)
     {
-        let lastTick = global.Application.StrategyEngine.Symbol_LastTickDic[contractName];
         DemoStrategy.SendOrder(contractName,limitPrice,volume,direction,openclose,OrderType.Condition,undefined,stopPriceCondition,stopPrice);
     }
 

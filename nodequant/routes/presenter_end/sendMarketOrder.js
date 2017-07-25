@@ -29,16 +29,6 @@ router.get('/', function(req, res, next) {
 
     var volume=parseInt(marketOrderReq.volume);
 
-    /*
-     global.Application.MainEngine.SendMarketOrder("CTP",contractName,direction,openclose,volume,function (clientName,ret) {
-     if(ret==-99)
-     res.render('index', { title: 'SendMarketOrder Failed.Error: Trader client have not logined' });
-     else if(ret!=0)
-     res.render('index', { title: 'SendMarketOrder Failed.Error: '+ret });
-     else
-     res.render('index', { title: 'sendMarketOrder successfully'});
-     });
-     */
     let DemoStrategy=global.Application.StrategyEngine.GetStrategy("Demo");
     if(DemoStrategy)
     {
