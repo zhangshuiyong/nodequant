@@ -255,6 +255,44 @@ class Position {
         return shortPosition;
     }
 
+    //获取 多仓 持仓均价
+    GetLongPostionAveragePrice()
+    {
+        let longPositionSumAmount=0;
+        let longPositionSumVolume=0;
+        for(let index in this.longPositionTradeRecordList)
+        {
+            let tradeRecord=this.longPositionTradeRecordList[index];
+            longPositionSumVolume += tradeRecord.volume;
+            longPositionSumAmount += tradeRecord.price*tradeRecord.volume;
+        }
+        let longPositionAveragePrice=0;
+        if(longPositionSumVolume!=0)
+        {
+            longPositionAveragePrice = longPositionSumAmount/longPositionSumVolume;
+        }
+        return longPositionAveragePrice;
+    }
+    
+    //获取 空仓 持仓 均价
+    GetShortPositionAveragePrice()
+    {
+        let shortPositionSumAmount=0;
+        let shortPositionSumVolume=0;
+        for(let index in this.shortPositionTradeRecordList)
+        {
+            let tradeRecord=this.longPositionTradeRecordList[index];
+            shortPositionSumVolume += tradeRecord.volume;
+            shortPositionSumAmount += tradeRecord.price*tradeRecord.volume;
+        }
+        let shortPositionAveragePrice=0;
+        if(shortPositionSumVolume!=0)
+        {
+            shortPositionAveragePrice = shortPositionSumAmount/shortPositionSumVolume;
+        }
+        return shortPositionAveragePrice;
+    }
+
 
     /// <summary>
     /// 获取合约的今天锁仓数量
@@ -446,16 +484,37 @@ class Position {
                 this.longPositionTradeRecordList.push(trade);
             } else if (trade.offset == OpenCloseFlagType.CloseToday) {
                 this.CloseBuyTodayPosition(trade);
+
+                if(trade.volume>0)
+                {
+                    let error=new NodeQuantError(trade.strategyName,ErrorType.StrategyError,trade.symbol+"的 (平今仓买入 CloseToday Buy)手数多于"+trade.strategyName+"策略的( 今空仓 )持仓手数,平了账户其他策略仓位,请检查！！！")
+                    global.AppEventEmitter.emit(EVENT.OnError,error);
+                }
+
             } else if (trade.offset == OpenCloseFlagType.CloseYesterday) {
 
                 //买入平昨，对应空头的持仓和昨仓减少
                 this.CloseBuyYesterDayPosition(trade);
+
+                if(trade.volume>0)
+                {
+                    let error=new NodeQuantError(trade.strategyName,ErrorType.StrategyError,trade.symbol+"的 (平昨仓买入 CloseYesterday Buy)手数多于"+trade.strategyName+"策略的( 昨空仓 )持仓手数,平了账户其他策略仓位,请检查！！！")
+                    global.AppEventEmitter.emit(EVENT.OnError,error);
+                }
+
             } else if (trade.offset == OpenCloseFlagType.Close) {
                 //买入平仓,默认先平昨天空仓,再平今空仓
                 //有昨仓先平昨仓
                 this.CloseBuyYesterDayPosition(trade);
                 //再平今空仓
                 this.CloseBuyTodayPosition(trade);
+
+                if(trade.volume>0)
+                {
+                    let error=new NodeQuantError(trade.strategyName,ErrorType.StrategyError,trade.symbol+"的平仓买入(Close Buy)手数多于"+trade.strategyName+"策略的( 空仓 )持仓手数,平了账户其他策略仓位,请检查！！！")
+                    global.AppEventEmitter.emit(EVENT.OnError,error);
+                }
+
             }
         }else{
             // 空头,和多头相同
@@ -467,14 +526,34 @@ class Position {
             {
                 //卖出平今
                 this.CloseSellTodayPosition(trade);
+
+                if(trade.volume>0)
+                {
+                    let error=new NodeQuantError(trade.strategyName,ErrorType.StrategyError,trade.symbol+"的( 平今仓卖出 CloseToday Sell )手数多于"+trade.strategyName+"策略的( 今多仓 )持仓手数,平了账户其他策略仓位,请检查！！！")
+                    global.AppEventEmitter.emit(EVENT.OnError,error);
+                }
+
             }else if(trade.offset == OpenCloseFlagType.CloseYesterday){
                 //卖出平昨
                 this.CloseSellYesterDayPosition(trade);
+
+                if(trade.volume>0)
+                {
+                    let error=new NodeQuantError(trade.strategyName,ErrorType.StrategyError,trade.symbol+"的( 平昨仓卖出 CloseYesterday Sell )手数多于"+trade.strategyName+"策略的( 昨多仓 )持仓手数,平了账户其他策略仓位,请检查！！！")
+                    global.AppEventEmitter.emit(EVENT.OnError,error);
+                }
+
             }else if(trade.offset == OpenCloseFlagType.Close){
                 //卖出平仓,默认先平昨天多仓,再平今多仓
                 this.CloseSellYesterDayPosition(trade);
                 //再平今空仓
                 this.CloseSellTodayPosition(trade);
+                //更新仓位后,trade.volume还不变为0,代表平仓多于策略持仓,平了账户别人的仓位!!!
+                if(trade.volume>0)
+                {
+                    let error=new NodeQuantError(trade.strategyName,ErrorType.StrategyError,trade.symbol+"的( 平仓卖出 Close Sell )手数多于"+trade.strategyName+"策略的( 多仓 )持仓手数,平了账户其他策略仓位,请检查！！！")
+                    global.AppEventEmitter.emit(EVENT.OnError,error);
+                }
             }
         }
     }
