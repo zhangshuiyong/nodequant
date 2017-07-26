@@ -21,38 +21,36 @@ class ctpClient{
         this.mdAddress= ClientConfig[this.ClientName].mdAddress;
         this.tdAddress= ClientConfig[this.ClientName].tdAddress;
 
-        this.isMdConnected = false;
-        this.isTdConnected=false;
-        this.isConnected=false;
-        this.isGetAllContract=false;
-
-        //CTP客户端今天是否重连过,初始为-1,第一次mdClient主动连接+1=0,重连次数为0
-        //如果断线再连,重连次数+1=1
-        // 重连次数大于0,代表重连过
-        //mdClient.connect重置为-1
-        this.ReConnectedTimes=-1;
-
         this.mdClient = new ctpMdClient(this,this.userID,this.password,this.brokerID,this.mdAddress);
         this.tdClient=new ctpTdClient(this,this.userID,this.password,this.brokerID,this.tdAddress);
     }
 
+    IsGetAllContract()
+    {
+        return this.tdClient.isGetAllContract;
+    }
+
+    IsMdConnected()
+    {
+        return this.mdClient.isLogined;
+    }
+
+    IsTdConnected()
+    {
+        return this.tdClient.isLogined;
+    }
 
     Exit() {
-        this.isMdConnected = false;
-        this.isTdConnected=false;
-        this.isConnected=false;
-        this.isGetAllContract=false;
 
         this.tdClient.exit();
         this.mdClient.exit();
     }
 
     Connect() {
-
-        this.ReConnectedTimes=-1;
         //创建行情和交易接口对象
         //先登录行情接口，行情接口连接上，再登录
         this.mdClient.connect();
+        this.tdClient.connect();
     }
 
     GetTradingDay()
@@ -340,85 +338,10 @@ class ctpClient{
 
     //////////////////////////////////////////////响应函数/////////////////////////////////////////////////////////
 
-    OnMdFrontDisconnected() {
-        //市场行情接口没有连接上
-        let message= "Market Front Disconnected.";
-        let error=new NodeQuantError(this.ClientName,ErrorType.Disconnected,message);
-        this.OnError(error);
-
-        //通知网络断线
-        this.isMdConnected=false;
-        this.isConnected=false;
-        this.isGetAllContract=false;
-        global.AppEventEmitter.emit(EVENT.OnDisconnected,this.ClientName);
-    }
-
-    OnMdFrontLoginFailed(ret) {
-        //行情接口登录失败
-        let message="Market Front Disconnected.";
-        let error=new NodeQuantError(this.ClientName,ErrorType.StrategyError,message);
-
-        this.OnError(error);
-
-        this.isMdConnected=false;
-        this.isConnected = false;
-        this.isGetAllContract=false;
-        global.AppEventEmitter.emit(EVENT.OnDisconnected,this.ClientName);
-    }
-
-    OnMdFrontLoginSuccess() {
-        let ctpClient=this;
-        //行情接口登录上，再登录交易接口
-
-        this.isMdConnected=true;
-        this.isConnected = false;
-        this.isGetAllContract=false;
-        this.tdClient.connect(function (ret) {
-            ctpClient.OnInfo("Market Front Logined. --> Then Trade Front connect request sended. Return:"+ret);
-        });
-    }
-
-    OnTdFrontDisconnected() {
-        //交易前端断线
-
-        let message= "Trader Front Disconnected.";
-        let error=new NodeQuantError(this.ClientName,ErrorType.Disconnected,message);
-        this.OnError(error);
-
-        this.isTdConnected = false;
-        this.isConnected = false;
-        this.isGetAllContract=false;
-        global.AppEventEmitter.emit(EVENT.OnDisconnected,this.ClientName);
-    }
-
-    OnTdFrontLoginFailed() {
-        //交易前端登录不上
-
-        let message="Trader Front Login Failed.";
-        let error=new NodeQuantError(this.ClientName,ErrorType.Disconnected,message);
-
-        this.OnError(error);
-
-        this.isTdConnected=false;
-        this.isConnected=false;
-        this.isGetAllContract=false;
-        global.AppEventEmitter.emit(EVENT.OnDisconnected,this.ClientName);
-    }
-
-    OnTdFrontLoginSuccess() {
-        this.isTdConnected=true;
-        this.isConnected=true;
-        global.AppEventEmitter.emit(EVENT.OnConnected,this.ClientName);
-    }
-
 
     OnInfo(msg) {
         let log=new NodeQuantLog(this.ClientName,LogType.INFO,new Date().toLocaleString(),msg);
         global.AppEventEmitter.emit(EVENT.OnLog,log);
-    }
-
-    OnError(error) {
-        global.AppEventEmitter.emit(EVENT.OnError,error);
     }
 
     OnPosition(position) {
@@ -463,8 +386,8 @@ class ctpMdClient{
         this.isConnected=false;
         this.isLogined=false;
 
-        //是否登录完成
-        this.isLoginFinish=true;
+        //曾经订阅合约列表,(订阅命令都是由上层触发),用于与上层解耦,CTPClient自动重新连接
+        this.subscribedContractSymbolDic={};
     }
 
     //监控登录过程是否结束
@@ -477,23 +400,21 @@ class ctpMdClient{
         ctpMdClient.ctpMdApi.on("FrontConnected",function () {
             ctpMdClient.ctpClient.OnInfo("Market Front connected. --> Then Login");
 
-            //增加重连次数,用于区别第一次连接成功Event,还是重新连接成功Event
-            ctpMdClient.ctpClient.ReConnectedTimes++;
-
             ctpMdClient.isConnected = true;
 
-            if(ctpMdClient.isLogined==false && ctpMdClient.isLoginFinish==true)
-            {
-                ctpMdClient.login();
-            }
-
+            //FrontConnected事件都要重新登录,前面是connect或者FrontDisconnected
+            ctpMdClient.login();
         });
 
         ctpMdClient.ctpMdApi.on("FrontDisconnected", function (reasonId) {
             ctpMdClient.isConnected = false;
             ctpMdClient.isLogined = false;
 
-            ctpMdClient.ctpClient.OnMdFrontDisconnected();
+            //市场行情接口没有连接上
+            let message= "Market Front Disconnected.";
+            let error=new NodeQuantError(ctpMdClient.ctpClient.ClientName,ErrorType.Disconnected,message);
+            global.AppEventEmitter.emit(EVENT.OnError,error);
+
         });
 
         ctpMdClient.ctpMdApi.on("RspError",function (err,requestId,isLast) {
@@ -504,7 +425,7 @@ class ctpMdClient{
 
             err.ErrorMsg="Market Front Response Error. ErrorId:"+err.ErrorID+",ErrorMsg:"+err.Message;
             let error = new NodeQuantError(ctpMdClient.ctpClient.ClientName,ErrorType.ClientRspError, err.ErrorMsg);
-            ctpMdClient.ctpClient.OnError(error);
+            global.AppEventEmitter.emit(EVENT.OnError,error);
         });
 
         //mdFlowPath参数是本地流文件生成的目录
@@ -525,11 +446,17 @@ class ctpMdClient{
             });
         }else
         {
-            ctpMdClient.isConnected = true;
-            ctpMdClient.login();
+            if(ctpMdClient.isLogined==false)
+            {
+                ctpMdClient.ctpClient.OnInfo("Market Fornt have connected. -->Not Login --> Then Login");
+
+                ctpMdClient.login();
+            }else
+            {
+                ctpMdClient.ctpClient.OnInfo("Market Fornt have connected. --> And have Logined");
+            }
 
             global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.Connect,ctpMdClient.ctpClient.ClientName,0);
-            ctpMdClient.ctpClient.OnInfo("Market Fornt have connected. --> Then Login");
         }
     }
 
@@ -539,8 +466,6 @@ class ctpMdClient{
 
         //login的回调函数，先绑定登录的回调函数，再调用主动函数
         ctpMdClient.ctpMdApi.on("RspUserLogin",function (response,error,requestId,isLast) {
-            //登录过程结束
-            ctpMdClient.isLoginFinish=true;
 
             if(error.ErrorID==0)
             {
@@ -548,51 +473,64 @@ class ctpMdClient{
 
                 ctpMdClient.isLogined=true;
 
-                ctpMdClient.ctpClient.OnMdFrontLoginSuccess();
+                //登录成功才认为市场行情已经连接
+                ctpMdClient.ctpClient.isMdConnected=true;
+
+                //重新登录成功，重新订阅
+                for(let contractSymbol in ctpMdClient.subscribedContractSymbolDic)
+                {
+                    ctpMdClient.subscribe(contractSymbol);
+                }
 
             }else{
-                ctpMdClient.ctpClient.OnMdFrontLoginFailed();
+                //行情接口登录失败
+                let message="Market Front Login Failed.";
+                let error=new NodeQuantError(ctpMdClient.ctpClient.ClientName,ErrorType.StrategyError,message);
+                global.AppEventEmitter.emit(EVENT.OnError,error);
             }
         });
 
-        //登录过程开始
-        ctpMdClient.isLoginFinish=false;
         ctpMdClient.ctpMdApi.login(this.userID,this.password,this.brokerID,function (ret) {
             ctpMdClient.ctpClient.OnInfo("Market Front login request sended. return:"+ret);
         });
 
     }
 
-    subscribe(contractName) {
+    subscribe(contractSymbol) {
         let ctpMdClient=this;
+
+        //曾经订阅
+        this.subscribedContractSymbolDic[contractSymbol]=contractSymbol;
+
         //登录成功才可以订阅
         if(ctpMdClient.isLogined==false)
         {
 
-            let message="Subscribe "+contractName+" Failed,Error: Market Front have not Login";
+            let message="Subscribe "+contractSymbol+" Failed,Error: Market Front have not Login";
             let error=new NodeQuantError(ctpMdClient.ctpClient.ClientName,ErrorType.OperationAfterDisconnected,message);
 
-            ctpMdClient.ctpClient.OnError(error);
+            global.AppEventEmitter.emit(EVENT.OnError,error);
 
-            global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.Subscribe,ctpMdClient.ctpClient.ClientName,-99,contractName);
+            global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.Subscribe,ctpMdClient.ctpClient.ClientName,-99,contractSymbol);
 
             return;
         }
 
-        ctpMdClient.ctpMdApi.on("RspSubMarketData",function (contractName,err,requestId,isLast) {
+        ctpMdClient.ctpMdApi.on("RspSubMarketData",function (contractSymbol,err,requestId,isLast) {
 
             if(err.ErrorID==0)
             {
-                ctpMdClient.ctpClient.OnInfo("Market Subscribe "+ contractName+" Successfully.RequestId:"+requestId);
+                ctpMdClient.ctpClient.OnInfo("Market Subscribe "+ contractSymbol+" Successfully.RequestId:"+requestId);
             }else
             {
-                let message="Subscribe "+contractName+" Failed,Error Id:"+err.ErrorID+",Error Msg:"+err.Message;
-                let error=new NodeQuantError(ctpMdClient.ctpClient.ClientName,ErrorType.ClientRspError,message);
+                let message="Subscribe "+contractSymbol+" Failed,Error Id:"+err.ErrorID+",Error Msg:"+err.Message;
+                //没订阅成功是一个策略级别错误
+                let error=new NodeQuantError(ctpMdClient.ctpClient.ClientName,ErrorType.StrategyError,message);
 
-                ctpMdClient.ctpClient.OnError(error);
+                global.AppEventEmitter.emit(EVENT.OnError,error);
             }
 
-            global.AppEventEmitter.emit(EVENT.OnSubscribeContract,contractName,ctpMdClient.ctpClient.ClientName,err);
+            global.AppEventEmitter.emit(EVENT.OnSubscribeContract,contractSymbol,ctpMdClient.ctpClient.ClientName,err);
         });
 
         ctpMdClient.ctpMdApi.on("RtnDepthMarketData",function (marketData) {
@@ -675,21 +613,24 @@ class ctpMdClient{
             ctpMdClient.ctpClient.OnTick(tick);
         });
 
-        ctpMdClient.ctpMdApi.subscribeMarketData(contractName,function (ret) {
-            global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.Subscribe,ctpMdClient.ctpClient.ClientName,ret,contractName);
+        ctpMdClient.ctpMdApi.subscribeMarketData(contractSymbol,function (ret) {
+            global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.Subscribe,ctpMdClient.ctpClient.ClientName,ret,contractSymbol);
         });
 
     }
 
     unSubscribe(contractName) {
         let ctpMdClient=this;
+        //曾经订阅
+        delete this.subscribedContractSymbolDic[contractName];
+
         //登录成功才可以取消订阅
         if(ctpMdClient.isLogined==false)
         {
             let message="UnSubscribe "+contractName+" Failed,Error: Market Font have not Login";
             let error=new NodeQuantError(ctpMdClient.ctpClient.ClientName,ErrorType.OperationAfterDisconnected,message);
 
-            ctpMdClient.ctpClient.OnError(error);
+            global.AppEventEmitter.emit(EVENT.OnError,error);
 
             global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.UnSubscribe,ctpMdClient.ctpClient.ClientName,-99);
             return;
@@ -704,7 +645,7 @@ class ctpMdClient{
                 err.ErrorMsg="UnSubscribe "+contractName+" Failed,ErrorId:"+err.ErrorID+",ErrorMsg:"+err.ErrorMsg;
                 let error=new NodeQuantError(ctpMdClient.ctpClient.ClientName,ErrorType.ClientRspError,err.ErrorMsg);
 
-                ctpMdClient.ctpClient.OnError(error);
+                global.AppEventEmitter.emit(EVENT.OnError,error);
             }
             global.AppEventEmitter.emit(EVENT.OnUnSubscribeContract,contractName,err);
         });
@@ -733,6 +674,7 @@ class ctpMdClient{
     }
 
     exit() {
+        this.subscribedContractSymbolList=[];
         this.isConnected=false;
         this.isLogined=false;
         this.ctpMdApi.exit();
@@ -752,12 +694,9 @@ class ctpTdClient{
         this.ctpTdApi = CTP.CreateTdApi();
         this.isConnected=false;
         this.isLogined=false;
-
-        //监控登录过程是否结束
-        this.isLoginFinish=true;
+        this.isGetAllContract=false;
 
         this.orderRefID = 0;  //报单引用ID,必须是阿拉伯数字字符,数字要递增
-
 
         //持仓的缓存
         this.posDic={};
@@ -766,34 +705,38 @@ class ctpTdClient{
     exit() {
         this.isConnected = false;
         this.isLogined = false;
+        this.isGetAllContract=false;
+
+        this.orderRefID = 0;
+        //持仓的缓存
+        this.posDic={};
+
         this.ctpTdApi.exit();
     }
 
-    connect(finishCallback) {
+    connect() {
 
         let ctpTdClient=this;
 
         ctpTdClient.ctpTdApi.on("FrontConnected",function () {
 
-            ctpTdClient.ctpClient.OnInfo("Trade Front connected.");
-
+            ctpTdClient.ctpClient.OnInfo("Trade Front connected.--> The Login");
             ctpTdClient.isConnected = true;
 
-            //如果断线,Market Front再次连上再登录Trade Front
-            if(ctpTdClient.ctpClient.mdClient.isConnected) {
-
-                if (ctpTdClient.isLogined == false && ctpTdClient.isLoginFinish == true) {
-                    ctpTdClient.ctpClient.OnInfo("Trade Front connected. --> Then Login");
-
-                    ctpTdClient.login();
-                }
-            }
+            //如果断线重新连上,不用等Market Front再次连上再登录Trade Front,因为如果Market Front没有连上,也就没有tick驱动,就不会交易
+            ctpTdClient.login();
         });
 
         ctpTdClient.ctpTdApi.on("FrontDisconnected",function (reasonId) {
             ctpTdClient.isConnected = false;
             ctpTdClient.isLogined = false;
-            ctpTdClient.ctpClient.OnTdFrontDisconnected();
+            ctpTdClient.isGetAllContract = false;
+
+            //交易前端断线
+            let message= "Trader Front Disconnected.";
+            let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.Disconnected,message);
+            global.AppEventEmitter.emit(EVENT.OnError,error);
+
         });
 
         ctpTdClient.ctpTdApi.on("RspError",function (err,requestId,isLast) {
@@ -804,7 +747,7 @@ class ctpTdClient{
 
             err.ErrorMsg="Trade Front Respond Error.ErrorId:"+err.ErrorID+",ErrorMsg:"+err.ErrorMsg;
             let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.ClientRspError,err.ErrorMsg);
-            ctpTdClient.ctpClient.OnError(error);
+            global.AppEventEmitter.emit(EVENT.OnError,error);
         });
 
         //tdFlowPath参数是本地流文件生成的目录
@@ -815,22 +758,16 @@ class ctpTdClient{
             fs.mkdirSync(tdFlowPath);
         }
 
-        if(!ctpTdClient.isConnected)
+        if(ctpTdClient.isConnected==false)
         {
-            //如果已经连接上是不会再回应
-
             ctpTdClient.ctpTdApi.connect(this.address,tdFlowPath,function (ret) {
-                finishCallback(ret);
+
+                global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.Connect,ctpTdClient.ctpClient.ClientName,ret);
+                ctpTdClient.ctpClient.OnInfo("Trade Front connect request sended. Return:"+ret);
             });
         }else
         {
-            if(ctpTdClient.isLogined)
-            {
-                ctpTdClient.ctpClient.OnInfo("Trader Font have connected. -->And Have Logined");
-                ctpTdClient.ctpClient.OnInfo("Trade Front Have Received all contracts.");
-                ctpTdClient.ctpClient.isGetAllContract = true;
-                global.AppEventEmitter.emit(EVENT.OnReceivedAllContract,ctpTdClient.ctpClient.ClientName);
-            }else
+            if(ctpTdClient.isLogined == false)
             {
                 //如果交易客户端是Connected,说明交易前置没问题
                 ctpTdClient.ctpClient.OnInfo("Trader Font have connected. -->Not Login, Then Login");
@@ -844,8 +781,6 @@ class ctpTdClient{
         let ctpTdClient=this;
         //login的回调函数，登录的回调函数
         ctpTdClient.ctpTdApi.on("RspUserLogin",function (response,error,requestId,isLast) {
-            //登录过程结束
-            ctpTdClient.isLoginFinish=true;
 
             if(error.ErrorID==0)
             {
@@ -853,18 +788,17 @@ class ctpTdClient{
 
                 ctpTdClient.isLogined = true;
 
-                ctpTdClient.ctpClient.OnTdFrontLoginSuccess();
-
-                //登录完成，进行结算单确认！
+                //登录完成，进行结算单确认
                 ctpTdClient.confirmSettlement();
 
             }else{
-                ctpTdClient.ctpClient.OnTdFrontLoginFailed();
+
+                let message="Trader Front Login Failed.";
+                let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.Disconnected,message);
+                global.AppEventEmitter.emit(EVENT.OnError,error);
             }
         });
 
-        //登录过程开始
-        ctpTdClient.isLoginFinish=false;
         ctpTdClient.ctpTdApi.login(this.userID,this.password,this.brokerID,function (ret) {
             ctpTdClient.ctpClient.OnInfo("Trade Front login request sended. Return:"+ret);
         });
@@ -882,7 +816,7 @@ class ctpTdClient{
 
                 err.ErrorMsg="Confirm Settlement Failed. Error Id:"+err.ErrorID+"，Error msg:"+err.ErrorMsg;
                 let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.ClientRspError,err.ErrorMsg);
-                ctpTdClient.ctpClient.OnError(error);
+                global.AppEventEmitter.emit(EVENT.OnError,error);
             }
         });
 
@@ -903,7 +837,7 @@ class ctpTdClient{
             let message="Query All Contract Failed. Error:Trade Front have not logined";
             let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.OperationAfterDisconnected,message);
 
-            ctpTdClient.ctpClient.OnError(error);
+            global.AppEventEmitter.emit(EVENT.OnError,error);
 
             global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.QueryContracts,ctpTdClient.ctpClient.ClientName,-99);
             return;
@@ -915,7 +849,7 @@ class ctpTdClient{
             {
                 err.ErrorMsg="Query All Contract Failed. Error Id:"+err.ErrorID+",Error msg:"+err.ErrorMsg;
                 let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.ClientRspError,err.ErrorMsg);
-                ctpTdClient.ctpClient.OnError(error);
+                global.AppEventEmitter.emit(EVENT.OnError,error);
                 return;
             }
 
@@ -953,7 +887,7 @@ class ctpTdClient{
 
             if(isLast){
                 ctpTdClient.ctpClient.OnInfo("Trade Front query all contract: Received all contracts.");
-                ctpTdClient.ctpClient.isGetAllContract = true;
+                ctpTdClient.isGetAllContract = true;
                 global.AppEventEmitter.emit(EVENT.OnReceivedAllContract,ctpTdClient.ctpClient.ClientName);
             }
         });
@@ -977,7 +911,7 @@ class ctpTdClient{
             let message="Query Investor Position Failed. Error:Trade Front have not logined";
             let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.OperationAfterDisconnected,message);
 
-            ctpTdClient.ctpClient.OnError(error);
+            global.AppEventEmitter.emit(EVENT.OnError,error);
 
             global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.QueryInvestorPosition,ctpTdClient.ctpClient.ClientName,-99);
             return;
@@ -1080,7 +1014,7 @@ class ctpTdClient{
             let message="Send Order Failed. Error:Trade Front have not logined";
             let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.OperationAfterDisconnected,message);
 
-            ctpTdClient.ctpClient.OnError(error);
+            global.AppEventEmitter.emit(EVENT.OnError,error);
 
             finishCallBack(-99);
 
@@ -1268,7 +1202,7 @@ class ctpTdClient{
             let message="Cancel Order Failed. Error:Trade Front have not logined";
             let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.OperationAfterDisconnected,message);
 
-            ctpTdClient.ctpClient.OnError(error);
+            global.AppEventEmitter.emit(EVENT.OnError,error);
 
             global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.CancelOrder,ctpTdClient.ctpClient.ClientName,-99);
             return;
@@ -1287,7 +1221,7 @@ class ctpTdClient{
 
             let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.ClientRspError,err.ErrorMsg);
 
-            ctpTdClient.ctpClient.OnError(error);
+            global.AppEventEmitter.emit(EVENT.OnError,error);
         });
 
         //交易所会再次验证撤单指令的合法性，如果交易所认为该指令不合法，交易核心通过此函数转发交易所给出的错误。
@@ -1300,7 +1234,7 @@ class ctpTdClient{
             err.ErrorMsg="Cancel Order Failed. Error:Order Action Return Error";
             let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.ClientRspError,err.ErrorMsg);
 
-            ctpTdClient.ctpClient.OnError(error);
+            global.AppEventEmitter.emit(EVENT.OnError,error);
         });
 
         ctpTdClient.ctpTdApi.cancelOrder(req,function (ret) {

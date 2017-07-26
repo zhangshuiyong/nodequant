@@ -75,22 +75,12 @@ function _registerEvent(myEngine) {
     global.AppEventEmitter.on(EVENT.OnReceivedAllContract,function (clientName) {
 
         //策略引擎是否已经启动
-        if(global.Application.StrategyEngine.IsWorking)
+        if(global.Application.StrategyEngine.IsWorking == false)
         {
-            if (myEngine.clientDic[clientName].ReConnectedTimes > 0) {
-
-                let message = clientName+"重连成功,重新订阅运行策略的品种";
-                let log = new NodeQuantLog("MainEngine", LogType.INFO, new Date().toLocaleString(), message);
-                global.AppEventEmitter.emit(EVENT.OnLog,log);
-
-                //策略引擎重新订阅策略中的合约
-                global.Application.StrategyEngine.SubscribeStrategySymbolsOfClient(clientName);
-            }
-        }else {
             //策略引擎还没启动,检查所有策略引擎所需要的交易客户端是否已经都启动了
             //检查所有交易客户端是否已经都连接上
             for (let clientNameInstance in myEngine.clientDic) {
-                if (myEngine.clientDic[clientNameInstance].isGetAllContract == false) {
+                if (myEngine.clientDic[clientNameInstance].IsGetAllContract() == false) {
                     return;
                 }
             }

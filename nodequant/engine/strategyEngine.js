@@ -722,14 +722,6 @@ class Position {
 
 function _registerEvent(myEngine) {
 
-
-    global.AppEventEmitter.on(EVENT.OnCreateStrategyFailed,function (strategyName) {
-        let error=new NodeQuantError("StrategyEngine",ErrorType.StrategyError,new Date().toLocaleString(),strategyName+"策略运行环境出错");
-        global.AppEventEmitter.emit(EVENT.OnError,error);
-
-        myEngine.StopStrategy(strategyName);
-    });
-
     global.AppEventEmitter.on(EVENT.OnTick,function (tick) {
         for(let strategyName in myEngine.StrategyDic)
         {
@@ -960,8 +952,6 @@ class StrategyEngine {
                         let message=strategyName + "在" + clientName + "客户端订阅" + contractName + "请求发送失败,错误码：" + ret;
                         let error=new NodeQuantError(strategyName,ErrorType.StrategyError,message);
                         global.AppEventEmitter.emit(EVENT.OnError, error);
-
-                        global.AppEventEmitter.emit(EVENT.OnCreateStrategyFailed, strategyName);
                     }
                 });
             } else {
@@ -971,7 +961,6 @@ class StrategyEngine {
 
                 global.AppEventEmitter.emit(EVENT.OnError, error);
 
-                global.AppEventEmitter.emit(EVENT.OnCreateStrategyFailed, strategyName);
             }
         }
     }
