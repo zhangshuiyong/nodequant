@@ -927,16 +927,14 @@ class StrategyEngine {
                     let log=new NodeQuantLog(strategyConfig.name,LogType.INFO,message);
                     global.AppEventEmitter.emit(EVENT.OnLog, log);
 
-                    global.Application.MainEngine.Subscribe(contract.clientName, symbol, function (clientName,ret,contractName) {
-                        
-                        if (ret != 0) {
+                    let ret = global.Application.MainEngine.Subscribe(contract.clientName, symbol);
 
-                            let message = strategyConfig.name + "在" + clientName + "客户端订阅" + symbol + "请求发送失败,错误码：" + ret;
-                            let error = new NodeQuantError(strategyConfig.name, ErrorType.StrategyError, message);
-                            global.AppEventEmitter.emit(EVENT.OnError, error);
+                    if (ret != 0) {
+                        let message = strategyConfig.name + "在" + contract.clientName + "客户端订阅" + symbol + "请求发送失败,错误码：" + ret;
+                        let error = new NodeQuantError(strategyConfig.name, ErrorType.StrategyError, message);
+                        global.AppEventEmitter.emit(EVENT.OnError, error);
 
-                        }
-                    });
+                    }
                 }
             }
         }
@@ -946,14 +944,12 @@ class StrategyEngine {
         for (let symbol in strategySymbolDic) {
             let contract = global.Application.MainEngine.GetContract(symbol);
             if (contract != undefined) {
-                global.Application.MainEngine.Subscribe(contract.clientName, symbol, function (clientName,ret,contractName) {
-                    if (ret != 0) {
-
-                        let message=strategyName + "在" + clientName + "客户端订阅" + contractName + "请求发送失败,错误码：" + ret;
-                        let error=new NodeQuantError(strategyName,ErrorType.StrategyError,message);
-                        global.AppEventEmitter.emit(EVENT.OnError, error);
-                    }
-                });
+               let ret = global.Application.MainEngine.Subscribe(contract.clientName, symbol);
+                if (ret != 0) {
+                    let message=strategyName + "在" + contract.clientName + "客户端订阅" + symbol + "请求发送失败,错误码：" + ret;
+                    let error=new NodeQuantError(strategyName,ErrorType.StrategyError,message);
+                    global.AppEventEmitter.emit(EVENT.OnError, error);
+                }
             } else {
 
                 let message= strategyName + "订阅失败:" + symbol + "不存在";
@@ -977,62 +973,60 @@ class StrategyEngine {
         let strategyEngine=this;
         let contract = global.Application.MainEngine.GetContract(contractName);
 
-        global.Application.MainEngine.SendLimitOrder(contract.clientName, contractName, direction, openclose, volume, limitPrice, function (clientName, ret) {
-            if (ret > 0) {
-                //如果下单成功,ret返回码等于orderRefId
-                let orderRefId = ret;
-                // 策略对应的订单号组成规则, 用于区分不同的策略发送的Order
-                let strategyOrderID = clientName + "." + orderRefId;
+        let ret = global.Application.MainEngine.SendLimitOrder(contract.clientName, contractName, direction, openclose, volume, limitPrice);
+        if (ret > 0) {
+            //如果下单成功,ret返回码等于orderRefId
+            let orderRefId = ret;
+            // 策略对应的订单号组成规则, 用于区分不同的策略发送的Order
+            let strategyOrderID = contract.clientName + "." + orderRefId;
 
-                strategyEngine.StrategyOrderID_StrategyNameDic[strategyOrderID] = strategy.name;
-            }
-        });
+            strategyEngine.StrategyOrderID_StrategyNameDic[strategyOrderID] = strategy.name;
+        }
     }
 
     SendFillAndKillLimitOrder(strategy,contractName,direction,openclose,volume,limitPrice) {
         let strategyEngine=this;
         let contract = global.Application.MainEngine.GetContract(contractName);
 
-        global.Application.MainEngine.SendFillAndKillLimitOrder(contract.clientName,contractName,direction,openclose,volume,limitPrice,function (clientName, ret) {
-            if (ret > 0) {
-                //如果下单成功,ret返回码等于orderRefId
-                let orderRefId = ret;
-                // 策略对应的订单号组成规则, 用于区分不同的策略发送的Order
-                let strategyOrderID = clientName + "." + orderRefId;
+        let ret = global.Application.MainEngine.SendFillAndKillLimitOrder(contract.clientName,contractName,direction,openclose,volume,limitPrice);
+        if (ret > 0) {
+            //如果下单成功,ret返回码等于orderRefId
+            let orderRefId = ret;
+            // 策略对应的订单号组成规则, 用于区分不同的策略发送的Order
+            let strategyOrderID = contract.clientName + "." + orderRefId;
 
-                strategyEngine.StrategyOrderID_StrategyNameDic[strategyOrderID] = strategy.name;
-            }
-        });
+            strategyEngine.StrategyOrderID_StrategyNameDic[strategyOrderID] = strategy.name;
+        }
     }
 
     SendFillOrKillLimitOrder(strategy,contractName,direction,openclose,volume,limitPrice) {
         let strategyEngine = this;
         let contract = global.Application.MainEngine.GetContract(contractName);
-        global.Application.MainEngine.SendFillOrKillLimitOrder(contract.clientName, contractName, direction, openclose, volume, limitPrice, function (clientName, ret) {
-            if (ret > 0) {
-                //如果下单成功,ret返回码等于orderRefId
-                let orderRefId = ret;
-                // 策略对应的订单号组成规则, 用于区分不同的策略发送的Order
-                let strategyOrderID = clientName + "." + orderRefId;
+        let ret = global.Application.MainEngine.SendFillOrKillLimitOrder(contract.clientName, contractName, direction, openclose, volume, limitPrice);
 
-                strategyEngine.StrategyOrderID_StrategyNameDic[strategyOrderID] = strategy.name;
-            }
-        });
+        if (ret > 0) {
+            //如果下单成功,ret返回码等于orderRefId
+            let orderRefId = ret;
+            // 策略对应的订单号组成规则, 用于区分不同的策略发送的Order
+            let strategyOrderID = contract.clientName + "." + orderRefId;
+
+            strategyEngine.StrategyOrderID_StrategyNameDic[strategyOrderID] = strategy.name;
+        }
     }
 
     SendStopLimitOrder(strategy,contractName,direction,openclose,volume,limitPrice,contingentCondition,stopPrice){
         let strategyEngine = this;
         let contract = global.Application.MainEngine.GetContract(contractName);
-        global.Application.MainEngine.SendStopLimitOrder(contract.clientName,contractName,direction,openclose,volume,limitPrice,contingentCondition,stopPrice,function (clientName, ret) {
-            if (ret > 0) {
-                //如果下单成功,ret返回码等于orderRefId
-                let orderRefId = ret;
-                // 策略对应的订单号组成规则, 用于区分不同的策略发送的Order
-                let strategyOrderID = clientName + "." + orderRefId;
+        let ret = global.Application.MainEngine.SendStopLimitOrder(contract.clientName,contractName,direction,openclose,volume,limitPrice,contingentCondition,stopPrice);
 
-                strategyEngine.StrategyOrderID_StrategyNameDic[strategyOrderID] = strategy.name;
-            }
-        });
+        if (ret > 0) {
+            //如果下单成功,ret返回码等于orderRefId
+            let orderRefId = ret;
+            // 策略对应的订单号组成规则, 用于区分不同的策略发送的Order
+            let strategyOrderID = contract.clientName + "." + orderRefId;
+
+            strategyEngine.StrategyOrderID_StrategyNameDic[strategyOrderID] = strategy.name;
+        }
     }
 
     //策略未结束订单

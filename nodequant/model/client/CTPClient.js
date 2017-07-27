@@ -49,8 +49,22 @@ class ctpClient{
     Connect() {
         //创建行情和交易接口对象
         //先登录行情接口，行情接口连接上，再登录
-        this.mdClient.connect();
-        this.tdClient.connect();
+        let ret = this.mdClient.connect();
+        if(ret!=0)
+        {
+            let message="启动连接"+this.ClientName+"的mdClient失败.错误号:"+ret;
+            let error=new NodeQuantError(this.ClientName,ErrorType.Disconnected,message);
+            global.AppEventEmitter.emit(EVENT.OnError,error);
+        }
+
+        ret = this.tdClient.connect();
+
+        if(ret!=0)
+        {
+            let message="启动连接"+this.ClientName+"的tdClient失败.错误号:"+ret;
+            let error=new NodeQuantError(this.ClientName,ErrorType.Disconnected,message);
+            global.AppEventEmitter.emit(EVENT.OnError,error);
+        }
     }
 
     GetTradingDay()
@@ -61,12 +75,12 @@ class ctpClient{
 
     //订阅合约
     Subscribe(contractName) {
-        this.mdClient.subscribe(contractName);
+       return this.mdClient.subscribe(contractName);
     }
 
     UnSubscribe(contractName) {
 
-        this.mdClient.unSubscribe(contractName);
+        return this.mdClient.unSubscribe(contractName);
     }
 
     //市价单,不支持
@@ -104,9 +118,7 @@ class ctpClient{
         sendOrderReq.TimeCondition=TimeConditionType.ImmediatelyOrCancel;
 
         //发送下单命令（参数为10项重要下单属性）
-        this.tdClient.sendOrder(sendOrderReq,function (ret) {
-            global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.SendMarketOrder,ctpClient.ClientName,ret);
-        });
+        return this.tdClient.sendOrder(sendOrderReq);
 
     }
 
@@ -145,9 +157,7 @@ class ctpClient{
         sendOrderReq.TimeCondition=TimeConditionType.GoodForDay;
 
         //发送下单命令（参数为10项重要下单属性）
-        this.tdClient.sendOrder(sendOrderReq,function (ret) {
-            global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.SendStopLimitOrder,ctpClient.ClientName,ret);
-        });
+        return this.tdClient.sendOrder(sendOrderReq);
 
     }
 
@@ -186,9 +196,7 @@ class ctpClient{
         sendOrderReq.TimeCondition=TimeConditionType.GoodForDay;
 
         //发送下单命令（参数为10项重要下单属性）
-        this.tdClient.sendOrder(sendOrderReq,function (ret) {
-            global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.SendMarketIfTouchedOrder,ctpClient.ClientName,ret);
-        });
+        return this.tdClient.sendOrder(sendOrderReq);
     };
 
 
@@ -227,9 +235,7 @@ class ctpClient{
         sendOrderReq.TimeCondition=TimeConditionType.GoodForDay;
 
         //发送下单命令（参数为10项重要下单属性）
-        this.tdClient.sendOrder(sendOrderReq,function (ret) {
-            global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.SendLimitOrder,ctpClient.ClientName,ret);
-        });
+        return this.tdClient.sendOrder(sendOrderReq);
     }
 
 
@@ -268,9 +274,7 @@ class ctpClient{
         sendOrderReq.TimeCondition=TimeConditionType.ImmediatelyOrCancel;
 
         //发送下单命令（参数为10项重要下单属性）
-        this.tdClient.sendOrder(sendOrderReq,function (ret) {
-            global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.SendFillAndKillLimitOrder,ctpClient.ClientName,ret);
-        });
+        return this.tdClient.sendOrder(sendOrderReq);
     }
 
     //FOK单
@@ -308,9 +312,7 @@ class ctpClient{
         sendOrderReq.TimeCondition=TimeConditionType.ImmediatelyOrCancel;
 
         //发送下单命令（参数为10项重要下单属性）
-        this.tdClient.sendOrder(sendOrderReq,function (ret) {
-            global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.SendFillOrKillLimitOrder,ctpClient.ClientName,ret);
-        });
+       return this.tdClient.sendOrder(sendOrderReq);
     }
 
     //撤单
@@ -325,14 +327,14 @@ class ctpClient{
         cancelOrderReq.FrontID=order.frontID;
         cancelOrderReq.SessionID=order.sessionID;
 
-        this.tdClient.cancelOrder(cancelOrderReq);
+        return this.tdClient.cancelOrder(cancelOrderReq);
 
     }
 
     //查询持仓
     QueryInvestorPosition() {
 
-        this.tdClient.queryInvestorPosition();
+        return this.tdClient.queryInvestorPosition();
     }
 
 
@@ -438,12 +440,7 @@ class ctpMdClient{
 
         if(ctpMdClient.isConnected==false)
         {
-            ctpMdClient.ctpMdApi.connect(this.address,mdFlowPath,function (ret) {
-
-                global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.Connect,ctpMdClient.ctpClient.ClientName,ret);
-
-                ctpMdClient.ctpClient.OnInfo("Market Front connect request sended. Return:"+ret);
-            });
+           return ctpMdClient.ctpMdApi.connect(this.address,mdFlowPath);
         }else
         {
             if(ctpMdClient.isLogined==false)
@@ -456,7 +453,7 @@ class ctpMdClient{
                 ctpMdClient.ctpClient.OnInfo("Market Fornt have connected. --> And have Logined");
             }
 
-            global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.Connect,ctpMdClient.ctpClient.ClientName,0);
+            return 0;
         }
     }
 
@@ -490,10 +487,8 @@ class ctpMdClient{
             }
         });
 
-        ctpMdClient.ctpMdApi.login(this.userID,this.password,this.brokerID,function (ret) {
-            ctpMdClient.ctpClient.OnInfo("Market Front login request sended. return:"+ret);
-        });
-
+        let ret = ctpMdClient.ctpMdApi.login(this.userID,this.password,this.brokerID);
+        ctpMdClient.ctpClient.OnInfo("Market Front login request sended. return:"+ret);
     }
 
     subscribe(contractSymbol) {
@@ -511,9 +506,7 @@ class ctpMdClient{
 
             global.AppEventEmitter.emit(EVENT.OnError,error);
 
-            global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.Subscribe,ctpMdClient.ctpClient.ClientName,-99,contractSymbol);
-
-            return;
+            return -99;
         }
 
         ctpMdClient.ctpMdApi.on("RspSubMarketData",function (contractSymbol,err,requestId,isLast) {
@@ -613,9 +606,7 @@ class ctpMdClient{
             ctpMdClient.ctpClient.OnTick(tick);
         });
 
-        ctpMdClient.ctpMdApi.subscribeMarketData(contractSymbol,function (ret) {
-            global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.Subscribe,ctpMdClient.ctpClient.ClientName,ret,contractSymbol);
-        });
+        return ctpMdClient.ctpMdApi.subscribeMarketData(contractSymbol);
 
     }
 
@@ -632,8 +623,7 @@ class ctpMdClient{
 
             global.AppEventEmitter.emit(EVENT.OnError,error);
 
-            global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.UnSubscribe,ctpMdClient.ctpClient.ClientName,-99);
-            return;
+            return -99;
         }
 
         ctpMdClient.ctpMdApi.on("RspUnSubMarketData",function (contractName,err,requestId,isLast) {
@@ -650,10 +640,7 @@ class ctpMdClient{
             global.AppEventEmitter.emit(EVENT.OnUnSubscribeContract,contractName,err);
         });
 
-        ctpMdClient.ctpMdApi.unSubscribeMarketData(contractName, function (ret) {
-            ctpMdClient.ctpClient.OnInfo("Market Front UnSubscribe"+contractName+" Request sended. Return:"+ret);
-            global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.UnSubscribe,ctpMdClient.ctpClient.ClientName,ret);
-        });
+        return ctpMdClient.ctpMdApi.unSubscribeMarketData(contractName);
     }
 
     getTradingDay() {
@@ -760,11 +747,7 @@ class ctpTdClient{
 
         if(ctpTdClient.isConnected==false)
         {
-            ctpTdClient.ctpTdApi.connect(this.address,tdFlowPath,function (ret) {
-
-                global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.Connect,ctpTdClient.ctpClient.ClientName,ret);
-                ctpTdClient.ctpClient.OnInfo("Trade Front connect request sended. Return:"+ret);
-            });
+            return ctpTdClient.ctpTdApi.connect(this.address,tdFlowPath);
         }else
         {
             if(ctpTdClient.isLogined == false)
@@ -774,6 +757,8 @@ class ctpTdClient{
 
                 ctpTdClient.login();
             }
+
+            return 0;
         }
     }
 
@@ -799,9 +784,8 @@ class ctpTdClient{
             }
         });
 
-        ctpTdClient.ctpTdApi.login(this.userID,this.password,this.brokerID,function (ret) {
-            ctpTdClient.ctpClient.OnInfo("Trade Front login request sended. Return:"+ret);
-        });
+        let ret = ctpTdClient.ctpTdApi.login(this.userID,this.password,this.brokerID);
+        ctpTdClient.ctpClient.OnInfo("Trade Front login request sended. Return:"+ret);
     }
 
     confirmSettlement() {
@@ -820,9 +804,8 @@ class ctpTdClient{
             }
         });
 
-        ctpTdClient.ctpTdApi.confirmSettlementInfo(this.userID,this.brokerID,function (ret) {
-            ctpTdClient.ctpClient.OnInfo("Trade Front confirm settlementInfo request sended. Return:"+ret);
-        });
+        let ret = ctpTdClient.ctpTdApi.confirmSettlementInfo(this.userID,this.brokerID);
+        ctpTdClient.ctpClient.OnInfo("Trade Front confirm settlementInfo request sended. Return:"+ret);
     }
 
     //查询合约
@@ -839,8 +822,7 @@ class ctpTdClient{
 
             global.AppEventEmitter.emit(EVENT.OnError,error);
 
-            global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.QueryContracts,ctpTdClient.ctpClient.ClientName,-99);
-            return;
+            return -99;
         }
 
         ctpTdClient.ctpTdApi.on("RspQryInstrument",function (instrument,err,requestId,isLast) {
@@ -892,10 +874,7 @@ class ctpTdClient{
             }
         });
 
-        ctpTdClient.ctpTdApi.queryInstrument(function (ret) {
-            ctpTdClient.ctpClient.OnInfo("Trade Front query all contract request sended. Return:"+ret);
-            global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.QueryContracts,ctpTdClient.ctpClient.ClientName,ret);
-        });
+        return ctpTdClient.ctpTdApi.queryInstrument();
     }
 
 
@@ -913,8 +892,7 @@ class ctpTdClient{
 
             global.AppEventEmitter.emit(EVENT.OnError,error);
 
-            global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.QueryInvestorPosition,ctpTdClient.ctpClient.ClientName,-99);
-            return;
+            return -99;
         }
 
 
@@ -999,14 +977,11 @@ class ctpTdClient{
             ctpTdClient.posDic={};
         });
 
-        ctpTdClient.ctpTdApi.queryInvestorPosition(this.userID,this.brokerID,function (ret) {
-            ctpTdClient.ctpClient.OnInfo("Trader queryInvestorPosition req send result:"+ret);
-            global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.QueryInvestorPosition,ctpTdClient.ctpClient.ClientName,ret);
-        });
+        return ctpTdClient.ctpTdApi.queryInvestorPosition(this.userID,this.brokerID);
 
     }
 
-    sendOrder(orderReq,finishCallBack) {
+    sendOrder(orderReq) {
         let ctpTdClient=this;
         //没登录不能下订单
         if(ctpTdClient.isLogined==false)
@@ -1016,9 +991,7 @@ class ctpTdClient{
 
             global.AppEventEmitter.emit(EVENT.OnError,error);
 
-            finishCallBack(-99);
-
-            return;
+            return -99;
         }
 
         ///报单录入错误信息响应
@@ -1179,15 +1152,7 @@ class ctpTdClient{
         sendOrderReq.UserForceClose=0;
 
 
-        ctpTdClient.ctpTdApi.sendOrder(sendOrderReq,function (ret) {
-            if(ret>=0)
-            {
-                finishCallBack(ret);
-            }
-            else{
-                finishCallBack(-99);
-            }
-        });
+        return ctpTdClient.ctpTdApi.sendOrder(sendOrderReq);
 
     }
 
@@ -1204,8 +1169,7 @@ class ctpTdClient{
 
             global.AppEventEmitter.emit(EVENT.OnError,error);
 
-            global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.CancelOrder,ctpTdClient.ctpClient.ClientName,-99);
-            return;
+            return -99;
         }
 
 
@@ -1237,9 +1201,7 @@ class ctpTdClient{
             global.AppEventEmitter.emit(EVENT.OnError,error);
         });
 
-        ctpTdClient.ctpTdApi.cancelOrder(req,function (ret) {
-            global.AppEventEmitter.emit(EVENT.FinishSendRequest,RequestType.CancelOrder,ctpTdClient.ctpClient.ClientName,ret);
-        });
+        return ctpTdClient.ctpTdApi.cancelOrder(req);
     }
 
 }

@@ -139,18 +139,6 @@ function _registerEvent(myEngine) {
         global.AppEventEmitter.emit(EVENT.OnLog,log);
     });
 
-    global.AppEventEmitter.on(EVENT.FinishSendRequest,function (requestType,clientName,ret,contractName) {
-        //界面类绑定事件
-        //绑定事件多次，res会是多次的变量，会抛出异常
-        //如果请求函数没有写回调，就不会调用！
-        //有两种写法
-        //1.global.Application.MainEngine.Connect("CTP",function (clientName,ret){});
-        //2.global.Application.MainEngine.Connect("CTP"); //不需要处理请求发送完成
-
-        if(myEngine.FinishSendRequestCallBackDic[requestType]!=undefined)
-            myEngine.FinishSendRequestCallBackDic[requestType](clientName,ret,contractName);
-    });
-
     global.AppEventEmitter.on(EVENT.OnError,function (error) {
 
         let log=new NodeQuantLog(error.Source,LogType.ERROR,new Date().toLocaleString(),error.Message);
@@ -268,22 +256,12 @@ class MainEngine{
     {
         for(let clientName in this.clientDic)
         {
-            this.Connect(clientName,function (clientName,ret) {
-                if(ret!=0)
-                {
-                    let message="启动连接"+clientName+"失败.错误号:"+ret;
-                    let error=new NodeQuantError(clientName,ErrorType.Disconnected,message);
-
-                    global.AppEventEmitter.emit(EVENT.OnError,error);
-
-                }
-            });
+            this.Connect(clientName);
         }
     }
 
     //主引擎进程可以启动多个交易客户端
-    Connect(clientName,finishCallback) {
-        this.FinishSendRequestCallBackDic[RequestType.Connect]=finishCallback;
+    Connect(clientName) {
         this.clientDic[clientName].Connect();
     }
 
@@ -304,55 +282,55 @@ class MainEngine{
         return this.contractDic;
     };
 
-    Subscribe(clientName,contractName,finishCallback) {
-        this.FinishSendRequestCallBackDic[RequestType.Subscribe]=finishCallback;
-        this.clientDic[clientName].Subscribe(contractName);
+    Subscribe(clientName,contractName) {
+       let ret = this.clientDic[clientName].Subscribe(contractName);
+       return ret;
     }
 
-    UnSubscribe(clientName,contractName,finishCallback) {
-        this.FinishSendRequestCallBackDic[RequestType.UnSubscribe]=finishCallback;
-        this.clientDic[clientName].UnSubscribe(contractName);
+    UnSubscribe(clientName,contractName) {
+        let ret = this.clientDic[clientName].UnSubscribe(contractName);
+        return ret;
     }
 
-    SendMarketOrder(clientName,contractName,direction,openclose,volume,finishCallback) {
-        this.FinishSendRequestCallBackDic[RequestType.SendMarketOrder]=finishCallback;
-        this.clientDic[clientName].SendMarketOrder(contractName,direction,openclose,volume);
+    SendMarketOrder(clientName,contractName,direction,openclose,volume) {
+        let ret = this.clientDic[clientName].SendMarketOrder(contractName,direction,openclose,volume);
+        return ret;
     }
 
-    SendLimitOrder(clientName,contractName,direction,openclose,volume,limitPrice,finishCallback) {
-        this.FinishSendRequestCallBackDic[RequestType.SendLimitOrder]=finishCallback;
-        this.clientDic[clientName].SendLimitOrder(contractName,direction,openclose,volume,limitPrice);
+    SendLimitOrder(clientName,contractName,direction,openclose,volume,limitPrice) {
+        let ret = this.clientDic[clientName].SendLimitOrder(contractName,direction,openclose,volume,limitPrice);
+        return ret;
     }
 
-    SendMarketIfTouchedOrder(clientName,contractName,direction,openclose,volume,stopPriceCondition,stopPrice,finishCallback) {
-        this.FinishSendRequestCallBackDic[RequestType.SendMarketIfTouchedOrder]=finishCallback;
-        this.clientDic[clientName].SendMarketIfTouchedOrder(contractName,direction,openclose,volume,stopPriceCondition,stopPrice);
+    SendMarketIfTouchedOrder(clientName,contractName,direction,openclose,volume,stopPriceCondition,stopPrice) {
+        let ret = this.clientDic[clientName].SendMarketIfTouchedOrder(contractName,direction,openclose,volume,stopPriceCondition,stopPrice);
+        return ret;
     }
 
-    SendStopLimitOrder(clientName,contractName,direction,openclose,volume,limitPrice,stopPriceCondition,stopPrice,finishCallback) {
-        this.FinishSendRequestCallBackDic[RequestType.SendStopLimitOrder]=finishCallback;
-        this.clientDic[clientName].SendStopLimitOrder(contractName,direction,openclose,volume,limitPrice,stopPriceCondition,stopPrice)
+    SendStopLimitOrder(clientName,contractName,direction,openclose,volume,limitPrice,stopPriceCondition,stopPrice) {
+        let ret = this.clientDic[clientName].SendStopLimitOrder(contractName,direction,openclose,volume,limitPrice,stopPriceCondition,stopPrice)
+        return ret;
     }
 
-    SendFillAndKillLimitOrder(clientName,contractName,direction,openclose,volume,limitPrice,finishCallback) {
-        this.FinishSendRequestCallBackDic[RequestType.SendFillAndKillLimitOrder]=finishCallback;
-        this.clientDic[clientName].SendFillAndKillLimitOrder(contractName,direction,openclose,volume,limitPrice);
+    SendFillAndKillLimitOrder(clientName,contractName,direction,openclose,volume,limitPrice) {
+       let ret = this.clientDic[clientName].SendFillAndKillLimitOrder(contractName,direction,openclose,volume,limitPrice);
+       return ret;
     }
 
-    SendFillOrKillLimitOrder(clientName,contractName,direction,openclose,volume,limitPrice,finishCallback) {
-        this.FinishSendRequestCallBackDic[RequestType.SendFillOrKillLimitOrder]=finishCallback;
-        this.clientDic[clientName].SendFillOrKillLimitOrder(contractName,direction,openclose,volume,limitPrice);
+    SendFillOrKillLimitOrder(clientName,contractName,direction,openclose,volume,limitPrice) {
+       let ret = this.clientDic[clientName].SendFillOrKillLimitOrder(contractName,direction,openclose,volume,limitPrice);
+       return ret;
     }
 
 
-    QueryInvestorPosition(clientName,finishCallback) {
-        this.FinishSendRequestCallBackDic[RequestType.QueryInvestorPosition]=finishCallback;
-        this.clientDic[clientName].QueryInvestorPosition();
+    QueryInvestorPosition(clientName) {
+        let ret = this.clientDic[clientName].QueryInvestorPosition();
+        return ret;
     }
 
-    CancelOrder(clientName,order,finishCallback) {
-        this.FinishSendRequestCallBackDic[RequestType.CancelOrder]=finishCallback;
-        this.clientDic[clientName].CancelOrder(order);
+    CancelOrder(clientName,order) {
+        let ret = this.clientDic[clientName].CancelOrder(order);
+        return ret;
     }
 }
 
