@@ -455,7 +455,6 @@ LogType={
 
 Tick_DB_Name="NodeQuant_Tick_DB";
 System_DB_Name="NodeQuant_System_DB";
-DB_Connection_TimeOut=120*1000;
 
 
 

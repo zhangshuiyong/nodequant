@@ -7,7 +7,7 @@
 require("../../common");
 let NodeQuantError=require("../../util/NodeQuantError");
 let mongoose = require('mongoose'),
-    DB_URL ="mongodb://"+MongoDBConfig.Host+":"+MongoDBConfig.Port+"/"+System_DB_Name+"?connectTimeoutMS="+DB_Connection_TimeOut;
+    DB_URL ="mongodb://"+MongoDBConfig.Host+":"+MongoDBConfig.Port+"/"+System_DB_Name+"?connectTimeoutMS="+MongoDBConfig.TimeOut;
 
 /**
  * 连接

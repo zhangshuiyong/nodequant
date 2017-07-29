@@ -1252,7 +1252,7 @@ class StrategyEngine {
     RecordPosition(strategyName,position)
     {
         let strategyStatusDBName = strategyName + "_Status_DB";
-        let strategyStatusDBAddress = "mongodb://" + MongoDBConfig.Host + ":" + MongoDBConfig.Port + "/" + strategyStatusDBName+"?connectTimeoutMS="+DB_Connection_TimeOut;
+        let strategyStatusDBAddress = "mongodb://" + MongoDBConfig.Host + ":" + MongoDBConfig.Port + "/" + strategyStatusDBName+"?connectTimeoutMS="+MongoDBConfig.TimeOut;
 
         MongoClient.connect(strategyStatusDBAddress, function (err, db) {
 
@@ -1313,7 +1313,7 @@ class StrategyEngine {
     {
         let strategyEngine=this;
         let strategyStatusDBName = strategyName + "_Status_DB";
-        let strategyStatusDBAddress = "mongodb://" + MongoDBConfig.Host + ":" + MongoDBConfig.Port + "/" + strategyStatusDBName+"?connectTimeoutMS="+DB_Connection_TimeOut;
+        let strategyStatusDBAddress = "mongodb://" + MongoDBConfig.Host + ":" + MongoDBConfig.Port + "/" + strategyStatusDBName+"?connectTimeoutMS="+MongoDBConfig.TimeOut;
 
         MongoClient.connect(strategyStatusDBAddress, function (err, db) {
             if (err == null) {
@@ -1357,7 +1357,7 @@ class StrategyEngine {
     //记录策略完成订单
     RecordOrder(strategyName, orderRecord) {
         let strategyStatusDBName = strategyName + "_Status_DB";
-        let strategyStatusDBAddress = "mongodb://" + MongoDBConfig.Host + ":" + MongoDBConfig.Port + "/" + strategyStatusDBName+"?connectTimeoutMS="+DB_Connection_TimeOut;
+        let strategyStatusDBAddress = "mongodb://" + MongoDBConfig.Host + ":" + MongoDBConfig.Port + "/" + strategyStatusDBName+"?connectTimeoutMS="+MongoDBConfig.TimeOut;
 
         MongoClient.connect(strategyStatusDBAddress, function (err, db) {
 
@@ -1374,7 +1374,7 @@ class StrategyEngine {
     //记录策略成交
     RecordTrade(strategyName, trade) {
         let strategyStatusDBName = strategyName + "_Status_DB";
-        let strategyStatusDBAddress = "mongodb://" + MongoDBConfig.Host + ":" + MongoDBConfig.Port + "/" + strategyStatusDBName+"?connectTimeoutMS="+DB_Connection_TimeOut;
+        let strategyStatusDBAddress = "mongodb://" + MongoDBConfig.Host + ":" + MongoDBConfig.Port + "/" + strategyStatusDBName+"?connectTimeoutMS="+MongoDBConfig.TimeOut;
 
         trade.directionName=DirectionReverse[trade.direction];
         trade.offsetName=OpenCloseFlagReverseType[trade.offset];
@@ -1395,7 +1395,7 @@ class StrategyEngine {
     GetTradeRecord(strategyName,currentDay,getTradeRecordCallback)
     {
         let strategyStatusDBName = strategyName + "_Status_DB";
-        let strategyStatusDBAddress = "mongodb://" + MongoDBConfig.Host + ":" + MongoDBConfig.Port + "/" + strategyStatusDBName+"?connectTimeoutMS="+DB_Connection_TimeOut;
+        let strategyStatusDBAddress = "mongodb://" + MongoDBConfig.Host + ":" + MongoDBConfig.Port + "/" + strategyStatusDBName+"?connectTimeoutMS="+MongoDBConfig.TimeOut;
 
         MongoClient.connect(strategyStatusDBAddress, function (err, db) {
             if (err == null) {
@@ -1422,7 +1422,7 @@ class StrategyEngine {
 
     RecordSettlement(strategyName,settlement){
         let strategyStatusDBName = strategyName + "_Status_DB";
-        let strategyStatusDBAddress = "mongodb://" + MongoDBConfig.Host + ":" + MongoDBConfig.Port + "/" + strategyStatusDBName+"?connectTimeoutMS="+DB_Connection_TimeOut;
+        let strategyStatusDBAddress = "mongodb://" + MongoDBConfig.Host + ":" + MongoDBConfig.Port + "/" + strategyStatusDBName+"?connectTimeoutMS="+MongoDBConfig.TimeOut;
 
         MongoClient.connect(strategyStatusDBAddress, function (err, db) {
 
@@ -1438,7 +1438,7 @@ class StrategyEngine {
 
     GetLastTradingDayStrategySettlement(strategyName,callback){
         let strategyStatusDBName = strategyName + "_Status_DB";
-        let strategyStatusDBAddress = "mongodb://" + MongoDBConfig.Host + ":" + MongoDBConfig.Port + "/" + strategyStatusDBName+"?connectTimeoutMS="+DB_Connection_TimeOut;
+        let strategyStatusDBAddress = "mongodb://" + MongoDBConfig.Host + ":" + MongoDBConfig.Port + "/" + strategyStatusDBName+"?connectTimeoutMS="+MongoDBConfig.TimeOut;
 
         MongoClient.connect(strategyStatusDBAddress, function (err, db) {
             if (err == null) {
