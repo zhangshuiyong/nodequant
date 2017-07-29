@@ -388,24 +388,6 @@ EVENT={
     //重新连接客户端事件
     OnReconnected:"EventReconnectedClient",
 
-    //请求是否发送完成
-    FinishSendRequest:"EventFinishSendRequest",
-};
-
-RequestType={
-    Connect:"EventFinishConnect",
-    SendFillAndKillLimitOrder:"EventSendFillAndKillLimitOrder",
-    SendFillOrKillLimitOrder:"EventSendFillOrKillLimitOrder",
-    SendLimitOrder:"EventSendLimitOrder",
-    SendMarketIfTouchedOrder:"EventSendMarketIfTouchedOrder",
-    SendMarketOrder:"EventSendMarketOrder",
-    SendStopLimitOrder:"EventSendStopLimitOrder",
-    CancelOrder:"EventFinishCancelOrder",
-    QueryInvestorPosition:"EventQueryInvestorPosition",
-    QueryContracts:"EventFinishQueryContracts",
-    //订阅请求是否发送成功
-    Subscribe:"EventFinishSubscribe",
-    UnSubscribe:"EventFinishUnSubscribe"
 };
 
 //Disconnect ReasonID

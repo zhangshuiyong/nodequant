@@ -205,9 +205,6 @@ class MainEngine{
         this.isWorking = true;
         //重置合约字典
         this.contractDic={};
-
-        //重置发送请求回调字典
-        this.FinishSendRequestCallBackDic={};
     }
 
 

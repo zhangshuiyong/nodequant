@@ -1,25 +1,11 @@
 require("./common");
 //配置客户端,NodeQuant启动,会连接已经配置打开的交易客户端
 
-/*
- userID:"073572",
- password: "qq632386504",
- brokerID:"9999",
- mdAddress: "tcp://218.202.237.33:10012",
- tdAddress: "tcp://218.202.237.33:10002"
- */
-/*      userID:"809008378",
-        password:"233717",
-        brokerID:"5010",
-        mdAddress:"tcp://180.169.68.3:11213",
-        tdAddress:"tcp://180.169.68.3:11205"
- */
-
 ClientConfig={
     CTP:{
         PowerOn:true,
-        userID:"809008378",
-        password:"233717",
+        userID:"888888",
+        password:"888888",
         brokerID:"5010",
         mdAddress:"tcp://180.169.68.3:11213",
         tdAddress:"tcp://180.169.68.3:11205"
