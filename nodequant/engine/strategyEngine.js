@@ -1257,13 +1257,13 @@ class StrategyEngine {
         MongoClient.connect(strategyStatusDBAddress, function (err, db) {
 
             if (err == null) {
-                db.collection("PositionBook").remove({},function (err, result) {
-                    db.close();
+                db.collection("PositionBook").deleteMany({symbol:position.symbol},function (err, result) {
 
                     if(err==null)
                     {
                         //清空策略数据库的Position表成功
                         //遍历多仓，记录到数据库
+
                         for(let index in position.longPositionTradeRecordList)
                         {
                             let tradeRecord = position.longPositionTradeRecordList[index];
@@ -1279,6 +1279,7 @@ class StrategyEngine {
                         throw new Error(strategyName+"清空Position失败，原因:"+err.message);
                     }
 
+                    db.close();
                 });
             } else {
                 throw new Error(strategyName+"清空Position失败，原因是打开数据库失败.");
