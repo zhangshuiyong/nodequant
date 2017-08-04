@@ -9,7 +9,7 @@ class DateTimeUtil
     static StrToDatetime(dateStr,timeStr)
     {
         let nowDate=new Date();
-        let year= nowDate.getYear();
+        let year= nowDate.getFullYear();
         let month = nowDate.getMonth();
         let day= nowDate.getDate();
 

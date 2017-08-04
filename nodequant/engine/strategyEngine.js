@@ -4,184 +4,11 @@
 let fs=require("fs");
 require("../userConfig");
 
-let MongoClient = require('mongodb').MongoClient;
-
 let DateTimeUtil=require("../util/DateTimeUtil");
 let NodeQuantLog=require("../util/NodeQuantLog");
 let NodeQuantError=require("../util/NodeQuantError");
 
 //策略仓位管理器
-/*
-class Position{
-    constructor(){
-        this.strategyName="";
-        this.symbol="";
-
-        this.longPosition = 0;
-        //多仓均价
-        this.longPositionAveragePrice=0;
-        this.longTdPosition = 0;
-        this.longYdPosition = 0;
-
-        this.shortPosition = 0;
-        //空仓均价
-        this.shortPositionAveragePrice = 0;
-        this.shortTdPosition = 0;
-        this.shortYdPosition = 0;
-    }
-
-    UpdatePositionByTradeData(trade) {
-        //""更新成交数据"""
-        if(trade.direction == Direction.Buy)
-        {
-            //多方开仓，则对应多头的持仓和今仓增加
-            if(trade.offset == OpenCloseFlagType.Open)
-            {
-                this.longPositionAveragePrice = (this.longPosition*this.longPositionAveragePrice+ trade.volume*trade.price)/(this.longPosition+trade.volume);
-                this.longPosition += trade.volume;
-                this.longTdPosition += trade.volume;
-            }else if(trade.offset == OpenCloseFlagType.CloseToday){
-                //买入平今，对应空头的持仓和今仓减少
-                if(this.shortPosition>0) {
-                    let restShortPosition = this.shortPosition - trade.volume;
-                    //还剩下仓位,就要改变平均持仓价
-                    if(restShortPosition>0)
-                    {
-                        this.shortPositionAveragePrice = (this.shortPosition * this.shortPositionAveragePrice - trade.volume * trade.price)/restShortPosition;
-                    }else{
-                        this.shortPositionAveragePrice = 0;
-                    }
-
-                    this.shortPosition -= trade.volume;
-                }
-
-                if(this.shortTdPosition>0){
-                    this.shortTdPosition -= trade.volume;
-                }
-
-            }else if(trade.offset == OpenCloseFlagType.CloseYesterday)
-            {
-                //买入平昨，对应空头的持仓和昨仓减少
-                if(this.shortPosition>0){
-                    let restShortPosition = this.shortPosition - trade.volume;
-                    //还剩下仓位,就要改变平均持仓价
-                    if(restShortPosition>0)
-                    {
-                        this.shortPositionAveragePrice = (this.shortPosition * this.shortPositionAveragePrice - trade.volume * trade.price)/restShortPosition;
-                    }else{
-                        this.shortPositionAveragePrice = 0;
-                    }
-
-                    this.shortPosition -= trade.volume;
-                }
-
-                if(this.shortYdPosition>0)
-                {
-                    this.shortYdPosition -= trade.volume;
-                }
-            }else if(trade.offset == OpenCloseFlagType.Close)
-            {
-                //买入平仓,默认先平昨天空仓,再平今空仓
-                if(this.shortPosition>0){
-
-                    let restShortPosition = this.shortPosition - trade.volume;
-                    //还剩下仓位,就要改变平均持仓价
-                    if(restShortPosition>0)
-                    {
-                        this.shortPositionAveragePrice = (this.shortPosition * this.shortPositionAveragePrice - trade.volume * trade.price)/restShortPosition;
-                    }else{
-                        this.shortPositionAveragePrice = 0;
-                    }
-
-                    this.shortPosition -= trade.volume;
-                }
-
-                if(this.shortYdPosition>0)
-                {
-                    this.shortYdPosition -= trade.volume;
-                }else if(this.shortTdPosition>0)
-                {
-                    this.shortTdPosition -= trade.volume;
-                }
-            }
-        }else{
-           // 空头,和多头相同
-            if(trade.offset == OpenCloseFlagType.Open){
-                //卖出开仓
-                //计算开仓均价
-                this.shortPositionAveragePrice = (this.shortPosition*this.shortPositionAveragePrice+ trade.volume*trade.price)/(this.shortPosition+trade.volume);
-
-                this.shortPosition += trade.volume;
-                this.shortTdPosition += trade.volume;
-            }else if(trade.offset == OpenCloseFlagType.CloseToday)
-            {
-                //卖出平今
-                if(this.longPosition){
-
-                    let restLongPosition = this.longPosition - trade.volume;
-                    //还剩下仓位,就要改变平均持仓价
-                    if(restLongPosition>0)
-                    {
-                        this.longPositionAveragePrice = (this.longPosition * this.longPositionAveragePrice - trade.volume * trade.price)/restLongPosition;
-                    }else{
-                        this.longPositionAveragePrice = 0;
-                    }
-
-                    this.longPosition -= trade.volume;
-                }
-
-                if(this.longTdPosition){
-                    this.longTdPosition -= trade.volume;
-                }
-            }else if(trade.offset == OpenCloseFlagType.CloseYesterday){
-                //卖出平昨
-                if(this.longPosition>0){
-
-                    let restLongPosition = this.longPosition - trade.volume;
-                    //还剩下仓位,就要改变平均持仓价
-                    if(restLongPosition>0)
-                    {
-                        this.longPositionAveragePrice = (this.longPosition * this.longPositionAveragePrice - trade.volume * trade.price)/restLongPosition;
-                    }else{
-                        this.longPositionAveragePrice = 0;
-                    }
-
-                    this.longPosition -= trade.volume;
-                }
-
-                if(this.longYdPosition>0){
-                    this.longYdPosition -= trade.volume;
-                }
-            }else if(trade.offset == OpenCloseFlagType.Close){
-                //卖出平仓,默认先平昨天多仓,再平今多仓
-                if(this.longPosition>0)
-                {
-
-                    let restLongPosition = this.longPosition - trade.volume;
-                    //还剩下仓位,就要改变平均持仓价
-                    if(restLongPosition>0)
-                    {
-                        this.longPositionAveragePrice = (this.longPosition * this.longPositionAveragePrice - trade.volume * trade.price)/restLongPosition;
-                    }else{
-                        this.longPositionAveragePrice = 0;
-                    }
-
-                    this.longPosition -= trade.volume;
-                }
-
-                //有昨仓先平昨仓
-                if(this.longYdPosition>0)
-                {
-                    this.longYdPosition -= trade.volume;
-                }else if(this.longTdPosition>0)
-                {
-                    this.longTdPosition -= trade.volume;
-                }
-            }
-        }
-    }
-}*/
-
 //一个合约一个仓位对象
 class Position {
     constructor() {
@@ -1388,12 +1215,13 @@ class StrategyEngine {
 
         //获取某一天的TradingDay的成交
         let currentTradingDatetime=DateTimeUtil.StrToDatetime(currentTradingDay);
-        let nextTradingDatetime=new Date(currentTradingDatetime.getYear(),currentTradingDatetime.getMonth(),currentTradingDatetime.getDate()+1);
-        let currentTradingDayQuaryArg = [ strategyTradeBook,nextTradingDatetime.getTime(), currentTradingDatetime.getTime() ];
+
+        let nextTradingDatetime=new Date(currentTradingDatetime.getFullYear(),currentTradingDatetime.getMonth(),currentTradingDatetime.getDate()+1);
+        let currentTradingDayQuaryArg = [ strategyTradeBook,currentTradingDatetime.getTime(),nextTradingDatetime.getTime()];
         global.Application.RedisDBClient.zrangebyscore(currentTradingDayQuaryArg,function (err, tradeRecordList) {
             if (err)
             {
-                throw err;
+                throw new Error("GetTradeRecord失败，原因:"+err.message);
             }else
             {
                 getTradeRecordCallback(tradeRecordList);
@@ -1425,7 +1253,7 @@ class StrategyEngine {
                 if(settlementList.length>0)
                 {
                     let lastSettlementJsonStr = settlementList[settlementList.length-1];
-                    let lastSettlement=JSON.stringify(lastSettlementJsonStr);
+                    let lastSettlement=JSON.parse(lastSettlementJsonStr);
                     callback(lastSettlement);
                 }else if(settlementList.length==0)
                 {

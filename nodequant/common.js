@@ -439,7 +439,8 @@ LogType={
 MainEngineStatus={
     Start:0,
     DayStop:1,
-    NightStop:2
+    NightStop:2,
+    Stop:3
 };
 
 Tick_DB_Name="NodeQuant_Tick_DB";

@@ -24,7 +24,7 @@ function _isTimeToWork() {
     let weekDay=NowDateTime.getDay();
     if(weekDay<1)
     {
-        return MainEngineStatus.NightStop;
+        return MainEngineStatus.Stop;
     }else if(weekDay==6)
     {
         //周六凌晨03:00以后就不工作

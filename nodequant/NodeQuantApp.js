@@ -47,7 +47,10 @@ class NodeQuantApp{
         let redis =require("redis");
         //初始化配置Redis数据库
         this.RedisDBClient = redis.createClient(RedisDBConfig.Port,RedisDBConfig.Host);
-        this.RedisDBClient.auth(RedisDBConfig.Password);
+        if(RedisDBConfig.Password)
+        {
+            this.RedisDBClient.auth(RedisDBConfig.Password);
+        }
         this.RedisDBClient.on("error", function (err) {
             console.log("RedisDBClient Error " + err);
         });
@@ -68,7 +71,7 @@ class NodeQuantApp{
     Exit()
     {
         console.log('NodeQuant Exit');
-        global.Application.MainEngine.Stop();
+        global.Application.MainEngine.Stop(MainEngineStatus.Stop);
 
         // 关闭数据库连接
         this.RedisDBClient.quit();
