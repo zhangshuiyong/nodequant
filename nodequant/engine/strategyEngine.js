@@ -844,7 +844,7 @@ class StrategyEngine {
         this.TradingDay = this.GetTradingDay();
     }
 
-    Stop(){
+    Stop(mainEngineStatus){
 
         //1.停止所有策略
         for(let strategyName in this.StrategyDic)
@@ -852,16 +852,18 @@ class StrategyEngine {
             this.StrategyDic[strategyName].Stop();
         }
 
-        //2.结算各个策略的当天净值
-        for(let strategyName in this.StrategyDic)
+        //2.白天收盘当做一天的结束(3:00 or 3.15), 结算各个策略的当天净值
+        if(mainEngineStatus==MainEngineStatus.DayStop)
         {
-            let strategy = this.StrategyDic[strategyName];
+            for(let strategyName in this.StrategyDic)
+            {
+                let strategy = this.StrategyDic[strategyName];
 
-            //每个策略一个结算纪录
-            this.SettleStrategyAccount(strategy);
+                //每个策略一个结算纪录
+                this.SettleStrategyAccount(strategy);
 
+            }
         }
-
         //3.清空策略列表
         this.StrategyDic={};
 

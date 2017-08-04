@@ -435,6 +435,13 @@ LogType={
     ERROR:"Error"
 };
 
+//主引擎的状态类型,开启，晚上收盘,白天收盘(要计算净值)
+MainEngineStatus={
+    Start:0,
+    DayStop:1,
+    NightStop:2
+};
+
 Tick_DB_Name="NodeQuant_Tick_DB";
 System_Log_DB="NodeQuant_System_Log";
 System_Error_DB="NodeQuant_System_Error";

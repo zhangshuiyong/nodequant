@@ -5,16 +5,10 @@ require("../common.js");
 require("../systemConfig");
 require("../userConfig.js");
 
-
-
-//let MongoClient = require('mongodb').MongoClient;
-
 let NodeQuantLog=require("../util/NodeQuantLog");
 let NodeQuantError=require("../util/NodeQuantError");
 
 let CtpClient=require("../model/client/CTPClient");
-
-//let Log=require("../model/db/LogModel");
 
 function _isTimeToWork() {
 
@@ -30,13 +24,13 @@ function _isTimeToWork() {
     let weekDay=NowDateTime.getDay();
     if(weekDay<1)
     {
-        return false;
+        return MainEngineStatus.NightStop;
     }else if(weekDay==6)
     {
         //周六凌晨03:00以后就不工作
         if(NightStopDateTime<NowDateTime)
         {
-            return false;
+            return MainEngineStatus.NightStop;
         }
     }
 
@@ -53,27 +47,27 @@ function _isTimeToWork() {
     if(NightStopDateTime<NowDateTime && NowDateTime<DayStartDateTime)
     {
         //在当天凌晨3:00 ~ 早上9:00是不需要打开的
-        return false;
+        return MainEngineStatus.NightStop;
     }else if(DayStopDateTime<NowDateTime && NowDateTime<NightStartDateTime)
     {
         //在当天下午15:30:00 ~ 晚上20:00是不需要打开的
-        return false;
+        return MainEngineStatus.DayStop;
     }
 
-    return true;
+    return MainEngineStatus.Start;
 }
 
 function _registerEvent(myEngine) {
 
-    //每隔1分钟检查是否需要自动退出交易客户端
+    //每隔5分钟检查是否需要自动退出交易客户端
 
     setInterval(function () {
-
-        if(false==_isTimeToWork())
+        let enginStatus=_isTimeToWork();
+        if(MainEngineStatus.Start!=enginStatus)
         {
             if(myEngine.isWorking)
             {
-                myEngine.Stop();
+                myEngine.Stop(enginStatus);
             }
         }else
         {
@@ -233,10 +227,10 @@ class MainEngine{
 
     }
 
-    Stop() {
+    Stop(mainEngineStatus) {
 
         //1.停止策略引擎
-        global.Application.StrategyEngine.Stop();
+        global.Application.StrategyEngine.Stop(mainEngineStatus);
 
         //2.断开Clients
         for(let key in this.clientDic)
