@@ -465,7 +465,7 @@ class ctpMdClient{
         //login的回调函数，先绑定登录的回调函数，再调用主动函数
         ctpMdClient.ctpMdApi.on("RspUserLogin",function (response,error,requestId,isLast) {
 
-            if(error.ErrorID==0)
+            if(error==undefined ||error.ErrorID==0)
             {
                 ctpMdClient.ctpClient.OnInfo("Market Front login successfully");
 
@@ -768,7 +768,7 @@ class ctpTdClient{
         //login的回调函数，登录的回调函数
         ctpTdClient.ctpTdApi.on("RspUserLogin",function (response,error,requestId,isLast) {
 
-            if(error.ErrorID==0)
+            if(error==undefined || error.ErrorID==0)
             {
                 ctpTdClient.ctpClient.OnInfo(ctpTdClient.ctpClient.ClientName+" Trade Front login successfully");
 
@@ -779,7 +779,7 @@ class ctpTdClient{
 
             }else{
 
-                let message="Trader Front Login Failed.";
+                let message="Trader Front Login Failed.Msg:"+error.ErrorMsg;
                 let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.Disconnected,message);
                 global.AppEventEmitter.emit(EVENT.OnError,error);
             }
