@@ -436,7 +436,8 @@ LogType={
 };
 
 Tick_DB_Name="NodeQuant_Tick_DB";
-System_DB_Name="NodeQuant_System_DB";
+System_Log_DB="NodeQuant_System_Log";
+System_Error_DB="NodeQuant_System_Error";
 
 
 

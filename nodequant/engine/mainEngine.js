@@ -5,24 +5,42 @@ require("../common.js");
 require("../systemConfig");
 require("../userConfig.js");
 
+
+
+//let MongoClient = require('mongodb').MongoClient;
+
 let NodeQuantLog=require("../util/NodeQuantLog");
 let NodeQuantError=require("../util/NodeQuantError");
 
 let CtpClient=require("../model/client/CTPClient");
 
-let Log=require("../model/db/LogModel");
+//let Log=require("../model/db/LogModel");
 
 function _isTimeToWork() {
-    let NowDateTime=new Date();
-    //自然馹,的周末一定不需要工作!
-    let weekDay=NowDateTime.getDay();
-    if(weekDay<1 || weekDay>5)
-    {
-        return false;
-    }
 
+    let NowDateTime=new Date();
     let NowDateStr=NowDateTime.toLocaleDateString();
 
+    //夜盘结束时间
+    let NightStopTimeStr=NowDateStr+" "+ SystemConfig.NightStopTime;
+    let NightStopDateTime=new Date(NightStopTimeStr);
+
+
+    //自然日的周末,周六的凌晨停止时间以后不用工作
+    let weekDay=NowDateTime.getDay();
+    if(weekDay<1)
+    {
+        return false;
+    }else if(weekDay==6)
+    {
+        //周六凌晨03:00以后就不工作
+        if(NightStopDateTime<NowDateTime)
+        {
+            return false;
+        }
+    }
+
+    //工作日的工作时间
     let DayStartDateTimeStr=NowDateStr+" "+SystemConfig.DayStartTime;
     let DayStartDateTime=new Date(DayStartDateTimeStr);
 
@@ -32,22 +50,17 @@ function _isTimeToWork() {
     let NightStartDateTimeStr= NowDateStr +" "+ SystemConfig.NightStartTime;
     let NightStartDateTime=new Date(NightStartDateTimeStr);
 
-    let NextDateTime=new Date();
-    NextDateTime.setDate(NextDateTime.getDate()+1);
-    let NextDateStr=NextDateTime.toLocaleDateString();
-    let NightStopDateTimeStr= NextDateStr +" "+ SystemConfig.NightStopTime;
-    let NightStopDateTime=new Date(NightStopDateTimeStr);
-
-
-    if(DayStartDateTime<NowDateTime && NowDateTime<DayStopDateTime)
+    if(NightStopDateTime<NowDateTime && NowDateTime<DayStartDateTime)
     {
-        return true;
-    }else if(NightStartDateTime<NowDateTime && NowDateTime<NightStopDateTime)
+        //在当天凌晨3:00 ~ 早上9:00是不需要打开的
+        return false;
+    }else if(DayStopDateTime<NowDateTime && NowDateTime<NightStartDateTime)
     {
-        return true;
+        //在当天下午15:30:00 ~ 晚上20:00是不需要打开的
+        return false;
     }
 
-    return false;
+    return true;
 }
 
 function _registerEvent(myEngine) {
@@ -141,8 +154,7 @@ function _registerEvent(myEngine) {
 
     global.AppEventEmitter.on(EVENT.OnError,function (error) {
 
-        let log=new NodeQuantLog(error.Source,LogType.ERROR,new Date().toLocaleString(),error.Message);
-        global.AppEventEmitter.emit(EVENT.OnLog,log);
+        myEngine.RecordError(error);
 
         console.log("出现错误来源"+error.Source+" ,Msg:"+error.Message);
     });
@@ -239,14 +251,33 @@ class MainEngine{
         global.AppEventEmitter.emit(EVENT.OnLog,log);
     }
 
-    RecordLog(log){
+    RecordError(error)
+    {
+        global.Application.RedisDBClient.lpush(System_Log_DB,JSON.stringify(error),function (err,reply) {
+            if(err) {
 
-        let logObj=new Log(log);
-        logObj.save(function (err,doc) {
-            if(err){
-                throw err;
+                let message="记录System_Error失败，原因:"+err.message;
+                let error=new NodeQuantError("MainEngine",ErrorType.DBError,message);
+                global.AppEventEmitter.emit(EVENT.OnError,error);
+
+                throw new Error("记录System_Log失败，原因:"+err.message);
             }
         });
+    }
+
+    RecordLog(log){
+
+        global.Application.RedisDBClient.lpush(System_Log_DB,JSON.stringify(log),function (err,reply) {
+            if(err) {
+
+                let message="记录System_Log失败，原因:"+err.message;
+                let error=new NodeQuantError("MainEngine",ErrorType.DBError,message);
+                global.AppEventEmitter.emit(EVENT.OnError,error);
+
+                throw new Error("记录System_Log失败，原因:"+err.message);
+            }
+        });
+
     }
 
     ConnectAllClient()

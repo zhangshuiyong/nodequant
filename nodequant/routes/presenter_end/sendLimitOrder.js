@@ -29,11 +29,25 @@ router.get('/', function(req, res, next) {
 
     var limitPrice=parseFloat(limitOrderReq.limitPrice);
 
-
     let DemoStrategy=global.Application.StrategyEngine.GetStrategy("Demo");
     if(DemoStrategy)
     {
         DemoStrategy.SendOrder(contractName,limitPrice,volume,direction,openclose);
+
+        //test 1
+        //DemoStrategy.SendOrder("T1709","94.710",volume,direction,openclose);
+        //test 2
+        /*
+        DemoStrategy.SendOrder("T1709","94.710",volume,direction,openclose);
+        DemoStrategy.SendOrder("TF1709","97.330",volume,direction,openclose);
+        */
+
+        //test 3
+        //DemoStrategy.SendOrder("bu1709",2670,volume,direction,openclose);
+        //DemoStrategy.SendOrder("rb1709",2850,volume,direction,openclose);
+
+        //DemoStrategy.SendOrder("bu1709",2670,volume,direction,openclose);
+        //DemoStrategy.SendOrder("rb1709",2850,volume,direction,openclose);
     }
 
     res.render('index', { title: 'FiveMAStrategy SendOrder'});

@@ -7,16 +7,13 @@ let bodyParser = require('body-parser');
 
 let index = require('./routes/index');
 
-let NodeQuantApp=require("./NodeQuantApp");
-
 let app = express();
+
+//启动NodeQuant,绑定请求路由
+let NodeQuantApp=require("./NodeQuantApp");
 let NodeQuantApplication = new NodeQuantApp(app);
 global.Application = NodeQuantApplication;
-
-//主引擎启动,界面可以手动下单
-global.Application.MainEngine.Start();
-
-
+global.Application.Start();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -51,11 +48,6 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-function NodeQuantAppExit(){
-    console.log('NodeQuant Exit');
-    global.Application.MainEngine.Stop();
-}
-
 
 process.on('uncaughtException',function (err) {
     //打印出错误
@@ -69,11 +61,15 @@ process.on('exit',function (code) {
 });
 
 process.on('SIGINT', function() {
-    NodeQuantAppExit();
+
     setInterval(function () {
         console.log('Got SIGINT.  Press Control-D/Control-C to exit.');
+        //2秒后程序退出,这两秒需要做程序状态记录
+        global.Application.Exit();
         process.exit();
     },2*1000);
 });
+
+
 
 module.exports = app;

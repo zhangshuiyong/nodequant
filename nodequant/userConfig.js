@@ -5,10 +5,11 @@ ClientConfig={
     CTP:{
         PowerOn:true,
         userID:"888888",
-        password:"888888",
-        brokerID:"5010",
-        mdAddress:"tcp://180.169.68.3:11213",
-        tdAddress:"tcp://180.169.68.3:11205"
+        password: "888888",
+        brokerID:"9999",
+        mdAddress: "tcp://218.202.237.33:10012",
+        tdAddress: "tcp://218.202.237.33:10002"
+
     }
 };
 StrategyConfig={
@@ -17,7 +18,7 @@ StrategyConfig={
             name:"Demo",
             className:"DemoStrategy",
             symbols: {
-                "i1709":{
+                "i1801":{
                     fee:0.00006,
                     closeTodayFee:0.00024,
                     feeType:FeeType.TradeAmount
@@ -34,6 +35,13 @@ MongoDBConfig={
     Host:"localhost",
     Port:"27017",
     TimeOut:30*60*1000
+};
+
+//Redis数据库配置
+RedisDBConfig={
+    Host:"127.0.0.1",
+    Port:6379,
+    Password:"123456"
 };
 
 //该设置配合NodeQuant通知服务可以通过声音,邮件通知用户策略发生的异常

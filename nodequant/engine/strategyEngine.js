@@ -6,6 +6,7 @@ require("../userConfig");
 
 let MongoClient = require('mongodb').MongoClient;
 
+let DateTimeUtil=require("../util/DateTimeUtil");
 let NodeQuantLog=require("../util/NodeQuantLog");
 let NodeQuantError=require("../util/NodeQuantError");
 
@@ -1214,6 +1215,8 @@ class StrategyEngine {
                 for(let index in tradeRecordList)
                 {
                     let tradeRecord=tradeRecordList[index];
+                    tradeRecord=JSON.parse(tradeRecord);
+
                     let feeInfo=strategyInstance.symbols[tradeRecord.symbol];
 
                     let tradeRecordValue=strategyEngine.SettleTradeRecordValue(tradeRecord);
@@ -1251,223 +1254,184 @@ class StrategyEngine {
     //仓位是一个策略,一个合约，对应一个仓位,仓位变化要更新数据库，有成交不一定有新的仓位,只会更新之前的仓位
     RecordPosition(strategyName,position)
     {
-        let strategyStatusDBName = strategyName + "_Status_DB";
-        let strategyStatusDBAddress = "mongodb://" + MongoDBConfig.Host + ":" + MongoDBConfig.Port + "/" + strategyStatusDBName+"?connectTimeoutMS="+MongoDBConfig.TimeOut;
+        //记录策略所有品种的key,可以根据这个Key表获得一共有多少个品种的仓位
+        let strategyPositionKey = strategyName+".Position";
+        global.Application.RedisDBClient.sadd(strategyPositionKey,position.symbol);
 
-        MongoClient.connect(strategyStatusDBAddress, function (err, db) {
 
-            if (err == null) {
-                db.collection("PositionBook").deleteMany({symbol:position.symbol},function (err, result) {
+        let strategyPositionSymbolKey = strategyName+".Position."+position.symbol;
 
-                    if(err==null)
-                    {
-                        //清空策略数据库的Position表成功
-                        //遍历多仓，记录到数据库
+        global.Application.RedisDBClient.del(strategyPositionSymbolKey, function(err, response) {
+            if (err) {
+                throw new Error(strategyName+"清空Position失败，原因:"+err.message);
+            } else{
+                //清空策略数据库的Position表成功
+                //遍历多仓，记录到数据库
 
-                        for(let index in position.longPositionTradeRecordList)
-                        {
-                            let tradeRecord = position.longPositionTradeRecordList[index];
-                            global.Application.StrategyEngine.RecordPositionItem(strategyName,strategyStatusDBAddress,tradeRecord);
-                        }
-                        //遍历空仓,记录到数据库
-                        for(let index in position.shortPositionTradeRecordList)
-                        {
-                            let tradeRecord = position.shortPositionTradeRecordList[index];
-                            global.Application.StrategyEngine.RecordPositionItem(strategyName,strategyStatusDBAddress,tradeRecord);
-                        }
-                    }else{
-                        throw new Error(strategyName+"清空Position失败，原因:"+err.message);
-                    }
-
-                    db.close();
-                });
-            } else {
-                throw new Error(strategyName+"清空Position失败，原因是打开数据库失败.");
+                for(let index in position.longPositionTradeRecordList)
+                {
+                    let tradeRecord = position.longPositionTradeRecordList[index];
+                    global.Application.StrategyEngine.RecordPositionItem(strategyPositionSymbolKey,tradeRecord);
+                }
+                //遍历空仓,记录到数据库
+                for(let index in position.shortPositionTradeRecordList)
+                {
+                    let tradeRecord = position.shortPositionTradeRecordList[index];
+                    global.Application.StrategyEngine.RecordPositionItem(strategyPositionSymbolKey,tradeRecord);
+                }
             }
         });
 
-
-        //遍历空仓
     }
 
     //将持仓的成交记录到持仓列表当中
-    RecordPositionItem(strategyName,strategyStatusDBAddress,tradeRecord)
+    RecordPositionItem(positionBookDBAddress,tradeRecord)
     {
-        MongoClient.connect(strategyStatusDBAddress, function (err, db) {
+        global.Application.RedisDBClient.rpush(positionBookDBAddress,JSON.stringify(tradeRecord),function (err,reply) {
+            if(err) {
 
-            if (err == null) {
-                db.collection("PositionBook").insertOne(tradeRecord, function (err, result) {
-                    db.close();
-                    if(err)
-                    {
-                        throw new Error(strategyName+"记录Position失败，原因:"+err.message);
-                    }
-                });
-            } else {
-                throw new Error(strategyName+"记录Position失败，原因是打开数据库失败.");
+                let message="记录Position失败，原因:"+err.message;
+                let error=new NodeQuantError("MainEngine",ErrorType.DBError,message);
+                global.AppEventEmitter.emit(EVENT.OnError,error);
+
+                throw new Error("记录Position失败，原因:"+err.message);
             }
         });
-
     }
 
     LoadPosition(strategyName)
     {
-        let strategyEngine=this;
-        let strategyStatusDBName = strategyName + "_Status_DB";
-        let strategyStatusDBAddress = "mongodb://" + MongoDBConfig.Host + ":" + MongoDBConfig.Port + "/" + strategyStatusDBName+"?connectTimeoutMS="+MongoDBConfig.TimeOut;
+        let strategyPositionKey = strategyName+".Position";
+        global.Application.RedisDBClient.smembers(strategyPositionKey,function (err,symbolSet) {
+            if(err)
+            {
+                throw new Error("LoadPosition失败，原因:"+err.message);
+            }else{
+                let PositionDic = global.Application.StrategyEngine.StrategyName_PositionDic[strategyName];
+                if (PositionDic == undefined) {
+                    PositionDic = {};
+                    global.Application.StrategyEngine.StrategyName_PositionDic[strategyName] = PositionDic;
+                }
 
-        MongoClient.connect(strategyStatusDBAddress, function (err, db) {
-            if (err == null) {
+                for(let index in symbolSet)
+                {
+                    let symbol= symbolSet[index];
+                    if(PositionDic[symbol]==undefined)
+                    {
+                        //加载仓位列表的时候没有这个仓位,要查询列表
+                        let positionObj=new Position();
+                        positionObj.symbol=symbol;
+                        positionObj.strategyName=strategyName;
+                        PositionDic[positionObj.symbol] = positionObj;
+                    }
 
-                db.collection("PositionBook").find({},function (err, tradeRecordCursor) {
-
-                    tradeRecordCursor.forEach(function(tradeRecord) {
-                        //把仓位加入到策略仓位中
-                        let PositionDic = strategyEngine.StrategyName_PositionDic[strategyName];
-                        if (PositionDic == undefined) {
-                            PositionDic = {};
-                            strategyEngine.StrategyName_PositionDic[strategyName] = PositionDic;
-                        }
-
-                        if(PositionDic[tradeRecord.symbol]==undefined)
+                    //查找Position.Symbol所有仓位成交记录
+                    let strategyPositionSymbolKey = strategyName+".Position."+symbol;
+                    global.Application.RedisDBClient.lrange(strategyPositionSymbolKey, 0, -1, function(err, tradeRecordStrList) {
+                        if(err)
                         {
-                            let positionObj=new Position();
-                            positionObj.symbol=tradeRecord.symbol;
-                            positionObj.strategyName=tradeRecord.strategyName;
-                            PositionDic[positionObj.symbol] = positionObj;
-                        }
-
-                        if (tradeRecord.offset == OpenCloseFlagType.Open && tradeRecord.direction == Direction.Buy) {
-                            //多方开仓,持仓
-                            PositionDic[tradeRecord.symbol].longPositionTradeRecordList.push(tradeRecord);
-                        }else if(tradeRecord.offset == OpenCloseFlagType.Open && tradeRecord.direction == Direction.Sell)
+                            throw new Error(strategyPositionSymbolKey+"表LoadPosition失败，原因:"+err.message);
+                        }else
                         {
-                            //空方开仓，持仓
-                            PositionDic[tradeRecord.symbol].shortPositionTradeRecordList.push(tradeRecord);
+                            for(let index in tradeRecordStrList)
+                            {
+                                let tradeRecordStr=tradeRecordStrList[index];
+                                let tradeRecord=JSON.parse(tradeRecordStr);
+                                if (tradeRecord.offset == OpenCloseFlagType.Open && tradeRecord.direction == Direction.Buy) {
+                                    //多方开仓,持仓
+                                    PositionDic[tradeRecord.symbol].longPositionTradeRecordList.push(tradeRecord);
+                                }else if(tradeRecord.offset == OpenCloseFlagType.Open && tradeRecord.direction == Direction.Sell)
+                                {
+                                    //空方开仓，持仓
+                                    PositionDic[tradeRecord.symbol].shortPositionTradeRecordList.push(tradeRecord);
+                                }
+                            }
                         }
                     });
 
-                    db.close();
-                });
-            } else {
-                throw new Error(strategyName+"策略加载Position失败，原因是打开数据库失败.");
+                }
             }
         });
     }
 
     //记录策略完成订单
     RecordOrder(strategyName, orderRecord) {
-        let strategyStatusDBName = strategyName + "_Status_DB";
-        let strategyStatusDBAddress = "mongodb://" + MongoDBConfig.Host + ":" + MongoDBConfig.Port + "/" + strategyStatusDBName+"?connectTimeoutMS="+MongoDBConfig.TimeOut;
 
-        MongoClient.connect(strategyStatusDBAddress, function (err, db) {
+        let strategyOrderBook = strategyName + ".Order";
 
-            if (err == null) {
-                db.collection("OrderBook").insertOne(orderRecord, function (err, result) {
-                    db.close();
-                });
-            } else {
-                throw new Error("记录Order失败，原因是打开数据库失败.");
+        global.Application.RedisDBClient.zadd(strategyOrderBook,orderRecord.datetime.getTime(),JSON.stringify(orderRecord), function (err, response) {
+            if (err){
+                throw new Error("记录Order失败，原因:"+err.message);
             }
         });
     }
 
     //记录策略成交
     RecordTrade(strategyName, trade) {
-        let strategyStatusDBName = strategyName + "_Status_DB";
-        let strategyStatusDBAddress = "mongodb://" + MongoDBConfig.Host + ":" + MongoDBConfig.Port + "/" + strategyStatusDBName+"?connectTimeoutMS="+MongoDBConfig.TimeOut;
 
-        trade.directionName=DirectionReverse[trade.direction];
-        trade.offsetName=OpenCloseFlagReverseType[trade.offset];
+        let strategyTradeBook = strategyName + ".Trade";
 
-        MongoClient.connect(strategyStatusDBAddress, function (err, db) {
-
-            if (err == null) {
-                db.collection("TradeBook").insertOne(trade, function (err, result) {
-                    db.close();
-                });
-            } else {
-                throw new Error("记录trade失败，原因是打开数据库失败.");
+        global.Application.RedisDBClient.zadd(strategyTradeBook,trade.tradingDateTimeStamp,JSON.stringify(trade), function (err, response) {
+            if (err){
+                throw new Error("记录Order失败，原因:"+err.message);
             }
         });
+
     }
 
 
-    GetTradeRecord(strategyName,currentDay,getTradeRecordCallback)
+    GetTradeRecord(strategyName,currentTradingDay,getTradeRecordCallback)
     {
-        let strategyStatusDBName = strategyName + "_Status_DB";
-        let strategyStatusDBAddress = "mongodb://" + MongoDBConfig.Host + ":" + MongoDBConfig.Port + "/" + strategyStatusDBName+"?connectTimeoutMS="+MongoDBConfig.TimeOut;
+        let strategyTradeBook = strategyName + ".Trade";
 
-        MongoClient.connect(strategyStatusDBAddress, function (err, db) {
-            if (err == null) {
-                db.collection("TradeBook").find({tradeDay:currentDay}).toArray(function(err,tradeRecordList) {
-                    if(err==null)
-                    {
-                        getTradeRecordCallback(tradeRecordList);
-                    }else
-                    {
-                        let message="获取trade record失败，原因:"+err.message;
-                        let error=new NodeQuantError("StrategyEngine",ErrorType.StrategyError,message);
-
-                        global.AppEventEmitter.emit(EVENT.OnError,error);
-                    }
-
-                    db.close();
-                });
-
-            } else {
-                throw new Error(strategyName+"策略加载Position失败，原因是打开数据库失败.");
+        //获取某一天的TradingDay的成交
+        let currentTradingDatetime=DateTimeUtil.StrToDatetime(currentTradingDay);
+        let nextTradingDatetime=new Date(currentTradingDatetime.getYear(),currentTradingDatetime.getMonth(),currentTradingDatetime.getDate()+1);
+        let currentTradingDayQuaryArg = [ strategyTradeBook,nextTradingDatetime.getTime(), currentTradingDatetime.getTime() ];
+        global.Application.RedisDBClient.zrangebyscore(currentTradingDayQuaryArg,function (err, tradeRecordList) {
+            if (err)
+            {
+                throw err;
+            }else
+            {
+                getTradeRecordCallback(tradeRecordList);
             }
         });
+
     }
 
     RecordSettlement(strategyName,settlement){
-        let strategyStatusDBName = strategyName + "_Status_DB";
-        let strategyStatusDBAddress = "mongodb://" + MongoDBConfig.Host + ":" + MongoDBConfig.Port + "/" + strategyStatusDBName+"?connectTimeoutMS="+MongoDBConfig.TimeOut;
-
-        MongoClient.connect(strategyStatusDBAddress, function (err, db) {
-
-            if (err == null) {
-                db.collection("SettlementBook").insertOne(settlement, function (err, result) {
-                    db.close();
-                });
-            } else {
-                throw new Error("记录Settlement失败，原因是打开数据库失败.");
-            }
+        let strategySettlementKey = strategyName+".Settlement";
+        //时间序列的结算最好是rpush
+        global.Application.RedisDBClient.rpush(strategySettlementKey,JSON.stringify(settlement),function (err,response) {
+           if(err)
+           {
+               throw new Error("记录Settlement失败，原因是:"+err.message);
+           }
         });
     }
 
     GetLastTradingDayStrategySettlement(strategyName,callback){
-        let strategyStatusDBName = strategyName + "_Status_DB";
-        let strategyStatusDBAddress = "mongodb://" + MongoDBConfig.Host + ":" + MongoDBConfig.Port + "/" + strategyStatusDBName+"?connectTimeoutMS="+MongoDBConfig.TimeOut;
-
-        MongoClient.connect(strategyStatusDBAddress, function (err, db) {
-            if (err == null) {
-                db.collection("SettlementBook").find({}).toArray(function(err,settlementList) {
-                    if(err==null)
-                    {
-                        if(settlementList.length>0)
-                        {
-                            let lastSettlement = settlementList[settlementList.length-1];
-                            callback(lastSettlement);
-                        }else if(settlementList.length==0)
-                        {
-                            callback(undefined);
-                        }
-                    }else
-                    {
-                        let message= "获取LastTradingDayStrategySettlement失败，原因:"+err.message;
-                        let error=new NodeQuantError("StrategyEngine",ErrorType.StrategyError,message);
-                        global.AppEventEmitter.emit(EVENT.OnError,error);
-                    }
-
-                    db.close();
-                });
-
-            } else {
-                console.log(strategyName+"策略获取上一天策略的结算数据失败，原因是打开数据库失败.");
+        let strategySettlementKey = strategyName+".Settlement";
+        //返回最后一条结算记录
+        global.Application.RedisDBClient.lrange(strategySettlementKey,-1,-1,function (err,settlementList) {
+            if(err)
+            {
+                throw new Error("获取前一个Settlement失败，原因是:"+err.message);
+            }else
+            {
+                if(settlementList.length>0)
+                {
+                    let lastSettlementJsonStr = settlementList[settlementList.length-1];
+                    let lastSettlement=JSON.stringify(lastSettlementJsonStr);
+                    callback(lastSettlement);
+                }else if(settlementList.length==0)
+                {
+                    callback(undefined);
+                }
             }
         });
+
     }
 
     //记录策略异常

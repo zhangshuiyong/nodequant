@@ -2,6 +2,10 @@
  * Created by majc_tom on 2017/6/11.
  */
 
+require("./common");
+require("./systemConfig");
+require("./userConfig");
+
 let EventEmitter = require('events').EventEmitter;
 let MainEngine=require("./engine/mainEngine");
 let StrategyEngine=require("./engine/strategyEngine");
@@ -14,6 +18,7 @@ class NodeQuantApp{
 
         console.log(">>>>>>>>>>  NodeQuant <<<<<<<<<<");
         console.log("Date :" + new Date(Date.now()).toLocaleTimeString());
+
 
         let connectTdClient = require('./routes/presenter_end/connectTdClient');
         let sendMarketOrder = require('./routes/presenter_end/sendMarketOrder');
@@ -39,12 +44,34 @@ class NodeQuantApp{
         application.use('/subscribeContract',subscribeContract);
         application.use('/unSubscribeContract',unSubscribeContract);
 
+        let redis =require("redis");
+        //初始化配置Redis数据库
+        this.RedisDBClient = redis.createClient(RedisDBConfig.Port,RedisDBConfig.Host);
+        this.RedisDBClient.auth(RedisDBConfig.Password);
+        this.RedisDBClient.on("error", function (err) {
+            console.log("RedisDBClient Error " + err);
+        });
+
         this.StrategyEngine=new StrategyEngine();
 
         //上层引擎先实例化
         //主引擎负责启动底层各个客户端，还有启动上层的引擎
         //用于实现多策略，多品种。一个策略实例---只能交易一个品种？mq可以一个策略接收多个品种的Tick
         this.MainEngine=new MainEngine();
+    }
+
+    Start()
+    {
+        this.MainEngine.Start();
+    }
+
+    Exit()
+    {
+        console.log('NodeQuant Exit');
+        global.Application.MainEngine.Stop();
+
+        // 关闭数据库连接
+        this.RedisDBClient.quit();
     }
 }
 

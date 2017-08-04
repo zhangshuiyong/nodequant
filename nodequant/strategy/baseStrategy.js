@@ -230,14 +230,15 @@ class BaseStrategy{
         let contract = global.Application.MainEngine.GetContract(symbol);
         let clientname=contract.clientName;
 
+        //记录发出订单
+        let orderRecord={};
+
         switch(sendOrderType)
         {
             case OrderType.Limit:
                 global.Application.StrategyEngine.SendLimitOrder(this,symbol,direction,openClose,volume,limitePrice);
 
-                //记录发出订单
-                var orderRecord={};
-                orderRecord.dateTime = new Date().toLocaleString();
+                orderRecord.datetime = new Date();
                 orderRecord.Type= OrderReverseType[OrderType.Limit];
                 orderRecord.symbol = symbol;
                 orderRecord.direction = DirectionReverse[direction];
@@ -252,9 +253,7 @@ class BaseStrategy{
             case OrderType.FAK:
                 global.Application.StrategyEngine.SendFillAndKillLimitOrder(this,symbol,direction,openClose,volume,limitePrice);
 
-                //记录发出订单
-                var orderRecord={};
-                orderRecord.dateTime = new Date().toLocaleString();
+                orderRecord.datetime = new Date();
                 orderRecord.Type= OrderReverseType[OrderType.FAK];
                 orderRecord.symbol = symbol;
                 orderRecord.direction = DirectionReverse[direction];
@@ -269,9 +268,7 @@ class BaseStrategy{
             case OrderType.FOK:
                 global.Application.StrategyEngine.SendFillOrKillLimitOrder(this,symbol,direction,openClose,volume,limitePrice);
 
-                //记录发出订单
-                var orderRecord={};
-                orderRecord.dateTime = new Date().toLocaleString();
+                orderRecord.datetime = new Date();
                 orderRecord.Type= OrderReverseType[OrderType.FOK];
                 orderRecord.symbol = symbol;
                 orderRecord.direction = DirectionReverse[direction];
@@ -294,9 +291,7 @@ class BaseStrategy{
 
                     global.Application.StrategyEngine.SendLimitOrder(this,symbol,direction,openClose,volume,limitePrice);
 
-                    //记录发出订单
-                    var orderRecord={};
-                    orderRecord.dateTime = new Date().toLocaleString();
+                    orderRecord.dateTime = new Date();
                     orderRecord.Type= OrderReverseType[OrderType.Market];
                     orderRecord.symbol = symbol;
                     orderRecord.direction = DirectionReverse[direction];
@@ -332,9 +327,7 @@ class BaseStrategy{
                 }else{
                     global.Application.StrategyEngine.SendStopLimitOrder(this,symbol,direction,openClose,volume,limitePrice,contingentCondition,stopPrice);
 
-                    //记录发出订单
-                    var orderRecord={};
-                    orderRecord.dateTime = new Date().toLocaleString();
+                    orderRecord.datetime = new Date();
                     orderRecord.Type= OrderReverseType[OrderType.Condition];
                     orderRecord.symbol = symbol;
                     orderRecord.direction = DirectionReverse[direction];

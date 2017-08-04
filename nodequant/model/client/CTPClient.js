@@ -6,6 +6,7 @@ require("../../common.js");
 require("../../userConfig.js");
 let CTP=require("./CTP/NodeQuant.node");
 
+let DateTimeUtil=require("../../util/DateTimeUtil");
 let NodeQuantError=require("../../util/NodeQuantError");
 let NodeQuantLog=require("../../util/NodeQuantLog");
 
@@ -1089,7 +1090,6 @@ class ctpTdClient{
 
             ctpTdClient.ctpClient.OnOrder(order);
 
-
         });
 
         //交易所中报单成交之后，一个报单回报（OnRtnOrder）和一个成交回报（OnRtnTrade）会被发送到客户端，报单回报
@@ -1122,6 +1122,13 @@ class ctpTdClient{
             trade.clientName =ctpTdClient.ctpClient.ClientName;
             trade.strategyOrderID=trade.clientName+"."+ trade.orderID;
             trade.strategyTradeID = trade.clientName+"."+ trade.tradeID;
+            trade.directionName=DirectionReverse[trade.direction];
+            trade.offsetName=OpenCloseFlagReverseType[trade.offset];
+
+            //转换时间
+
+            let tradeDateTime = DateTimeUtil.StrToDatetime(trade.tradingDay,trade.tradeTime);
+            trade.tradingDateTimeStamp = tradeDateTime.getTime();
 
             ctpTdClient.ctpClient.OnTrade(trade);
         });
