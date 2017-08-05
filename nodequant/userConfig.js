@@ -30,18 +30,10 @@ StrategyConfig={
     ]
 };
 
-//MongoDB数据库配置
-MongoDBConfig={
-    Host:"localhost",
-    Port:"27017",
-    TimeOut:30*60*1000
-};
-
 //Redis数据库配置
 RedisDBConfig={
     Host:"127.0.0.1",
-    Port:6379,
-    Password:"123456"
+    Port:6379
 };
 
 //该设置配合NodeQuant通知服务可以通过声音,邮件通知用户策略发生的异常
