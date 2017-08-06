@@ -247,7 +247,7 @@ class MainEngine{
 
     RecordError(error)
     {
-        global.Application.RedisDBClient.rpush(System_Log_DB,JSON.stringify(error),function (err,reply) {
+        global.Application.RedisDBClient.lpush(System_Log_DB,JSON.stringify(error),function (err,reply) {
             if(err) {
 
                 let message="记录System_Error失败，原因:"+err.message;
@@ -261,7 +261,7 @@ class MainEngine{
 
     RecordLog(log){
 
-        global.Application.RedisDBClient.rpush(System_Log_DB,JSON.stringify(log),function (err,reply) {
+        global.Application.RedisDBClient.lpush(System_Log_DB,JSON.stringify(log),function (err,reply) {
             if(err) {
 
                 let message="记录System_Log失败，原因:"+err.message;
