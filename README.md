@@ -34,11 +34,13 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 
 
 ## 搭建NodeQuant运行环境
-1. 支持Win7和Win10,暂且不支持Win8
-2. 下载安装32位的Node.js v6.11.1 版本（NodeQuant目前支持Node.js v6版本）—— [到Node.js官网下载Windows版本](https://nodejs.org/en/download/)
-3. 下载Mongodb数据库—— [到Mongodb官网下载Windows版本](https://www.mongodb.com/download-center/)
-4. 安装Mongodb并且启动Mongodb作为Windows服务——[请参考教程](http://www.jb51.net/article/85605.htm)
-5. 下载安装Mongodb的图形化客户端robomongo，可以方便查看NodeQuant保存在Mongodb中的数据。[请到robomongo官网下载Windows版本客户端](https://robomongo.org/download)
+1. 支持Win7和Win10
+2. 下载安装32位的Node.js v6.11.1 版本（NodeQuant目前支持Node.js v6版本）—— [到Node.js官网下载32位的Windows版本](https://nodejs.org/en/download/)
+3. 下载安装Redis,并启动为Windows服务——[请参考教程](http://www.cnblogs.com/smileyearn/articles/4749746.html)
+
+4. 下载Redis数据库—— [下载微软在Github上支持Redis的Windows客户端](https://github.com/MicrosoftArchive/redis/releases)
+
+5. 下载安装Redis的桌面客户端，可以方便查看NodeQuant保存在Redis数据库中的数据。[请到Redis官网下载Windows版本客户端](https://redisdesktop.com/download)
 6. 下载NodeQuant源代码
 7. 安装NodeQuant的第三方模块。打开cmd命令窗口，用命令行去到NodeQuant项目根目录，根目录中有package.json文件，cmd命令窗口输入命令```npm install```，安装package.json中的第三方模块
 
