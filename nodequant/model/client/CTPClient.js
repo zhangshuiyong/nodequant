@@ -534,14 +534,16 @@ class ctpMdClient{
             tick.symbol = marketData.InstrumentID;
             tick.exchange = marketData.ExchangeID;
 
-            tick.lastPrice = marketData.LastPrice;
+            tick.lastPrice = marketData.LastPrice;          //Tick的最新价
+
+            tick.closePrice = marketData.LastPrice;          //Tick收盘价等于Tick的最新价
+            tick.openPrice = marketData.OpenPrice;            //Tick开盘价等于1天的开盘价
+            tick.highPrice = marketData.HighestPrice;         //Tick最高价是目前为止的行情的最高价
+            tick.lowPrice = marketData.LowestPrice;           //Tick最低价是目前为止的行情的最低价
+            tick.preClosePrice = marketData.PreClosePrice;   //Tick前一天的收盘价
+
             tick.volume = marketData.Volume;
             tick.openInterest = marketData.OpenInterest;
-
-            tick.openPrice = marketData.OpenPrice;
-            tick.highPrice = marketData.HighestPrice;
-            tick.lowPrice = marketData.LowestPrice;
-            tick.preClosePrice = marketData.PreClosePrice;
 
             tick.upperLimit = marketData.UpperLimitPrice;
             tick.lowerLimit = marketData.LowerLimitPrice;
@@ -570,7 +572,10 @@ class ctpMdClient{
             let second=parseInt(marketData.UpdateTime.substring(6,8));
             //js Date对象从0开始的月份
             tick.datetime = new Date(year,month-1,day,hour,minute,second,marketData.UpdateMillisec);
+            tick.startDatetime = tick.datetime;//与KBar统一,但是Tick时一个时刻,开始时间与结束时间相同
+            tick.endDatetime = tick.datetime;
             tick.timeStamp=tick.datetime.getTime();
+            tick.Id = tick.timeStamp;
             //五档价格无效值Double的最大值转换为0
             //五档买价
             tick.bidPrice1 = marketData.BidPrice1==Number.MAX_VALUE?0:marketData.BidPrice1;

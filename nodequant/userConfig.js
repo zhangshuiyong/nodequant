@@ -26,6 +26,13 @@ StrategyConfig={
             },
             BarType:KBarType.Minute,  //K线类型是: 分钟
             BarInterval:1,             //1分钟K线
+            Preload:{
+                //数据预加载字段
+                //该字段设置后,启动策略后，系统会从Tick数据库或者Bar数据库预先加载数据
+                //会触发策略的OnFinishLoadTick或者OnFinishLoadBar
+                DataType:PreLoad_DataType.Tick,
+                LookBack:10,
+            }
         }
     ]
 };
@@ -33,7 +40,8 @@ StrategyConfig={
 //Redis数据库配置
 RedisDBConfig={
     Host:"127.0.0.1",
-    Port:6379
+    Port:6379,
+    Password:""
 };
 
 //该设置配合NodeQuant通知服务可以通过声音,邮件通知用户策略发生的异常

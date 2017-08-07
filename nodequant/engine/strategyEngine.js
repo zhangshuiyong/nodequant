@@ -2,6 +2,7 @@
  * Created by Administrator on 2017/6/12.
  */
 let fs=require("fs");
+require("../common");
 require("../userConfig");
 
 let DateTimeUtil=require("../util/DateTimeUtil");
@@ -1179,6 +1180,66 @@ class StrategyEngine {
                     });
 
                 }
+            }
+        });
+    }
+
+
+    LoadTickFromDB(strategy,symbol,LookBackCount,OnFinishLoadTick)
+    {
+        global.Application.RedisDBClient.select(NodeQuant_DBType.TickDB,function(error) {
+            if (error) {
+                throw new Error("从"+symbol+"数据库LoadTick失败，原因:" + error.message);
+                OnFinishLoadTick(strategy,symbol,undefined);
+            } else {
+                global.Application.RedisDBClient.zrange(symbol,-LookBackCount,-1,function (err,TickStrList) {
+                    if (err){
+                        throw new Error("从"+symbol+"数据库LoadTick失败原因:"+err.message);
+
+                        OnFinishLoadTick(strategy,symbol,undefined);
+                    }
+
+                    console.log("加载Tick成功,如下:")
+                    console.log(TickStrList);
+
+                    let TickList=[];
+                    for(let index in TickStrList)
+                    {
+                        let TickStr=TickStrList[index];
+                        let tick=JSON.parse(TickStr);
+                        TickList.push(tick);
+                    }
+
+                    OnFinishLoadTick(strategy,symbol,TickList);
+                });
+            }
+        });
+    }
+
+    LoadBarFromDB(strategy,symbol,LookBackCount,BarDBType,OnFinishLoadBar)
+    {
+        global.Application.RedisDBClient.select(BarDBType,function(error) {
+            if (error) {
+                throw new Error("从"+symbol+"数据库LoadBar失败，原因:" + error.message);
+                OnFinishLoadBar(strategy,symbol,undefined);
+            } else {
+                global.Application.RedisDBClient.zrange(symbol,-LookBackCount,-1,function (err,BarStrList) {
+                    if (err){
+                        throw new Error("从"+symbol+"数据库LoadBar失败原因:"+err.message);
+
+                        OnFinishLoadBar(strategy,symbol,undefined);
+                    }
+
+                    let BarList=[];
+                    for(let index in BarStrList)
+                    {
+                        let BarStr=BarStrList[index];
+                        let bar=JSON.parse(BarStr);
+                        BarList.push(bar);
+                    }
+
+                    OnFinishLoadBar(strategy,symbol,BarList);
+                });
             }
         });
     }

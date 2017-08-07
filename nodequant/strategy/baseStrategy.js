@@ -7,16 +7,18 @@ require("../common");
 let NodeQuantError=require("../util/NodeQuantError");
 
 class KBar{
-    constructor(BarId,StartDatetime,EndDatetime,Symbol,Open,High,Low,Close,Volume){
-        this.barId = BarId;
-        this.startDateTime = StartDatetime;
-        this.endDateTime = EndDatetime;
+    constructor(BarId,StartDatetime,EndDatetime,Symbol,Open,High,Low,Close,Volume,OpenInterest){
+        this.Id = BarId;
+        this.startDatetime = StartDatetime;
+        this.endDatetime = EndDatetime;
+        this.datetime=EndDatetime;//Kbar的时刻为结束时间
         this.symbol=Symbol;
-        this.open=Open;
-        this.high=High;
-        this.low=Low;
-        this.close=Close;
+        this.openPrice=Open;
+        this.highPrice=High;
+        this.lowPrice=Low;
+        this.closePrice=Close;
         this.volume=Volume;
+        this.openInterest=OpenInterest;
     }
 }
 //////////////////////////////// Private Method ////////////////////////////////////////////
@@ -66,7 +68,7 @@ function _createNewBar(myStrategy,barId,tick) {
     //通知策略产生了一个新Bar
     let bar_StartDatetime=KBarTickList[0].datetime;
     let bar_EndDatetime=KBarTickList[KBarTickList.length-1].datetime;
-    let newBar=new KBar(barId,bar_StartDatetime,bar_EndDatetime,tick.symbol,tick.lastPrice,tick.lastPrice,tick.lastPrice,tick.lastPrice,tick.volume);
+    let newBar=new KBar(barId,bar_StartDatetime,bar_EndDatetime,tick.symbol,tick.lastPrice,tick.lastPrice,tick.lastPrice,tick.lastPrice,tick.volume,tick.openInterest);
     myStrategy.OnNewBar(newBar);
 }
 
@@ -82,6 +84,7 @@ function _createClosedBar(myStrategy,barId,tick) {
         let bar_High = bar_TickList[0].lastPrice;
         let bar_Low = bar_TickList[0].lastPrice;
         let volume=0;
+        let openInterest=bar_TickList[bar_TickList.length-1].openInterest;
         for(let i=0;i< bar_TickList.length;i++)
         {
             bar_High = Math.max(bar_High,bar_TickList[i].lastPrice);
@@ -89,7 +92,7 @@ function _createClosedBar(myStrategy,barId,tick) {
             volume += bar_TickList[i].volume;
         }
 
-        let bar=new KBar(barId,bar_StartDatetime,bar_EndDatetime,tick.symbol,bar_Open,bar_High,bar_Low,bar_Close,volume);
+        let bar=new KBar(barId,bar_StartDatetime,bar_EndDatetime,tick.symbol,bar_Open,bar_High,bar_Low,bar_Close,volume,openInterest);
 
         if(myStrategy.Symbol_KBarListDic[tick.symbol]==undefined)
         {
@@ -115,12 +118,38 @@ function _trimPriceByPriceTick(price,priceTick){
     return trimPrice;
 }
 
+//预加载Tick完成
+function _onFinishLoadTick(strategy,symbol,TickList) {
+    strategy.OnFinishPreLoadTick(symbol,TickList);
+}
+
+//数据从数据库中预先加载
+function _loadTickFromDB(myStrategy,symbol,LookBackCount)
+{
+    global.Application.StrategyEngine.LoadTickFromDB(myStrategy,symbol,LookBackCount,_onFinishLoadTick);
+}
+
+//预加载Bar完成
+function _onFinishLoadBar(strategy,symbol,BarList) {
+    strategy.OnFinishPreLoadBar(symbol,BarList);
+}
+
+function _loadBarFromDB(myStrategy,symbol,LookBackCount,BarType)
+{
+    global.Application.StrategyEngine.LoadBarFromDB(myStrategy,symbol,LookBackCount,BarType,_onFinishLoadBar);
+}
+
 class BaseStrategy{
     constructor(strategyConfig){
         this.name=strategyConfig.name;
         this.symbols=strategyConfig.symbols;
         this.KBarType=strategyConfig.BarType;
         this.KBarInterval=strategyConfig.BarInterval;
+
+        //预加载数据库中数据
+        this.PreloadConfig=strategyConfig.Preload;
+        this.PreLoadTickList={};
+
         this.Symbol_KBarListDic={};
         this.KBarMillSecondInterval=undefined;
 
@@ -130,6 +159,8 @@ class BaseStrategy{
         {
             switch(this.KBarType)
             {
+                case KBarType.Tick:
+                    break;
                 case KBarType.Second:
                     this.KBarMillSecondInterval=this.KBarInterval*1000;
                     break;
@@ -143,9 +174,40 @@ class BaseStrategy{
                     break;
             }
         }
+
+        //数据预加载
+        if(this.PreloadConfig!=undefined)
+        {
+            if(this.PreloadConfig.DataType==PreLoad_DataType.Tick)
+            {
+                for(let symbol in this.symbols)
+                {
+                    _loadTickFromDB(this,symbol,this.PreloadConfig.LookBack);
+                }
+            }else if(this.PreloadConfig.DataType == PreLoad_DataType.Min_1)
+            {
+                for(let symbol in this.symbols)
+                {
+                    _loadBarFromDB(this,symbol,this.PreloadConfig.LookBack,PreLoad_DataType.Min_1);
+                }
+            }
+        }
     }
 
     ////////////////////////////////////////////////////////////// Public Method ///////////////////////////////////////////////////////////////////////////
+
+
+    //加载Tick完成
+    OnFinishPreLoadTick(symbol,TickList)
+    {
+        this.PreLoadTickList[symbol]=TickList;
+    }
+
+    //加载Bar完成
+    OnFinishPreLoadBar(symbol,BarList)
+    {
+
+    }
 
     /// <summary>
     /// 策略退出
@@ -155,8 +217,14 @@ class BaseStrategy{
     }
 
     OnTick(tick){
-
-        _createBar(this,tick);
+        //KarType没有设置或者设置为Tick,默认都不生成K线，不触发OnClosedBar,OnNewBar事件
+        if(this.KBarType==undefined || this.KBarType==KBarType.Tick)
+        {
+            return;
+        }else
+        {
+            _createBar(this,tick);
+        }
     }
 
     OnClosedBar(closedBar)
