@@ -192,7 +192,8 @@ class MainEngine{
 
     Start(){
 
-        if(MainEngineStatus.Start!=_isTimeToWork())
+        let enginStatus=_isTimeToWork();
+        if(MainEngineStatus.Start!=enginStatus)
             return;
 
         let log=new NodeQuantLog("MainEngine",LogType.INFO,new Date().toLocaleString(),"MainEngine Start");
