@@ -1,6 +1,23 @@
 require("./common");
-//配置客户端,NodeQuant启动,会连接已经配置打开的交易客户端
 
+//系统数据库配置
+System_DBConfig={
+    Host:"127.0.0.1",
+    Port:6379
+};
+
+
+//行情数据库配置
+
+MarketData_DBConfig={
+    /*
+           Host:"127.0.0.1",
+           Port:6380,
+           Password:"123456"
+    */
+};
+
+//配置客户端,NodeQuant启动,会连接已经配置打开的交易客户端
 ClientConfig={
     CTP:{
         PowerOn:true,
@@ -12,13 +29,14 @@ ClientConfig={
 
     }
 };
+
 StrategyConfig={
     Strategys:[
         {
             name:"Demo",
             className:"DemoStrategy",
             symbols: {
-                "i1801":{
+                "T1709":{
                     fee:0.00006,
                     closeTodayFee:0.00024,
                     feeType:FeeType.TradeAmount
@@ -35,13 +53,6 @@ StrategyConfig={
             }
         }
     ]
-};
-
-//Redis数据库配置
-RedisDBConfig={
-    Host:"127.0.0.1",
-    Port:6379,
-    Password:""
 };
 
 //该设置配合NodeQuant通知服务可以通过声音,邮件通知用户策略发生的异常

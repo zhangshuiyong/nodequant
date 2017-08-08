@@ -444,32 +444,33 @@ MainEngineStatus={
     Stop:3
 };
 
-Tick_DB_Name="NodeQuant_Tick_DB";
-System_Log_DB="NodeQuant_System_Log";
-System_Error_DB="NodeQuant_System_Error";
+AppName="NodeQuant";
+
+Tick_DB_Name=AppName+"_Tick_DB";
+System_Log_DB=AppName+"_System_Log";
+System_Error_DB=AppName+"_System_Error";
 
 //NodeQuant数据库类型(Redis数据库有默认的0~15个db,一共16个数据库)
-NodeQuant_DBType={
-    SystemDB:"0",
-    TickDB:"1",
-    Min_1_DB:"2",
-    Min_5_DB:"3",
-    Min_10_DB:"4",
-    Min_15_DB:"5",
-    Min_30_DB:"6",
-    Min_60_DB:"7",
-    Day_1_DB:"8"
+NodeQuant_BarDBType={
+    Tick:"Tick",
+    Min_1:"Min_1",
+    Min_5:"Min_5",
+    Min_10:"Min_10",
+    Min_15:"Min_15",
+    Min_30:"Min_30",
+    Min_60:"Min_60",
+    Day_1:"Day_1"
 };
 
 //预加载数据类型
 PreLoad_DataType={
-    Tick:NodeQuant_DBType.TickDB,
-    Min_1:NodeQuant_DBType.Min_1_DB,
-    Min_5:NodeQuant_DBType.Min_5_DB,
-    Min_10:NodeQuant_DBType.Min_10_DB,
-    Min_15:NodeQuant_DBType.Min_15_DB,
-    Min_30_DB:NodeQuant_DBType.Min_30_DB,
-    Min_60_DB:NodeQuant_DBType.Min_60_DB,
-    Day_1_DB:NodeQuant_DBType.Day_1_DB,
+    Tick:NodeQuant_BarDBType.Tick,
+    Min_1:NodeQuant_BarDBType.Min_1,
+    Min_5:NodeQuant_BarDBType.Min_5,
+    Min_10:NodeQuant_BarDBType.Min_10,
+    Min_15:NodeQuant_BarDBType.Min_15,
+    Min_30:NodeQuant_BarDBType.Min_30,
+    Min_60:NodeQuant_BarDBType.Min_60,
+    Day_1:NodeQuant_BarDBType.Day_1,
 };
 

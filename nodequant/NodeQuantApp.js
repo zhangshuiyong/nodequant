@@ -16,7 +16,7 @@ global.AppEventEmitter = new EventEmitter();
 class NodeQuantApp{
     constructor(application){
 
-        console.log(">>>>>>>>>>  NodeQuant <<<<<<<<<<");
+        console.log(">>>>>>>>>>  "+AppName+" <<<<<<<<<<");
         console.log("Date :" + new Date(Date.now()).toLocaleTimeString());
 
 
@@ -45,15 +45,36 @@ class NodeQuantApp{
         application.use('/unSubscribeContract',unSubscribeContract);
 
         let redis =require("redis");
-        //初始化配置Redis数据库
-        this.RedisDBClient = redis.createClient(RedisDBConfig.Port,RedisDBConfig.Host);
-        if(RedisDBConfig.Password)
+        //初始化配置系统数据库
+        this.SystemDBClient = redis.createClient(System_DBConfig.Port,System_DBConfig.Host);
+        if(System_DBConfig.Password!=undefined && System_DBConfig.Password!="")
         {
-            this.RedisDBClient.auth(RedisDBConfig.Password);
+            this.SystemDBClient.auth(System_DBConfig.Password);
         }
-        this.RedisDBClient.on("error", function (err) {
-            console.log("RedisDBClient Error " + err);
+
+        this.SystemDBClient.on("error", function (err) {
+            console.log("系统数据库出错,SystemDBClient Error " + err);
         });
+
+        //初始化配置行情数据库
+        try
+        {
+            if(MarketData_DBConfig!=undefined && MarketData_DBConfig.Port!=undefined && MarketData_DBConfig.Host != undefined)
+            {
+                this.MarketDataDBClient = redis.createClient(MarketData_DBConfig.Port,MarketData_DBConfig.Host);
+                if(MarketData_DBConfig.Password!=undefined && MarketData_DBConfig.Password!="")
+                {
+                    this.MarketDataDBClient.auth(MarketData_DBConfig.Password);
+                }
+
+                this.MarketDataDBClient.on("error", function (err) {
+                    console.log("行情数据库出错,MarketDataDBClient Error " + err);
+                });
+            }
+        }catch(err)
+        {
+            console.log("初始化行情数据库出错:" + err);
+        }
 
         this.StrategyEngine=new StrategyEngine();
 
@@ -74,7 +95,7 @@ class NodeQuantApp{
         global.Application.MainEngine.Stop(MainEngineStatus.Stop);
 
         // 关闭数据库连接
-        this.RedisDBClient.quit();
+        this.SystemDBClient.quit();
     }
 }
 

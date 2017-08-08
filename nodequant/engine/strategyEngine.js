@@ -1086,12 +1086,12 @@ class StrategyEngine {
     {
         //记录策略所有品种的key,可以根据这个Key表获得一共有多少个品种的仓位
         let strategyPositionKey = strategyName+".Position";
-        global.Application.RedisDBClient.sadd(strategyPositionKey,position.symbol);
+        global.Application.SystemDBClient.sadd(strategyPositionKey,position.symbol);
 
 
         let strategyPositionSymbolKey = strategyName+".Position."+position.symbol;
 
-        global.Application.RedisDBClient.del(strategyPositionSymbolKey, function(err, response) {
+        global.Application.SystemDBClient.del(strategyPositionSymbolKey, function(err, response) {
             if (err) {
                 throw new Error(strategyName+"清空Position失败，原因:"+err.message);
             } else{
@@ -1117,7 +1117,7 @@ class StrategyEngine {
     //将持仓的成交记录到持仓列表当中
     RecordPositionItem(positionBookDBAddress,tradeRecord)
     {
-        global.Application.RedisDBClient.rpush(positionBookDBAddress,JSON.stringify(tradeRecord),function (err,reply) {
+        global.Application.SystemDBClient.rpush(positionBookDBAddress,JSON.stringify(tradeRecord),function (err,reply) {
             if(err) {
 
                 let message="记录Position失败，原因:"+err.message;
@@ -1132,7 +1132,7 @@ class StrategyEngine {
     LoadPosition(strategyName)
     {
         let strategyPositionKey = strategyName+".Position";
-        global.Application.RedisDBClient.smembers(strategyPositionKey,function (err,symbolSet) {
+        global.Application.SystemDBClient.smembers(strategyPositionKey,function (err,symbolSet) {
             if(err)
             {
                 throw new Error("LoadPosition失败，原因:"+err.message);
@@ -1157,7 +1157,7 @@ class StrategyEngine {
 
                     //查找Position.Symbol所有仓位成交记录
                     let strategyPositionSymbolKey = strategyName+".Position."+symbol;
-                    global.Application.RedisDBClient.lrange(strategyPositionSymbolKey, 0, -1, function(err, tradeRecordStrList) {
+                    global.Application.SystemDBClient.lrange(strategyPositionSymbolKey, 0, -1, function(err, tradeRecordStrList) {
                         if(err)
                         {
                             throw new Error(strategyPositionSymbolKey+"表LoadPosition失败，原因:"+err.message);
@@ -1187,61 +1187,60 @@ class StrategyEngine {
 
     LoadTickFromDB(strategy,symbol,LookBackCount,OnFinishLoadTick)
     {
-        global.Application.RedisDBClient.select(NodeQuant_DBType.TickDB,function(error) {
-            if (error) {
-                throw new Error("从"+symbol+"数据库LoadTick失败，原因:" + error.message);
-                OnFinishLoadTick(strategy,symbol,undefined);
-            } else {
-                global.Application.RedisDBClient.zrange(symbol,-LookBackCount,-1,function (err,TickStrList) {
-                    if (err){
-                        throw new Error("从"+symbol+"数据库LoadTick失败原因:"+err.message);
+        if(global.Application.MarketDataDBClient!=undefined)
+        {
+            global.Application.MarketDataDBClient.zrange(symbol,-LookBackCount,-1,function (err,TickStrList) {
+                if (err){
+                    throw new Error("从"+symbol+"的行情数据库LoadTick失败原因:"+err.message);
 
-                        OnFinishLoadTick(strategy,symbol,undefined);
-                    }
+                    OnFinishLoadTick(strategy,symbol,undefined);
+                }
 
-                    console.log("加载Tick成功,如下:")
-                    console.log(TickStrList);
+                console.log("从行情数据库加载Tick成功,如下:");
+                console.log(TickStrList);
 
-                    let TickList=[];
-                    for(let index in TickStrList)
-                    {
-                        let TickStr=TickStrList[index];
-                        let tick=JSON.parse(TickStr);
-                        TickList.push(tick);
-                    }
+                let TickList=[];
+                for(let index in TickStrList)
+                {
+                    let TickStr=TickStrList[index];
+                    let tick=JSON.parse(TickStr);
+                    TickList.push(tick);
+                }
 
-                    OnFinishLoadTick(strategy,symbol,TickList);
-                });
-            }
-        });
+                OnFinishLoadTick(strategy,symbol,TickList);
+            });
+        }else
+        {
+            OnFinishLoadTick(strategy,symbol,undefined);
+        }
     }
 
     LoadBarFromDB(strategy,symbol,LookBackCount,BarDBType,OnFinishLoadBar)
     {
-        global.Application.RedisDBClient.select(BarDBType,function(error) {
-            if (error) {
-                throw new Error("从"+symbol+"数据库LoadBar失败，原因:" + error.message);
-                OnFinishLoadBar(strategy,symbol,undefined);
-            } else {
-                global.Application.RedisDBClient.zrange(symbol,-LookBackCount,-1,function (err,BarStrList) {
-                    if (err){
-                        throw new Error("从"+symbol+"数据库LoadBar失败原因:"+err.message);
+        if(global.Application.MarketDataDBClient!=undefined)
+        {
+            let symbolBarDBForm = symbol + "_" + BarDBType;
 
-                        OnFinishLoadBar(strategy,symbol,undefined);
-                    }
+            global.Application.MarketDataDBClient.zrange(symbolBarDBForm, -LookBackCount, -1, function (err, BarStrList) {
+                if (err) {
+                    throw new Error("从" + symbolBarDBForm + "的行情数据库LoadBar失败原因:" + err.message);
 
-                    let BarList=[];
-                    for(let index in BarStrList)
-                    {
-                        let BarStr=BarStrList[index];
-                        let bar=JSON.parse(BarStr);
-                        BarList.push(bar);
-                    }
+                    OnFinishLoadBar(strategy, symbol, undefined);
+                }
 
-                    OnFinishLoadBar(strategy,symbol,BarList);
-                });
-            }
-        });
+                let BarList = [];
+                for (let index in BarStrList) {
+                    let BarStr = BarStrList[index];
+                    let bar = JSON.parse(BarStr);
+                    BarList.push(bar);
+                }
+
+                OnFinishLoadBar(strategy, symbol, BarList);
+            });
+        }else
+        {
+            OnFinishLoadBar(strategy,symbol,undefined);
+        }
     }
 
     //记录策略完成订单
@@ -1249,7 +1248,7 @@ class StrategyEngine {
 
         let strategyOrderBook = strategyName + ".Order";
 
-        global.Application.RedisDBClient.zadd(strategyOrderBook,orderRecord.datetime.getTime(),JSON.stringify(orderRecord), function (err, response) {
+        global.Application.SystemDBClient.zadd(strategyOrderBook,orderRecord.datetime.getTime(),JSON.stringify(orderRecord), function (err, response) {
             if (err){
                 throw new Error("记录Order失败，原因:"+err.message);
             }
@@ -1261,7 +1260,7 @@ class StrategyEngine {
 
         let strategyTradeBook = strategyName + ".Trade";
 
-        global.Application.RedisDBClient.zadd(strategyTradeBook,trade.tradingDateTimeStamp,JSON.stringify(trade), function (err, response) {
+        global.Application.SystemDBClient.zadd(strategyTradeBook,trade.tradingDateTimeStamp,JSON.stringify(trade), function (err, response) {
             if (err){
                 throw new Error("记录Order失败，原因:"+err.message);
             }
@@ -1279,7 +1278,7 @@ class StrategyEngine {
 
         let nextTradingDatetime=new Date(currentTradingDatetime.getFullYear(),currentTradingDatetime.getMonth(),currentTradingDatetime.getDate()+1);
         let currentTradingDayQuaryArg = [ strategyTradeBook,currentTradingDatetime.getTime(),nextTradingDatetime.getTime()];
-        global.Application.RedisDBClient.zrangebyscore(currentTradingDayQuaryArg,function (err, tradeRecordList) {
+        global.Application.SystemDBClient.zrangebyscore(currentTradingDayQuaryArg,function (err, tradeRecordList) {
             if (err)
             {
                 throw new Error("GetTradeRecord失败，原因:"+err.message);
@@ -1294,7 +1293,7 @@ class StrategyEngine {
     RecordSettlement(strategyName,settlement){
         let strategySettlementKey = strategyName+".Settlement";
         //时间序列的结算最好是rpush
-        global.Application.RedisDBClient.rpush(strategySettlementKey,JSON.stringify(settlement),function (err,response) {
+        global.Application.SystemDBClient.rpush(strategySettlementKey,JSON.stringify(settlement),function (err,response) {
            if(err)
            {
                throw new Error("记录Settlement失败，原因是:"+err.message);
@@ -1305,7 +1304,7 @@ class StrategyEngine {
     GetLastTradingDayStrategySettlement(strategyName,callback){
         let strategySettlementKey = strategyName+".Settlement";
         //返回最后一条结算记录
-        global.Application.RedisDBClient.lrange(strategySettlementKey,-1,-1,function (err,settlementList) {
+        global.Application.SystemDBClient.lrange(strategySettlementKey,-1,-1,function (err,settlementList) {
             if(err)
             {
                 throw new Error("获取前一个Settlement失败，原因是:"+err.message);
