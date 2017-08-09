@@ -667,7 +667,7 @@ class ctpMdClient{
     }
 
     exit() {
-        this.subscribedContractSymbolList=[];
+        this.subscribedContractSymbolDic={};
         this.isConnected=false;
         this.isLogined=false;
         this.ctpMdApi.exit();
