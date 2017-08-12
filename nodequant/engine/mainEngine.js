@@ -248,14 +248,10 @@ class MainEngine{
 
     RecordError(error)
     {
-        global.Application.SystemDBClient.lpush(System_Log_DB,JSON.stringify(error),function (err,reply) {
+        global.Application.SystemDBClient.lpush(System_Error_DB,JSON.stringify(error),function (err,reply) {
             if(err) {
 
-                let message="记录System_Error失败，原因:"+err.message;
-                let error=new NodeQuantError("MainEngine",ErrorType.DBError,message);
-                global.AppEventEmitter.emit(EVENT.OnError,error);
-
-                throw new Error("记录System_Log失败，原因:"+err.message);
+                throw new Error("记录System_Error失败，原因:"+err);
             }
         });
     }
@@ -265,11 +261,11 @@ class MainEngine{
         global.Application.SystemDBClient.lpush(System_Log_DB,JSON.stringify(log),function (err,reply) {
             if(err) {
 
-                let message="记录System_Log失败，原因:"+err.message;
+                let message="记录System_Log失败，原因:"+err;
                 let error=new NodeQuantError("MainEngine",ErrorType.DBError,message);
                 global.AppEventEmitter.emit(EVENT.OnError,error);
 
-                throw new Error("记录System_Log失败，原因:"+err.message);
+                throw new Error(message);
             }
         });
 
