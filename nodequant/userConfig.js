@@ -36,7 +36,7 @@ StrategyConfig={
             name:"Demo",
             className:"DemoStrategy",
             symbols: {
-                "T1709":{
+                "i1709":{
                     fee:0.00006,
                     closeTodayFee:0.00024,
                     feeType:FeeType.TradeAmount

@@ -246,6 +246,12 @@ class BaseStrategy{
 
     }
 
+    //通过合约名字获得合约最新Tick
+    GetLastTick(symbol)
+    {
+        return global.Application.StrategyEngine.Symbol_LastTickDic[symbol];
+    }
+
     GetUnFinishOrderList()
     {
         let unFinishOrderList=global.Application.StrategyEngine.GetUnFinishOrderList(this.name);
