@@ -53,22 +53,20 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 ## 搭建NodeQuant运行环境
 1. 支持Win7和Win10
 2. 下载安装32位的Node.js v6.11.1 版本（NodeQuant目前支持Node.js v6版本）—— [到Node.js官网下载32位的Windows版本](https://nodejs.org/en/download/)
-3. 下载安装Windows版本Redis,并启动为Windows服务——[请参考教程](http://www.cnblogs.com/smileyearn/articles/4749746.html)
+3. 下载安装Windows版本Redis,并启动为Windows服务——[请参考教程](http://keenwon.com/1275.html)
 
-4. 下载Windows版本Redis数据库—— [下载微软在Github上支持Redis的Windows客户端](https://github.com/MicrosoftArchive/redis/releases)
+4. 下载安装Redis的桌面客户端，可以方便查看NodeQuant保存在Redis数据库中的数据。[可以到官网下载Windows版本客户端](https://redisdesktop.com/download)
+5. 下载NodeQuant源代码
+6. 安装NodeQuant的第三方模块。打开cmd命令窗口，用命令行去到NodeQuant项目根目录，根目录中有package.json文件，cmd命令窗口输入命令```npm install```，安装package.json中的第三方模块
 
-5. 下载安装Redis的桌面客户端，可以方便查看NodeQuant保存在Redis数据库中的数据。[可以到官网下载Windows版本客户端](https://redisdesktop.com/download)
-6. 下载NodeQuant源代码
-7. 安装NodeQuant的第三方模块。打开cmd命令窗口，用命令行去到NodeQuant项目根目录，根目录中有package.json文件，cmd命令窗口输入命令```npm install```，安装package.json中的第三方模块
-
-8. 下载WebStorm集成开发软件——[到WebStorm官网下载Windows版本](http://www.jetbrains.com/webstorm/)
-9. WebStorm打开NodeQuant项目,在Settings中设置使用Es6语法。 ![image](http://i2.kiimg.com/1949/c8ce699f9931f362.png)
-10. 在WebStorm中打开Node.js的代码提示功能，可以在编写代码的时候自动提示对象的函数，属性等名字，更方便编写Node.js程序。在WebStorm的Settings -> Languages & Frameworks -> Node.js and NPM -> Node.js Core library is not enabled -> 点击Enable，就启用了Node.js的代码提示功能了。![image](http://i2.kiimg.com/1949/9762caca3f7503f6.png)
-11. WebStorm添加一个Node.js的运行和调试环境。点击Edit Configurations->点击+号按钮添加Node.js环境![image](http://i1.buimg.com/1949/c9b638912962296f.png)
-12. 配置运行和调试环境，nodequant文件夹为工作目录，bin文件夹的www文件为项目的启动文件![image](http://i2.kiimg.com/1949/e5fee1112eec9505.png)
-13. 在NodeQuant项目根目录中，userConfig.js文件中ClientConfig项中配置自己的期货账号，密码，行情地址，交易地址![image](http://i2.kiimg.com/1949/8ec64b786a491c98.png)
-14. 点击调试运行。看到运行调试信息，运行成功。打印出log：“Demo策略启动成功 ”等log,说明样例策略启动成功。这个空策略的配置在userConfig.js用户配置文件中的StrategyConfig中
-![image](http://i1.buimg.com/1949/4536d5524e146b29.png)
+7. 下载WebStorm集成开发软件——[到WebStorm官网下载Windows版本](http://www.jetbrains.com/webstorm/)
+8. WebStorm打开NodeQuant项目,在Settings中设置使用Es6语法。 ![image](http://i2.kiimg.com/1949/c8ce699f9931f362.png)
+9. 在WebStorm中打开Node.js的代码提示功能，可以在编写代码的时候自动提示对象的函数，属性等名字，更方便编写Node.js程序。在WebStorm的Settings -> Languages & Frameworks -> Node.js and NPM -> Node.js Core library is not enabled -> 点击Enable，就启用了Node.js的代码提示功能了。![image](http://i2.kiimg.com/1949/9762caca3f7503f6.png)
+10. WebStorm添加一个Node.js的运行和调试环境。点击Edit Configurations->点击+号按钮添加Node.js环境![image](http://i1.buimg.com/1949/c9b638912962296f.png)
+11. 配置运行和调试环境，nodequant文件夹为工作目录，bin文件夹的www文件为项目的启动文件![image](http://i2.kiimg.com/1949/e5fee1112eec9505.png)
+12. 在NodeQuant项目根目录中，userConfig.js文件中ClientConfig项中配置自己的期货账号，密码，行情地址，交易地址![image](http://chuantu.biz/t6/2/1502551222x1876853738.png)
+13. 点击调试运行。看到运行调试信息，运行成功。打印出log：“Demo策略启动成功 ”等log,说明样例策略启动成功。这个空策略的配置在userConfig.js用户配置文件中的StrategyConfig中
+![image](http://chuantu.biz/t6/2/1502551531x2890149655.png)
 ## NodeQuant的整体架构
 
 ![image](http://i2.kiimg.com/1949/5c05aec0fc211d76.png)
