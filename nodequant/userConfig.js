@@ -44,13 +44,6 @@ StrategyConfig={
             },
             BarType:KBarType.Minute,  //K线类型是: 分钟
             BarInterval:1,             //1分钟K线
-            Preload:{
-                //数据预加载字段
-                //该字段设置后,启动策略后，系统会从行情数据库预先加载Tick或者Bar数据
-                //会触发策略的OnFinishLoadTick或者OnFinishLoadBar
-                DataType:PreLoad_DataType.Tick,
-                LookBack:10,
-            }
         }
     ]
 };
