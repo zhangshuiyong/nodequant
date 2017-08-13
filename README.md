@@ -33,9 +33,7 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 所以使用Node.js来编写和运行量化交易策略程序是一个非常好的解决方案，这就是NodeQuant量化交易平台诞生的背景。
 
 ## NodeQuant系统架构
-![node.js](http://image.jiantuku.com/17-8-13/52996356.jpg?imageView2/1/w/200/h/200&e=1502611210&token=el7kgPgYzpJoB23jrChWJ2gV3HpRl0VCzFn8rKKv:NANXG7Rgd565VOPciVY0_0UhQRg=)![加号](http://image.jiantuku.com/17-8-13/45431614.jpg?imageView2/1/w/200/h/200&e=1502610010&token=el7kgPgYzpJoB23jrChWJ2gV3HpRl0VCzFn8rKKv:TFm6YwHRlEwC6cE31Ota_I7r39Y=)![express](http://image.jiantuku.com/17-8-13/6181396.jpg?imageView2/1/w/200/h/200&e=1502611210&token=el7kgPgYzpJoB23jrChWJ2gV3HpRl0VCzFn8rKKv:-Mj0ZdyoHqQt6lwjComSEpuNN-w=)![加号](http://image.jiantuku.com/17-8-13/45431614.jpg?imageView2/1/w/200/h/200&e=1502610010&token=el7kgPgYzpJoB23jrChWJ2gV3HpRl0VCzFn8rKKv:TFm6YwHRlEwC6cE31Ota_I7r39Y=)![nodequant](http://image.jiantuku.com/17-8-13/5483858.jpg?imageView2/1/w/200/h/200&e=1502610010&token=el7kgPgYzpJoB23jrChWJ2gV3HpRl0VCzFn8rKKv:ciRy-WFV5Lc92VskKZXpUed12B8=)![加号](http://image.jiantuku.com/17-8-13/45431614.jpg?imageView2/1/w/200/h/200&e=1502610010&token=el7kgPgYzpJoB23jrChWJ2gV3HpRl0VCzFn8rKKv:TFm6YwHRlEwC6cE31Ota_I7r39Y=)![redis](http://image.jiantuku.com/17-8-13/91937130.jpg?imageView2/1/w/200/h/200&e=1502610010&token=el7kgPgYzpJoB23jrChWJ2gV3HpRl0VCzFn8rKKv:mJjV6LmamgaShBFpS18fixeJ10E=)
-
-
+![node.js](http://i2.nbimg.com/605009/5509796883d486c7.jpg)![加](http://i2.nbimg.com/605009/cb9aaa862236eb9f.jpg)![express](http://i2.nbimg.com/605009/eefea14a8a637385.jpg)![加](http://i2.nbimg.com/605009/cb9aaa862236eb9f.jpg)![nodequant](http://i2.nbimg.com/605009/038aef6f11b224f4.jpg)![加](http://i2.nbimg.com/605009/cb9aaa862236eb9f.jpg)![redis](http://i2.nbimg.com/605009/c0038278cda84ed5.jpg)
 - **Node.js** —— NodeQuant系统是一个基于Node.js的量化交易平台。Javascript语言也可以开发量化金融交易策略。
 - **Express** —— NodeQuant系统使用了Node.js平台的Express网络框架。可以使用Express框架将NodeQuant扩展成为一个互联网量化交易平台
 - **NodeQuant** —— NodeQuant系统的核心是NodeQuant的量化交易框架。使用NodeQuant量化交易框架，可以运行多个量化交易策略，可以进行多品种、多市场的趋势、套利交易
