@@ -39,7 +39,6 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 - **NodeQuant** —— NodeQuant系统的核心是NodeQuant的量化交易框架。使用NodeQuant量化交易框架，可以运行多个量化交易策略，可以进行多品种、多市场的趋势、套利交易
 - **Redis** —— NodeQuant系统使用Redis内存数据库，所有交易数据都保存在内存中，极速响应实盘交易策略
 
-****
 
 ## NodeQuant量化交易框架
 
