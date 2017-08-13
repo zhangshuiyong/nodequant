@@ -32,6 +32,26 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 
 所以使用Node.js来编写和运行量化交易策略程序是一个非常好的解决方案，这就是NodeQuant量化交易平台诞生的背景。
 
+## NodeQuant系统架构
+![node.js](http://image.jiantuku.com/17-8-13/52996356.jpg?imageView2/1/w/200/h/200&e=1502611210&token=el7kgPgYzpJoB23jrChWJ2gV3HpRl0VCzFn8rKKv:NANXG7Rgd565VOPciVY0_0UhQRg=)![加号](http://image.jiantuku.com/17-8-13/45431614.jpg?imageView2/1/w/200/h/200&e=1502610010&token=el7kgPgYzpJoB23jrChWJ2gV3HpRl0VCzFn8rKKv:TFm6YwHRlEwC6cE31Ota_I7r39Y=)![express](http://image.jiantuku.com/17-8-13/6181396.jpg?imageView2/1/w/200/h/200&e=1502611210&token=el7kgPgYzpJoB23jrChWJ2gV3HpRl0VCzFn8rKKv:-Mj0ZdyoHqQt6lwjComSEpuNN-w=)![加号](http://image.jiantuku.com/17-8-13/45431614.jpg?imageView2/1/w/200/h/200&e=1502610010&token=el7kgPgYzpJoB23jrChWJ2gV3HpRl0VCzFn8rKKv:TFm6YwHRlEwC6cE31Ota_I7r39Y=)![nodequant](http://image.jiantuku.com/17-8-13/5483858.jpg?imageView2/1/w/200/h/200&e=1502610010&token=el7kgPgYzpJoB23jrChWJ2gV3HpRl0VCzFn8rKKv:ciRy-WFV5Lc92VskKZXpUed12B8=)![加号](http://image.jiantuku.com/17-8-13/45431614.jpg?imageView2/1/w/200/h/200&e=1502610010&token=el7kgPgYzpJoB23jrChWJ2gV3HpRl0VCzFn8rKKv:TFm6YwHRlEwC6cE31Ota_I7r39Y=)![redis](http://image.jiantuku.com/17-8-13/91937130.jpg?imageView2/1/w/200/h/200&e=1502610010&token=el7kgPgYzpJoB23jrChWJ2gV3HpRl0VCzFn8rKKv:mJjV6LmamgaShBFpS18fixeJ10E=)
+
+
+- **Node.js** —— NodeQuant系统是一个基于Node.js的量化交易平台。Javascript语言也可以开发量化金融交易策略。
+- **Express** —— NodeQuant系统使用了Node.js平台的Express网络框架。可以使用Express框架将NodeQuant扩展成为一个互联网量化交易平台
+- **NodeQuant** —— NodeQuant系统的核心是NodeQuant的量化交易框架。使用NodeQuant量化交易框架，可以运行多个量化交易策略，可以进行多品种、多市场的趋势、套利交易
+- **Redis** —— NodeQuant系统使用Redis内存数据库，所有交易数据都保存在内存中，极速响应实盘交易策略
+
+****
+
+## NodeQuant量化交易框架
+
+![image](http://i2.kiimg.com/1949/5c05aec0fc211d76.png)
+
+1. **策略层**：策略层代表各种量化策略实例。策略实例负责运行交易算法，集成了交易事件响应函数，有OnTick、OnNewBar、OnCloseBar、OnOrder、OnTrade等事件响应函数，驱动量化策略的运行。
+2. **策略引擎层**：NodeQuant系统运行会唯一创建一个策略引擎实例，策略引擎层代表的就是这个策略引擎。策略引擎开始运行会根据用户的策略配置创建策略实例，也可以停止策略实例。响应策略的下单命令，推送策略订阅的合约行情，保存策略运行的仓位、订单、成交、结算信息等状态信息，接收交易Client的订单回报，成交回报。
+3. **主引擎层**：NodeQuant系统运行会唯一创建一个主引擎实例，主引擎层代表的就是这个主引擎。主引擎负责启动上层策略引擎和连接底层的各个交易Client，接收来自底层交易Cient的行情信息，并且响应上层策略引擎的下单命令。
+4. **交易客户端层**：交易客户端层代表着各个交易客户端。连接着各种证券交易所，商品交易所，接收推送来自交易所的行情信息，合约信息。同时，响应上层主引擎的在各个交易客户端的下单命令。目前已经实现了CTP Client,可交易中金所、上期所、大商所，郑商所的合约。
+
 ## NodeQuant 1.0的特性
 - 支持上期CTP的API客户端。可交易中金所、上期所、大商所、郑商所的所有期货品种合约
 - 支持一个账号 —— 多策略，支持一个账号多个策略的量化产品模式
@@ -67,14 +87,8 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 12. 在NodeQuant项目根目录中，userConfig.js文件中ClientConfig项中配置自己的期货账号，密码，行情地址，交易地址![image](http://chuantu.biz/t6/2/1502551222x1876853738.png)
 13. 点击调试运行。看到运行调试信息，运行成功。打印出log：“Demo策略启动成功 ”等log,说明样例策略启动成功。这个空策略的配置在userConfig.js用户配置文件中的StrategyConfig中
 ![image](http://chuantu.biz/t6/2/1502551531x2890149655.png)
-## NodeQuant的整体架构
 
-![image](http://i2.kiimg.com/1949/5c05aec0fc211d76.png)
 
-1. **策略层**：策略层代表各种量化策略实例。策略实例负责运行交易算法，集成了交易事件响应函数，有OnTick、OnNewBar、OnCloseBar、OnOrder、OnTrade等事件响应函数，驱动量化策略的运行。
-2. **策略引擎层**：NodeQuant系统运行会唯一创建一个策略引擎实例，策略引擎层代表的就是这个策略引擎。策略引擎开始运行会根据用户的策略配置创建策略实例，也可以停止策略实例。响应策略的下单命令，推送策略订阅的合约行情，保存策略运行的仓位、订单、成交、结算信息等状态信息，接收交易Client的订单回报，成交回报。
-3. **主引擎层**：NodeQuant系统运行会唯一创建一个主引擎实例，主引擎层代表的就是这个主引擎。主引擎负责启动上层策略引擎和连接底层的各个交易Client，接收来自底层交易Cient的行情信息，并且响应上层策略引擎的下单命令。
-4. **交易客户端层**：交易客户端层代表着各个交易客户端。连接着各种证券交易所，商品交易所，接收推送来自交易所的行情信息，合约信息。同时，响应上层主引擎的在各个交易客户端的下单命令。目前已经实现了CTP Client,可交易中金所、上期所、大商所，郑商所的合约。
 
 ## 技术交流
 
