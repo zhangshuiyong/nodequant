@@ -1,4 +1,4 @@
-# NodeQuant—一个基于Node.js的开源量化金融交易平台
+# NodeQuant：一个基于Node.js的开源量化金融交易平台
 ![image](http://i2.kiimg.com/1949/2fbd754431d72fa9.jpg)
 
 ## NodeQuant的愿景
@@ -83,4 +83,5 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 QQ群：197110856
 
 ## 入门教程
-正在编写...
+
+[NodeQuant开发文档](https://www.markbj.com/book/2ui9718/15921)
