@@ -12,7 +12,7 @@ class KBar{
         this.startDatetime = StartDatetime;
         this.endDatetime = EndDatetime;
         this.date=EndDatetime.toLocaleDateString();//Kbar的时刻为结束时间
-        this.time=EndDatetime.toLocaleTimeString();//Kbar的时刻为结束时间
+        this.time=EndDatetime.toLocaleTimeString()+"."+EndDatetime.getMilliseconds();//Kbar的时刻为结束时间
         this.symbol=Symbol;
         this.openPrice=Open;
         this.highPrice=High;
