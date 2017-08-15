@@ -146,6 +146,10 @@ function _registerEvent(myEngine) {
         global.AppEventEmitter.emit(EVENT.OnLog,log);
     });
 
+    global.AppEventEmitter.on(EVENT.OnQueryTradingAccount,function (tradingAccountInfo) {
+
+    });
+
     global.AppEventEmitter.on(EVENT.OnError,function (error) {
 
         myEngine.RecordError(error);
@@ -344,6 +348,12 @@ class MainEngine{
 
     QueryInvestorPosition(clientName) {
         let ret = this.clientDic[clientName].QueryInvestorPosition();
+        return ret;
+    }
+
+    QueryTradingAccount(clientName)
+    {
+        let ret = this.clientDic[clientName].QueryTradingAccount();
         return ret;
     }
 

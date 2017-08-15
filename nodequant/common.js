@@ -371,6 +371,8 @@ EVENT={
     OnTrade:"EventTraded",
     OnCreateStrategyFailed:"EventCreateStrategyFailed",
 
+    OnQueryTradingAccount:"EventQueryTradingAccount",
+
     //连接
     OnDisconnected:"EventDisconnected",
     OnConnected:"EventConnected",

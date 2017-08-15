@@ -338,9 +338,18 @@ class ctpClient{
         return this.tdClient.queryInvestorPosition();
     }
 
+    //查询资金情况
+    QueryTradingAccount()
+    {
+        return this.tdClient.queryTradingAccount();
+    }
 
     //////////////////////////////////////////////响应函数/////////////////////////////////////////////////////////
 
+    OnQueryTradingAccount(tradingAccountInfo)
+    {
+        global.AppEventEmitter.emit(EVENT.OnQueryTradingAccount,tradingAccountInfo);
+    }
 
     OnInfo(msg) {
         let log=new NodeQuantLog(this.ClientName,LogType.INFO,new Date().toLocaleString(),msg);
@@ -985,6 +994,41 @@ class ctpTdClient{
 
         return ctpTdClient.ctpTdApi.queryInvestorPosition(this.userID,this.brokerID);
 
+    }
+
+    queryTradingAccount() {
+        let ctpTdClient=this;
+
+        //没等登录不能查询
+        if(ctpTdClient.isLogined==false) {
+            let message="Query Trading Account Failed. Error:Trade Front have not logined";
+            let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.OperationAfterDisconnected,message);
+
+            global.AppEventEmitter.emit(EVENT.OnError,error);
+
+            return -99;
+        }
+
+
+        ctpTdClient.ctpTdApi.on("RspQryTradingAccount",function (tradingAccountInfo,error,requestID,isLast) {
+            // """账户查询回报"""
+            if(error!=undefined && error.ErrorID!=0)
+            {
+                error.ErrorMsg="Query Trading Account Failed. Error Id:"+error.ErrorID+",Error msg:"+error.ErrorMsg;
+                let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.ClientRspError,error.ErrorMsg);
+                global.AppEventEmitter.emit(EVENT.OnError,error);
+
+                tradingAccountInfo = {};
+            }
+
+            //设置客户端名字
+            tradingAccountInfo.clientName = ctpTdClient.ctpClient.ClientName;
+            tradingAccountInfo.queryId = tradingAccountInfo.clientName+requestID;
+
+            ctpTdClient.ctpClient.OnQueryTradingAccount(tradingAccountInfo);
+        });
+
+        return ctpTdClient.ctpTdApi.queryTradingAccount(ctpTdClient.userID,ctpTdClient.brokerID);
     }
 
     sendOrder(orderReq) {

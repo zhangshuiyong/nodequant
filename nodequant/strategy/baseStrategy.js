@@ -11,7 +11,8 @@ class KBar{
         this.Id = BarId;
         this.startDatetime = StartDatetime;
         this.endDatetime = EndDatetime;
-        this.datetime=EndDatetime;//Kbar的时刻为结束时间
+        this.date=EndDatetime.toLocaleDateString();//Kbar的时刻为结束时间
+        this.time=EndDatetime.toLocaleTimeString();//Kbar的时刻为结束时间
         this.symbol=Symbol;
         this.openPrice=Open;
         this.highPrice=High;
@@ -244,6 +245,16 @@ class BaseStrategy{
 
     OnTrade(trade){
 
+    }
+
+    QueryTradingAccount(tick)
+    {
+        global.Application.StrategyEngine.QueryTradingAccount(tick.clientName,this);
+    }
+
+    OnQueryTradingAccount(tradingAccountInfo)
+    {
+        console.log(tradingAccountInfo);
     }
 
     //通过合约名字获得合约最新Tick

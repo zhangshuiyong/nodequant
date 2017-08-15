@@ -622,6 +622,15 @@ function _registerEvent(myEngine) {
         }
 
     });
+    
+    //查询资金
+    global.AppEventEmitter.on(EVENT.OnQueryTradingAccount,function (tradingAccountInfo) {
+        let OnQueryTradingAccountCallBack = myEngine.OnQueryTradingAccountCallBackDic[tradingAccountInfo.queryId];
+        OnQueryTradingAccountCallBack(tradingAccountInfo);
+
+        //调用完清掉
+        delete myEngine.OnQueryTradingAccountCallBackDic[tradingAccountInfo.queryId];
+    });
 }
 
 class StrategyEngine {
@@ -649,6 +658,9 @@ class StrategyEngine {
 
         //策略-订阅的合约-最新Tick
         this.Symbol_LastTickDic={};
+
+        //策略查询资金情况回调函数
+        this.OnQueryTradingAccountCallBackDic={};
 
         _registerEvent(this);
     }
@@ -742,6 +754,15 @@ class StrategyEngine {
 
     GetStrategy(strategyName){
         return this.StrategyDic[strategyName];
+    }
+
+    QueryTradingAccount(clientName,strategy)
+    {
+        let requestId = global.Application.MainEngine.QueryTradingAccount(clientName);
+
+        let queryId = clientName+requestId;
+
+        this.OnQueryTradingAccountCallBackDic[queryId] = strategy.OnQueryTradingAccount;
     }
 
     SubscribeStrategySymbolsOfClient(clientName)
