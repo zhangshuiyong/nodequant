@@ -965,6 +965,10 @@ class StrategyEngine {
             {
                 TickLookBackCount = LookBackCount * BarInterval * 60 * 60 * 4;
                 BarMillSecondInterval=BarInterval*60*60*1000;
+            }else if(BarType == KBarType.Day)
+            {
+                TickLookBackCount = LookBackCount * BarInterval* 24 * 60 * 60 * 4;
+                BarMillSecondInterval=BarInterval*24*60*60*1000;
             }
 
             global.Application.MarketDataDBClient.zrange(symbol, -TickLookBackCount, -1, function (err, TickStrList) {

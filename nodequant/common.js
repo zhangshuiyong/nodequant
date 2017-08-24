@@ -411,7 +411,8 @@ KBarType={
     Tick:"TickKBar",
     Second:"SecondKBar",
     Minute:"MinuteKBar",
-    Hour:"HourKBar"
+    Hour:"HourKBar",
+    Day:"DayKBar"
 };
 
 //手续费类型

@@ -115,8 +115,8 @@ function _loadTickFromDB(myStrategy,symbol,LookBackCount)
 }
 
 //预加载Bar完成
-function _onFinishLoadBar(strategy,symbol,BarType,BarCycleNumber,ClosedBarList) {
-    strategy.OnFinishPreLoadBar(symbol,BarType,BarCycleNumber,ClosedBarList);
+function _onFinishLoadBar(strategy,symbol,BarType,BarInterval,ClosedBarList) {
+    strategy.OnFinishPreLoadBar(symbol,BarType,BarInterval,ClosedBarList);
 }
 
 function _loadBarFromDB(myStrategy,symbol,LookBackCount,BarType,BarInterval)
@@ -189,7 +189,7 @@ class BaseStrategy{
     }
 
     //加载Bar完成
-    OnFinishPreLoadBar(symbol,BarList)
+    OnFinishPreLoadBar(symbol,BarType,BarInterval,ClosedBarList)
     {
 
     }
