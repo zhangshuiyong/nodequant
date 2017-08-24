@@ -5,23 +5,7 @@
 require("../common");
 
 let NodeQuantError=require("../util/NodeQuantError");
-
-class KBar{
-    constructor(BarId,StartDatetime,EndDatetime,Symbol,Open,High,Low,Close,Volume,OpenInterest){
-        this.Id = BarId;
-        this.startDatetime = StartDatetime;
-        this.endDatetime = EndDatetime;
-        this.date=EndDatetime.toLocaleDateString();//Kbar的时刻为结束时间
-        this.time=EndDatetime.toLocaleTimeString()+"."+EndDatetime.getMilliseconds();//Kbar的时刻为结束时间
-        this.symbol=Symbol;
-        this.openPrice=Open;
-        this.highPrice=High;
-        this.lowPrice=Low;
-        this.closePrice=Close;
-        this.volume=Volume;
-        this.openInterest=OpenInterest;
-    }
-}
+let KBar = require("../util/KBar");
 //////////////////////////////// Private Method ////////////////////////////////////////////
 function _createBar(myStrategy,tick) {
 
@@ -131,13 +115,13 @@ function _loadTickFromDB(myStrategy,symbol,LookBackCount)
 }
 
 //预加载Bar完成
-function _onFinishLoadBar(strategy,symbol,BarList) {
-    strategy.OnFinishPreLoadBar(symbol,BarList);
+function _onFinishLoadBar(strategy,symbol,BarType,BarCycleNumber,ClosedBarList) {
+    strategy.OnFinishPreLoadBar(symbol,BarType,BarCycleNumber,ClosedBarList);
 }
 
-function _loadBarFromDB(myStrategy,symbol,LookBackCount,BarType)
+function _loadBarFromDB(myStrategy,symbol,LookBackCount,BarType,BarInterval)
 {
-    global.Application.StrategyEngine.LoadBarFromDB(myStrategy,symbol,LookBackCount,BarType,_onFinishLoadBar);
+    global.Application.StrategyEngine.LoadBarFromDB(myStrategy,symbol,LookBackCount,BarType,BarInterval,_onFinishLoadBar);
 }
 
 class BaseStrategy{
@@ -148,7 +132,7 @@ class BaseStrategy{
         this.KBarInterval=strategyConfig.BarInterval;
 
         //预加载数据库中数据
-        this.PreloadConfig=strategyConfig.Preload;
+        this.PreloadConfig=strategyConfig.PreloadConfig;
         this.PreLoadTickList={};
 
         this.Symbol_KBarListDic={};
@@ -179,17 +163,17 @@ class BaseStrategy{
         //数据预加载
         if(this.PreloadConfig!=undefined)
         {
-            if(this.PreloadConfig.DataType==PreLoad_DataType.Tick)
+            if(this.PreloadConfig.BarType==KBarType.Tick)
             {
                 for(let symbol in this.symbols)
                 {
                     _loadTickFromDB(this,symbol,this.PreloadConfig.LookBack);
                 }
-            }else if(this.PreloadConfig.DataType == PreLoad_DataType.Min_1)
+            }else
             {
                 for(let symbol in this.symbols)
                 {
-                    _loadBarFromDB(this,symbol,this.PreloadConfig.LookBack,PreLoad_DataType.Min_1);
+                    _loadBarFromDB(this,symbol,this.PreloadConfig.LookBack,this.PreloadConfig.BarType,this.PreloadConfig.BarInterval);
                 }
             }
         }

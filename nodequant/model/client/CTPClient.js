@@ -76,7 +76,7 @@ class ctpClient{
 
     //订阅合约
     Subscribe(contractName) {
-       return this.mdClient.subscribe(contractName);
+        return this.mdClient.subscribe(contractName);
     }
 
     UnSubscribe(contractName) {
@@ -313,7 +313,7 @@ class ctpClient{
         sendOrderReq.TimeCondition=TimeConditionType.ImmediatelyOrCancel;
 
         //发送下单命令（参数为10项重要下单属性）
-       return this.tdClient.sendOrder(sendOrderReq);
+        return this.tdClient.sendOrder(sendOrderReq);
     }
 
     //撤单
@@ -450,7 +450,7 @@ class ctpMdClient{
 
         if(ctpMdClient.isConnected==false)
         {
-           return ctpMdClient.ctpMdApi.connect(this.address,mdFlowPath);
+            return ctpMdClient.ctpMdApi.connect(this.address,mdFlowPath);
         }else
         {
             if(ctpMdClient.isLogined==false)
@@ -562,6 +562,7 @@ class ctpMdClient{
 
             //由于存在黄金等跨交易日的品种,所以必须动态设置Tick的交易日!
             tick.date = marketData.TradingDay;
+            tick.actionDate=marketData.ActionDay;
 
             //有可能ctp返回的tradingDay为空
             if(tick.date=="")
@@ -569,22 +570,26 @@ class ctpMdClient{
                 tick.date= ctpMdClient.getTradingDay();
             }
 
+            tick.time =marketData.UpdateTime+'.'+marketData.UpdateMillisec;
+
             //市场前置登录上,获取统一的交易日
             let year=parseInt(tick.date.substring(0,4));
             let month=parseInt(tick.date.substring(4,6));
             let day=parseInt(tick.date.substring(6,8));
 
-            tick.time =marketData.UpdateTime+'.'+marketData.UpdateMillisec;
+            //触发自然日
+            let actionYear=parseInt(tick.actionDate.substring(0,4));
+            let actionMonth=parseInt(tick.actionDate.substring(4,6));
+            let actionDay=parseInt(tick.actionDate.substring(6,8));
 
             let hour=parseInt(marketData.UpdateTime.substring(0,2));
             let minute=parseInt(marketData.UpdateTime.substring(3,5));
             let second=parseInt(marketData.UpdateTime.substring(6,8));
             //js Date对象从0开始的月份
             tick.datetime = new Date(year,month-1,day,hour,minute,second,marketData.UpdateMillisec);
-            tick.startDatetime = tick.datetime;//与KBar统一,但是Tick时一个时刻,开始时间与结束时间相同
-            tick.endDatetime = tick.datetime;
+            tick.actionDatetime = new Date(actionYear,actionMonth-1,actionDay,hour,minute,second,marketData.UpdateMillisec);
             tick.timeStamp=tick.datetime.getTime();
-            tick.Id = tick.timeStamp;
+            tick.Id = tick.actionDatetime.getTime();
             //五档价格无效值Double的最大值转换为0
             //五档买价
             tick.bidPrice1 = marketData.BidPrice1==Number.MAX_VALUE?0:marketData.BidPrice1;

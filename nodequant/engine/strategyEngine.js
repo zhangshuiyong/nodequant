@@ -9,549 +9,178 @@ let DateTimeUtil=require("../util/DateTimeUtil");
 let NodeQuantLog=require("../util/NodeQuantLog");
 let NodeQuantError=require("../util/NodeQuantError");
 
+let KBar = require("../util/KBar");
+
 //策略仓位管理器
-//一个合约一个仓位对象
-class Position {
-    constructor() {
-        this.strategyName = "";
-        this.symbol = "";
-        this.longPositionTradeRecordList = [];
-        this.shortPositionTradeRecordList = [];
+let Position=require("../util/Position");
+//////////////////////////////////////////////////////////////Private Method////////////////////////////////
+
+//过滤非法的tick
+//如何定义非法的tick
+//非法的tick----不用录入数据库的Tick
+//1.交易日的非法的tick
+//1.1. 不在交易时间的Tick
+
+function _isPassCTPFilter(tickFutureConfig,tickDateTime)
+{
+    if(tickFutureConfig==undefined)
+    {
+        //没有配置时间,不录入数据库
+        return false;
     }
 
-    //获取总的 锁仓
-    GetLockedPosition()
+    let tickTradingDate = tickDateTime.toLocaleDateString();
+    //早盘开盘时间,用于对比判断,夜盘是否到了凌晨的交易品种,如黄金
+    let AMOpenDateTime=undefined;
+    if(tickFutureConfig.AMOpen!=undefined)
     {
-        let longPosition=this.GetLongPosition();
-        let shortPosition=this.GetShortPosition();
-
-        let lockedPostion=Math.min(longPosition,shortPosition);
-
-        return lockedPostion;
+        let AMOpenDateTimeStr=tickTradingDate+" "+tickFutureConfig.AMOpen;
+        AMOpenDateTime=new Date(AMOpenDateTimeStr);
+    }else
+    {
+        //没有开盘时间，全部tick都不能判断!!!
+        return false;
     }
 
-    //获取总的 非锁 多仓
-    GetUnLockLongPosition()
+    //由于5.2,凌晨夜盘超过到另外一天到另一个交易日的凌晨
+    //一个交易日的tick最开始有效时间,可能是凌晨(黄金),也可能是早盘开始!!!
+    if(tickFutureConfig.NightClose==undefined)
     {
-        let unLockLongPosition=0;
-        let longPosition=this.GetLongPosition();
-        let shortPosition=this.GetShortPosition();
-
-        if (longPosition > shortPosition) {
-            unLockLongPosition = longPosition - shortPosition;
-        }
-
-        return unLockLongPosition;
-    }
-
-    //获取总的 非锁 空仓
-    GetUnLockShortPosition()
-    {
-        let unLockShortPosition=0;
-        let longPosition=this.GetLongPosition();
-        let shortPosition=this.GetShortPosition();
-
-        if (shortPosition > longPosition) {
-            unLockShortPosition = shortPosition - longPosition;
-        }
-
-        return unLockShortPosition;
-    }
-
-    //获取总的多仓位
-    GetLongPosition()
-    {
-        let longPosition=0;
-        for(let index in this.longPositionTradeRecordList)
+        //1.没有夜盘,如果tick的时间在当前交易日的AMOpen的之前,就过滤掉
+        if(AMOpenDateTime!=undefined)
         {
-            let tradeRecord=this.longPositionTradeRecordList[index];
-            longPosition+=tradeRecord.volume;
-        }
 
-        return longPosition;
-    }
-
-    //获取总的空仓位
-    GetShortPosition()
-    {
-        let shortPosition=0;
-        for(let index in this.shortPositionTradeRecordList)
-        {
-            let tradeRecord=this.shortPositionTradeRecordList[index];
-            shortPosition+=tradeRecord.volume;
-        }
-
-        return shortPosition;
-    }
-
-    //获取 多仓 持仓均价
-    GetLongPostionAveragePrice()
-    {
-        let longPositionSumAmount=0;
-        let longPositionSumVolume=0;
-        for(let index in this.longPositionTradeRecordList)
-        {
-            let tradeRecord=this.longPositionTradeRecordList[index];
-            longPositionSumVolume += tradeRecord.volume;
-            longPositionSumAmount += tradeRecord.price*tradeRecord.volume;
-        }
-        let longPositionAveragePrice=0;
-        if(longPositionSumVolume!=0)
-        {
-            longPositionAveragePrice = longPositionSumAmount/longPositionSumVolume;
-        }
-        return longPositionAveragePrice;
-    }
-
-    //获取 空仓 持仓 均价
-    GetShortPositionAveragePrice()
-    {
-        let shortPositionSumAmount=0;
-        let shortPositionSumVolume=0;
-        for(let index in this.shortPositionTradeRecordList)
-        {
-            let tradeRecord=this.shortPositionTradeRecordList[index];
-            shortPositionSumVolume += tradeRecord.volume;
-            shortPositionSumAmount += tradeRecord.price*tradeRecord.volume;
-        }
-        let shortPositionAveragePrice=0;
-        if(shortPositionSumVolume!=0)
-        {
-            shortPositionAveragePrice = shortPositionSumAmount/shortPositionSumVolume;
-        }
-        return shortPositionAveragePrice;
-    }
-
-
-    /// <summary>
-    /// 获取合约的今天锁仓数量
-    /// </summary>
-    /// <returns>今天锁仓数量</returns>
-    GetLockedTodayPosition()
-    {
-        let longTdPosition = this.GetLongTodayPosition();
-        let shortTdPosition = this.GetShortTodayPosition();
-
-        let tdLockedPostion=Math.min(longTdPosition,shortTdPosition);
-
-        return tdLockedPostion;
-    }
-
-    /// <summary>
-    /// 获取非锁,多仓,今仓
-    /// </summary>
-    /// <returns> 获取非锁,多仓,今仓 数量</returns>
-    GetUnLockLongTodayPosition() {
-        let unLockLongTodayPosition = 0;
-
-        let longTdPosition = this.GetLongTodayPosition();
-        let shortTdPosition = this.GetShortTodayPosition();
-
-        if (longTdPosition > shortTdPosition) {
-            unLockLongTodayPosition = longTdPosition - shortTdPosition;
-        }
-
-        return unLockLongTodayPosition;
-    }
-
-    /// <summary>
-    /// 获取非锁,空仓,今仓
-    /// </summary>
-    /// <returns>获取非锁,空仓,今仓 数量</returns>
-    GetUnLockShortTodayPosition()
-    {
-        let unLockShortTodayPosition = 0;
-
-        let longTdPosition = this.GetLongTodayPosition();
-        let shortTdPosition = this.GetShortTodayPosition();
-
-        if (shortTdPosition > longTdPosition) {
-            unLockShortTodayPosition = shortTdPosition - longTdPosition;
-        }
-
-        return unLockShortTodayPosition;
-    }
-
-    /// <summary>
-    /// 获取多仓,今仓
-    /// </summary>
-    /// <returns> 获取多仓,今仓 数量</returns>
-    GetLongTodayPosition()
-    {
-        let longTdPosition=0;
-        let TodayTradingDay=global.Application.StrategyEngine.TradingDay;
-        for(let index in this.longPositionTradeRecordList)
-        {
-            let tradeRecord=this.longPositionTradeRecordList[index];
-            if(tradeRecord.tradingDay==TodayTradingDay)
+            if(tickDateTime<AMOpenDateTime)
             {
-                longTdPosition+=tradeRecord.volume;
+                return false;
             }
         }
-
-        return longTdPosition;
-    }
-
-    /// <summary>
-    /// 获取空仓,今仓
-    /// </summary>
-    /// <returns> 获取空仓,今仓 数量</returns>
-    GetShortTodayPosition()
+    }else
     {
-        let shortTdPosition=0;
-        let TodayTradingDay=global.Application.StrategyEngine.TradingDay;
-        for(let index in this.shortPositionTradeRecordList)
+        //有夜盘,判断夜盘的结束时间是否到凌晨
+        let NightCloseDateTimeStr= tickTradingDate +" "+ tickFutureConfig.NightClose;
+        let NightCloseDateTime=new Date(NightCloseDateTimeStr);
+
+        if(NightCloseDateTime<AMOpenDateTime)
         {
-            let tradeRecord=this.shortPositionTradeRecordList[index];
-            if(tradeRecord.tradingDay==TodayTradingDay)
+            //品种的夜盘结束时间是到凌晨的情况,黄金,2:30:00~9:00:00
+            if(NightCloseDateTime<tickDateTime && tickDateTime<AMOpenDateTime)
             {
-                shortTdPosition+=tradeRecord.volume;
+                return false;
+            }
+        }else if(NightCloseDateTime>AMOpenDateTime)
+        {
+            //夜盘在0点之前结束,大于早盘9:00时间,在大于夜盘结束时间过滤掉或者小于早盘开盘时间过滤掉
+            if(NightCloseDateTime<tickDateTime || tickDateTime<AMOpenDateTime)
+            {
+                return false;
             }
         }
-        return shortTdPosition;
     }
 
-    /// <summary>
-    /// 获取合约的 昨 锁仓 数量
-    /// </summary>
-    /// <returns>昨 锁仓 数量</returns>
-    GetLockedYesterdayPosition()
+    //2.如果有早盘停盘时间,早盘重新开盘时间(中金所股指期货没有,商品期货有)。BreakDateTime<Tick的时间<ResumeDateTime是要过滤掉
+    if(tickFutureConfig.AMBreak!=undefined && tickFutureConfig.AMResume!=undefined)
     {
-        let longYdPosition = this.GetLongYesterdayPosition();
-        let shortYdPosition = this.GetShortYesterdayPosition();
+        let AMBreakDateTimeStr= tickTradingDate +" "+ tickFutureConfig.AMBreak;
+        let AMBreakDateTime=new Date(AMBreakDateTimeStr);
 
-        let ydLockedPostion=Math.min(longYdPosition,shortYdPosition);
+        let AMResumeDateTimeStr= tickTradingDate +" "+ tickFutureConfig.AMResume;
+        let AMResumeDateTime=new Date(AMResumeDateTimeStr);
 
-        return ydLockedPostion;
+        if(AMBreakDateTime<tickDateTime && tickDateTime<AMResumeDateTime)
+        {
+            return false;
+        }
     }
 
-    /// <summary>
-    /// 获取合约的 昨 非锁 多仓
-    /// </summary>
-    /// <returns>昨 非锁 多仓 数量</returns>
-    GetUnLockLongYesterdayPosition()
+    //3.上午收盘，到下午开盘（所有CTP国内商品都有）。AMCloseTime<Tick的时间<PMOpenDateTime要过滤掉
+    if(tickFutureConfig.AMClose!=undefined && tickFutureConfig.PMOpen!=undefined)
     {
-        let unLockLongYesterdayPosition = 0;
+        let AMCloseDateTimeStr= tickTradingDate +" "+ tickFutureConfig.AMClose;
+        let AMCloseDateTime=new Date(AMCloseDateTimeStr);
 
-        let longYdPosition = this.GetLongYesterdayPosition();
-        let shortYdPosition = this.GetShortYesterdayPosition();
+        let PMOpenDateTimeStr= tickTradingDate +" "+ tickFutureConfig.PMOpen;
+        let PMOpenDateTime=new Date(PMOpenDateTimeStr);
 
-        if (longYdPosition > shortYdPosition) {
-            unLockLongYesterdayPosition = longYdPosition - shortYdPosition;
+        if(AMCloseDateTime<tickDateTime && tickDateTime<PMOpenDateTime)
+        {
+            return false;
         }
-
-        return unLockLongYesterdayPosition;
     }
 
+    //4.交易日下午收盘.算是一个交易日的结束。但是下午收盘要与在下午收盘到晚上夜盘对比
+    let PMCloseDateTimeStr= tickTradingDate +" "+ tickFutureConfig.PMClose;
+    let PMCloseDateTime=new Date(PMCloseDateTimeStr);
 
-    /// <summary>
-    /// 获取合约的 昨 非锁 空仓 数量
-    /// </summary>
-    /// <returns>昨 非锁 空仓 数量</returns>
-    GetUnLockShortYesterdayPosition()
+    //5.有夜盘。夜盘就是当前tick交易日比下午后盘的时间要大.(只是这段时间提前出现，这段时间是存在的!!!)
+    if(tickFutureConfig.NightOpen != undefined && tickFutureConfig.NightClose!=undefined)
     {
-        let unLockShortYesterdayPosition = 0;
+        let NightOpenDateTimeStr= tickTradingDate +" "+ tickFutureConfig.NightOpen;
+        let NightOpenDateTime=new Date(NightOpenDateTimeStr);
 
-        let longYdPosition = this.GetLongYesterdayPosition();
-        let shortYdPosition = this.GetShortYesterdayPosition();
+        let NightCloseDateTimeStr= tickTradingDate +" "+ tickFutureConfig.NightClose;
+        let NightCloseDateTime=new Date(NightCloseDateTimeStr);
 
-        if (shortYdPosition > longYdPosition) {
-            unLockShortYesterdayPosition = shortYdPosition - longYdPosition;
+        //5.1 在午盘结束时间<tickDatetime<夜盘开始NightOpenDateTime,这段时间的Tick要过滤
+        if(PMCloseDateTime<tickDateTime && tickDateTime<NightOpenDateTime)
+        {
+            return false;
+        }else if(AMOpenDateTime<NightCloseDateTime && NightCloseDateTime<tickDateTime)
+        {
+            //NightCloseDateTime夜盘结束时间大于在一个交易日的开始,说明夜盘结束时间没有跨交易日
+
+            //5.2 在夜盘结束之后的tick,要过滤。(黄金等夜盘2017/07/12 23:59:59.500, 271.45 2017/07/13 00:00:00.500, 271.45超过当天交易日)如何过滤?
+            //黄金Tick在 23:59:59 的交易日是2017/07/12，在00:00:00.500的tick的交易日是2017/07/13
+
+            //黄金的结束时间是2:00:00，那么按23:00的交易日,(2017/07/12) 23:00:00 > (2017/07/12) 2:00:00
+            //所以不能用[(2017/07/12) 2:00:00 ]tickPMCloseTime <tickTime [(2017/07/12) 23:00:00], 来判断非法tick,前面是正常tick
+
+            //如果品种的夜盘结束时间在23:59:59之前,可以用（tradingDay+23:59:59）tickPMCloseTime <tickTime,为无效tick
+            //如果品种的夜盘结束时间在00:00:1之后，(tradingDay + 00:00:1) tickPMCloseTime < tickTime (tradingDay + 23:59:59),不能认为无效!!
+            //如果品种的夜盘结束时间在00:00:1之后, (tradingDay + 02:00:00) NightCloseTime < tickTime <AMOpenTime(tradingDay + 09:00:00), 认为是无效
+            return false;
         }
 
-        return unLockShortYesterdayPosition;
-    }
-
-    /// <summary>
-    /// 获取多仓,昨仓
-    /// </summary>
-    /// <returns> 获取多仓,昨仓 数量</returns>
-    GetLongYesterdayPosition()
+    }else if(PMCloseDateTime<tickDateTime)
     {
-        let longYdPosition=0;
-        let TodayTradingDay=global.Application.StrategyEngine.TradingDay;
-        for(let index in this.longPositionTradeRecordList)
-        {
-            let tradeRecord=this.longPositionTradeRecordList[index];
-            if(tradeRecord.tradingDay!=TodayTradingDay)
-            {
-                longYdPosition+=tradeRecord.volume;
-            }
-        }
-        return longYdPosition;
+        //6.没有夜盘。Tikc的交易日的收盘时间<tick的DateTime。要过滤掉
+        return false;
     }
 
-    /// <summary>
-    /// 获取空仓,昨仓
-    /// </summary>
-    /// <returns> 获取空仓,昨仓 数量</returns>
-    GetShortYesterdayPosition()
+    //最后是合法的Tick,保存到数据库中
+    return true;
+}
+
+//每个客户端过滤无效Tick的时间不同,有CTP的过滤器就过滤,没有过滤器就不过滤
+//以下是ctp的客户端
+function _isPassFilter(clientName,TradingDateConfig,tickDateTime) {
+    if(clientName=="CTP")
     {
-        let shortYdPosition=0;
-        let TodayTradingDay=global.Application.StrategyEngine.TradingDay;
-        for(let index in this.shortPositionTradeRecordList)
-        {
-            let tradeRecord=this.shortPositionTradeRecordList[index];
-            if(tradeRecord.tradingDay!=TodayTradingDay)
-            {
-                shortYdPosition+=tradeRecord.volume;
-            }
-        }
-        return shortYdPosition;
-    }
-
-    UpdatePosition(trade) {
-        if (this.symbol != trade.symbol) {
-            let error = new NodeQuantError("StrategyEngine", ErrorType.StrategyError, "UpdatePosition not contain this symbol:" + trade.symbol);
-            global.AppEventEmitter.emit(EVENT.OnError, error);
-            return;
-        }
-
-        if (trade.direction == Direction.Buy) {
-            //多方开仓，则对应多头的持仓和今仓增加
-            if (trade.offset == OpenCloseFlagType.Open) {
-                this.longPositionTradeRecordList.push(trade);
-            } else if (trade.offset == OpenCloseFlagType.CloseToday) {
-                this.CloseBuyTodayPosition(trade);
-
-                if(trade.volume>0)
-                {
-                    let error=new NodeQuantError(trade.strategyName,ErrorType.StrategyError,trade.symbol+"的 (平今仓买入 CloseToday Buy)手数多于"+trade.strategyName+"策略的( 今空仓 )持仓手数,平了账户其他策略仓位,请检查！！！")
-                    global.AppEventEmitter.emit(EVENT.OnError,error);
-                }
-
-            } else if (trade.offset == OpenCloseFlagType.CloseYesterday) {
-
-                //买入平昨，对应空头的持仓和昨仓减少
-                this.CloseBuyYesterDayPosition(trade);
-
-                if(trade.volume>0)
-                {
-                    let error=new NodeQuantError(trade.strategyName,ErrorType.StrategyError,trade.symbol+"的 (平昨仓买入 CloseYesterday Buy)手数多于"+trade.strategyName+"策略的( 昨空仓 )持仓手数,平了账户其他策略仓位,请检查！！！")
-                    global.AppEventEmitter.emit(EVENT.OnError,error);
-                }
-
-            } else if (trade.offset == OpenCloseFlagType.Close) {
-                //买入平仓,默认先平昨天空仓,再平今空仓
-                //有昨仓先平昨仓
-                this.CloseBuyYesterDayPosition(trade);
-                //再平今空仓
-                this.CloseBuyTodayPosition(trade);
-
-                if(trade.volume>0)
-                {
-                    let error=new NodeQuantError(trade.strategyName,ErrorType.StrategyError,trade.symbol+"的平仓买入(Close Buy)手数多于"+trade.strategyName+"策略的( 空仓 )持仓手数,平了账户其他策略仓位,请检查！！！")
-                    global.AppEventEmitter.emit(EVENT.OnError,error);
-                }
-
-            }
-        }else{
-            // 空头,和多头相同
-            if(trade.offset == OpenCloseFlagType.Open){
-                //卖出开仓
-                //计算开仓均价
-                this.shortPositionTradeRecordList.push(trade);
-            }else if(trade.offset == OpenCloseFlagType.CloseToday)
-            {
-                //卖出平今
-                this.CloseSellTodayPosition(trade);
-
-                if(trade.volume>0)
-                {
-                    let error=new NodeQuantError(trade.strategyName,ErrorType.StrategyError,trade.symbol+"的( 平今仓卖出 CloseToday Sell )手数多于"+trade.strategyName+"策略的( 今多仓 )持仓手数,平了账户其他策略仓位,请检查！！！")
-                    global.AppEventEmitter.emit(EVENT.OnError,error);
-                }
-
-            }else if(trade.offset == OpenCloseFlagType.CloseYesterday){
-                //卖出平昨
-                this.CloseSellYesterDayPosition(trade);
-
-                if(trade.volume>0)
-                {
-                    let error=new NodeQuantError(trade.strategyName,ErrorType.StrategyError,trade.symbol+"的( 平昨仓卖出 CloseYesterday Sell )手数多于"+trade.strategyName+"策略的( 昨多仓 )持仓手数,平了账户其他策略仓位,请检查！！！")
-                    global.AppEventEmitter.emit(EVENT.OnError,error);
-                }
-
-            }else if(trade.offset == OpenCloseFlagType.Close){
-                //卖出平仓,默认先平昨天多仓,再平今多仓
-                this.CloseSellYesterDayPosition(trade);
-                //再平今空仓
-                this.CloseSellTodayPosition(trade);
-                //更新仓位后,trade.volume还不变为0,代表平仓多于策略持仓,平了账户别人的仓位!!!
-                if(trade.volume>0)
-                {
-                    let error=new NodeQuantError(trade.strategyName,ErrorType.StrategyError,trade.symbol+"的( 平仓卖出 Close Sell )手数多于"+trade.strategyName+"策略的( 多仓 )持仓手数,平了账户其他策略仓位,请检查！！！")
-                    global.AppEventEmitter.emit(EVENT.OnError,error);
-                }
-            }
-        }
-    }
-
-    //今仓: 平仓买入->开仓卖出(空仓)的成交记录要更新
-    CloseBuyTodayPosition(trade)
+        return _isPassCTPFilter(TradingDateConfig,tickDateTime)
+    }else
     {
-        //一共要更新多少手,平今仓的仓位,空仓记录可能有多条今仓记录，需要一直减
-        if(trade==undefined || trade.volume<=0)
-        {
-            return;
-        }
-
-        for (let index in this.shortPositionTradeRecordList)
-        {
-            let tradeRecord=this.shortPositionTradeRecordList[index];
-
-            //非当天的空仓不做处理
-            if(tradeRecord.tradingDay != trade.tradingDay)
-            {
-                continue;
-            }
-
-            let AvaVolume = tradeRecord.volume;
-
-            let CloseVolume= Math.min(AvaVolume, trade.volume);
-
-            tradeRecord.volume -= CloseVolume;
-            //手数目为0的成交记录,要删除掉
-            if(tradeRecord.volume==0)
-            {
-                delete this.shortPositionTradeRecordList[index];
-            }
-
-            //判断是否更新完
-            trade.volume -= CloseVolume;
-
-            if (trade.volume==0)
-            {
-                break;
-            }
-        }
-    }
-
-    //昨仓: 平仓买入->开仓卖出(空仓)的成交记录要更新
-    CloseBuyYesterDayPosition(trade)
-    {
-        //一共要更新多少手,平今仓的仓位,空仓记录可能有多条今仓记录，需要一直减
-        if(trade==undefined || trade.volume<=0)
-        {
-            return;
-        }
-
-        for (let index in this.shortPositionTradeRecordList)
-        {
-            let tradeRecord = this.shortPositionTradeRecordList[index];
-
-            //当天的空仓不做处理
-            if(tradeRecord.tradingDay == trade.tradingDay)
-            {
-                continue;
-            }
-
-            let AvaVolume = tradeRecord.volume;
-
-            let CloseVolume= Math.min(AvaVolume, trade.volume);
-
-            tradeRecord.volume -= CloseVolume;
-            //手数目为0的成交记录,要删除掉
-            if(tradeRecord.volume==0)
-            {
-                delete this.shortPositionTradeRecordList[index];
-            }
-
-            //判断是否更新完
-            trade.volume -= CloseVolume;
-
-            if (trade.volume == 0)
-            {
-                break;
-            }
-        }
-    }
-
-    //今仓：平仓卖出 -> 开仓买入(多仓)的成交记录要更新
-    CloseSellTodayPosition(trade)
-    {
-        //一共要更新多少手,平今仓的仓位,空仓记录可能有多条今仓记录，需要一直减
-        if(trade==undefined || trade.volume<=0)
-        {
-            return;
-        }
-
-        for (let index in this.longPositionTradeRecordList)
-        {
-            let tradeRecord=this.longPositionTradeRecordList[index];
-
-            //非当天的空仓不做处理
-            if(tradeRecord.tradingDay != trade.tradingDay)
-            {
-                continue;
-            }
-
-            let AvaVolume = tradeRecord.volume;
-
-            let CloseVolume= Math.min(AvaVolume, trade.volume);
-
-            tradeRecord.volume -= CloseVolume;
-            //手数目为0的成交记录,要删除掉
-            if(tradeRecord.volume==0)
-            {
-                delete this.longPositionTradeRecordList[index];
-            }
-
-            //判断是否更新完
-            trade.volume -= CloseVolume;
-
-            if (trade.volume==0)
-            {
-                break;
-            }
-        }
-    }
-
-    CloseSellYesterDayPosition(trade)
-    {
-        //一共要更新多少手,平今仓的仓位,空仓记录可能有多条今仓记录，需要一直减
-        if(trade==undefined || trade.volume<=0)
-        {
-            return;
-        }
-
-        for (let index in this.longPositionTradeRecordList)
-        {
-            let tradeRecord=this.longPositionTradeRecordList[index];
-
-            //当天的多仓不做处理
-            if(tradeRecord.tradingDay == trade.tradingDay)
-            {
-                continue;
-            }
-
-            let AvaVolume = tradeRecord.volume;
-
-            let CloseVolume= Math.min(AvaVolume, trade.volume);
-
-            tradeRecord.volume -= CloseVolume;
-            //手数目为0的成交记录,要删除掉
-            if(tradeRecord.volume==0)
-            {
-                delete this.longPositionTradeRecordList[index];
-            }
-
-            //判断是否更新完
-            trade.volume -= CloseVolume;
-
-            if (trade.volume==0)
-            {
-                break;
-            }
-        }
+        return true;
     }
 }
 
-//////////////////////////////////////////////////////////////Private Method////////////////////////////////
+function _isPassTickFilter(tick) {
+    let contract= global.Application.MainEngine.GetContract(tick.symbol);
+    let upperFutureName= contract.futureName.toUpperCase();
+    let tickFutureConfig=FuturesConfig[tick.clientName][upperFutureName];
+    let isPass=_isPassFilter(tick.clientName,tickFutureConfig,tick.datetime);
+    return isPass;
+}
 
 function _registerEvent(myEngine) {
 
     global.AppEventEmitter.on(EVENT.OnTick,function (tick) {
+        //先过滤Tick
+        let isPass=_isPassTickFilter(tick);
+        if(isPass==false)
+        {
+            return;
+        }
+
         for(let strategyName in myEngine.StrategyDic)
         {
             let strategy = myEngine.StrategyDic[strategyName];
@@ -633,6 +262,76 @@ function _registerEvent(myEngine) {
     });
 }
 
+function _createClosedBar(BarId_TickListDic,tick,KBarId) {
+    let bar_TickList = BarId_TickListDic[KBarId];
+
+    if(bar_TickList.length>0)
+    {
+        let bar_StartDatetime=bar_TickList[0].datetime;
+        let bar_EndDatetime=bar_TickList[bar_TickList.length-1].datetime;
+        let bar_Open=bar_TickList[0].lastPrice;
+        let bar_Close=bar_TickList[bar_TickList.length-1].lastPrice;
+        let bar_High = bar_TickList[0].lastPrice;
+        let bar_Low = bar_TickList[0].lastPrice;
+        let volume=0;
+        let openInterest=bar_TickList[bar_TickList.length-1].openInterest;
+        for(let i=0;i< bar_TickList.length;i++)
+        {
+            bar_High = Math.max(bar_High,bar_TickList[i].lastPrice);
+            bar_Low = Math.min(bar_Low,bar_TickList[i].lastPrice);
+            volume += bar_TickList[i].volume;
+        }
+
+        let bar=new KBar(KBarId,bar_StartDatetime,bar_EndDatetime,tick.symbol,bar_Open,bar_High,bar_Low,bar_Close,volume,openInterest);
+
+        //向数据库记录一个完整Bar
+        return bar;
+    }else
+    {
+        return undefined;
+    }
+}
+
+//创建新K线包含的TickList缓存数组
+function _createNewBar(BarId_TickListDic,tick,KBarId)
+{
+    let KBarTickList=[];
+    KBarTickList.push(tick);
+    BarId_TickListDic[KBarId]=KBarTickList;
+}
+
+//从尾部向上生成K线
+function _reverseCreateBarByBarId(BarId_TickListDic,ClosedBarList,tick,KBarId)
+{
+    //如果字典已经有1个KBarID,不存在KBarId,说明有一个新K线产生
+    if(BarId_TickListDic[KBarId]==undefined)
+    {
+        //创建新K线包含的TickList缓存数组
+        _createNewBar(BarId_TickListDic,tick,KBarId);
+
+        //创建上一个完整K线,加入到策略订阅合约的K线列表
+        for(let barId in BarId_TickListDic)
+        {
+            //不存在KBarId,说明有一个新K线产生
+            if(barId!=KBarId)
+            {
+                //创建上一个完整K线,加入到策略订阅合约的K线列表
+                let closedBar=_createClosedBar(BarId_TickListDic,tick,barId);
+
+                //记录K线
+                ClosedBarList.unshift(closedBar);
+
+                //创建完删除上一个完整K线的TickList缓存
+                delete BarId_TickListDic[barId];
+            }
+        }
+    }else
+    {
+        BarId_TickListDic[KBarId].unshift(tick);
+    }
+}
+
+
 class StrategyEngine {
 
     constructor() {
@@ -682,6 +381,7 @@ class StrategyEngine {
         this.IsWorking=true;
         //获取交易日
         this.TradingDay = this.GetTradingDay();
+
     }
 
     Stop(mainEngineStatus){
@@ -1230,39 +930,91 @@ class StrategyEngine {
 
                 OnFinishLoadTick(strategy,symbol,TickList);
             });
+
         }else
         {
             OnFinishLoadTick(strategy,symbol,undefined);
         }
     }
 
-    LoadBarFromDB(strategy,symbol,LookBackCount,BarDBType,OnFinishLoadBar)
+    LoadBarFromDB(strategy,symbol,LookBackCount,BarType,BarInterval,OnFinishLoadBar)
     {
         if(global.Application.MarketDataDBClient!=undefined)
         {
-            let symbolBarDBForm = symbol + "_" + BarDBType;
+            //获得Tick数据库
+            //K线是根据K线的定义而产生的，根据K的交易策略要注意!回测与实盘交易系统一定要一致
+            //1根K线的Tick数组
+            //多个K线的字典数组
+            //从后往前数Tick
 
-            global.Application.MarketDataDBClient.zrange(symbolBarDBForm, -LookBackCount, -1, function (err, BarStrList) {
+
+            //默认Tick是准确连续的，获得足够Tick生成足够的K线.
+            //如果K线是分钟,认为1秒4个Tick(一般期货1秒2个Tick,为了获得足够生成LookBackCount个数的K线)
+            let TickLookBackCount = 0;
+            //K线周期默认1分钟=60*1000ms
+            let BarMillSecondInterval=60*1000;
+            if(BarType==KBarType.Second)
+            {
+                TickLookBackCount = LookBackCount * BarInterval * 4;
+                BarMillSecondInterval=BarInterval*1000;
+            }else if(BarType==KBarType.Minute)
+            {
+                TickLookBackCount = LookBackCount * BarInterval * 60 * 4;
+                BarMillSecondInterval=BarInterval*60*1000;
+            }else if(BarType==KBarType.Hour)
+            {
+                TickLookBackCount = LookBackCount * BarInterval * 60 * 60 * 4;
+                BarMillSecondInterval=BarInterval*60*60*1000;
+            }
+
+            global.Application.MarketDataDBClient.zrange(symbol, -TickLookBackCount, -1, function (err, TickStrList) {
                 if (err) {
-                    throw new Error("从" + symbolBarDBForm + "的行情数据库LoadBar失败原因:" + err.message);
+                    throw new Error("从" + symbol + "的行情数据库LoadBar失败原因:" + err.message);
 
-                    OnFinishLoadBar(strategy, symbol, undefined);
+                    //没完成收集固定K线个数
+                    OnFinishLoadBar(strategy,symbol,BarType,BarInterval,undefined);
                 }
 
-                let BarList = [];
-                for (let index in BarStrList) {
-                    let BarStr = BarStrList[index];
-                    let bar = JSON.parse(BarStr);
-                    BarList.push(bar);
+                //收集K线的数组
+                let ClosedBarList=[];
+                //每根K线的Tick缓存字典
+                let BarId_TickListDic={};
+                let TickCount=TickStrList.length;
+
+                //从尾部往前
+                for(let index=TickCount-1;index>=0;index--)
+                {
+                    let Tick = JSON.parse(TickStrList[index]);
+                    Tick.datetime = new Date(Tick.timeStamp);
+                    let TickTimeStamp = Tick.timeStamp;
+                    let KBarId = parseInt(TickTimeStamp/BarMillSecondInterval);
+
+                    //生成K线
+                    _reverseCreateBarByBarId(BarId_TickListDic,ClosedBarList,Tick,KBarId);
+
+                    if(ClosedBarList.length==LookBackCount)
+                    {
+                        break;
+                    }
                 }
 
-                OnFinishLoadBar(strategy, symbol, BarList);
+                //在Tick数组内完成收集K线工作
+                if(ClosedBarList.length==LookBackCount)
+                {
+                    OnFinishLoadBar(strategy,symbol,BarType,BarInterval,ClosedBarList);
+                }else
+                {
+                    //没完成收集固定K线个数
+                    OnFinishLoadBar(strategy,symbol,BarType,BarInterval,undefined);
+                }
             });
         }else
         {
-            OnFinishLoadBar(strategy,symbol,undefined);
+            OnFinishLoadBar(strategy,symbol,BarType,BarInterval,undefined);
         }
     }
+
+
 
     //记录策略完成订单
     RecordOrder(strategyName, orderRecord) {
