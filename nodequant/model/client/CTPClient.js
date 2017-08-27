@@ -4,7 +4,8 @@
 let fs = require("fs");
 require("../../common.js");
 require("../../userConfig.js");
-let CTP=require("./CTP/NodeQuant.node");
+
+let CTP=require("./CTP/"+process.arch+"/NodeQuant.node");
 
 let DateTimeUtil=require("../../util/DateTimeUtil");
 let NodeQuantError=require("../../util/NodeQuantError");
