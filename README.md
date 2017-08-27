@@ -71,7 +71,7 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 
 ## 搭建NodeQuant运行环境
 1. 支持Win7和Win10
-2. 下载安装32位的Node.js v6.11.1 版本（NodeQuant目前支持Node.js v6版本）—— [到Node.js官网下载32位的Windows版本](https://nodejs.org/en/download/)
+2. 下载安装Windows版本的Node.js v6（NodeQuant目前已经支持32位和64位的Windows版Node.js v6）—— [到Node.js官网下载Windows版本Node.js v6](https://nodejs.org/en/download/)
 3. 下载安装Windows版本Redis,并启动为Windows服务——[请参考教程](http://keenwon.com/1275.html)
 
 4. 下载安装Redis的桌面客户端，可以方便查看NodeQuant保存在Redis数据库中的数据。[可以到官网下载Windows版本客户端](https://redisdesktop.com/download)
