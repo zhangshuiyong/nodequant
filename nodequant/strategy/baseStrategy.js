@@ -131,10 +131,6 @@ class BaseStrategy{
         this.KBarType=strategyConfig.BarType;
         this.KBarInterval=strategyConfig.BarInterval;
 
-        //预加载数据库中数据
-        this.PreloadConfig=strategyConfig.PreloadConfig;
-        this.PreLoadTickList={};
-
         this.Symbol_KBarListDic={};
         this.KBarMillSecondInterval=undefined;
 
@@ -160,7 +156,8 @@ class BaseStrategy{
             }
         }
 
-        //数据预加载
+        //预加载数据库中行情数据
+        this.PreloadConfig=strategyConfig.PreloadConfig;
         if(this.PreloadConfig!=undefined)
         {
             if(this.PreloadConfig.BarType==KBarType.Tick)
@@ -185,7 +182,7 @@ class BaseStrategy{
     //加载Tick完成
     OnFinishPreLoadTick(symbol,TickList)
     {
-        this.PreLoadTickList[symbol]=TickList;
+
     }
 
     //加载Bar完成
@@ -231,14 +228,14 @@ class BaseStrategy{
 
     }
 
-    QueryTradingAccount(tick)
+    QueryTradingAccount(clientName)
     {
-        global.Application.StrategyEngine.QueryTradingAccount(tick.clientName,this);
+        global.Application.StrategyEngine.QueryTradingAccount(clientName,this);
     }
 
     OnQueryTradingAccount(tradingAccountInfo)
     {
-        console.log(tradingAccountInfo);
+
     }
 
     //通过合约名字获得合约最新Tick
