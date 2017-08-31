@@ -19,22 +19,21 @@ MarketData_DBConfig={
 
 //配置客户端,NodeQuant启动,会连接已经配置打开的交易客户端
 ClientConfig={
-    /*
+
     CTP:{
         userID:"888888",
-        password: "888888",
+        password:"888888",
         brokerID:"9999",
-        mdAddress: "tcp://218.202.237.33:10012",
-        tdAddress: "tcp://218.202.237.33:10002"
-
-    },*/
+        mdAddress:"tcp://180.169.68.3:11213",
+        tdAddress:"tcp://180.169.68.3:11205"
+    } /*,
     Sgit:{
        userID:"888888",
        password: "888888",
        brokerID:"",
        mdAddress: "tcp://116.228.215.210:10004",
        tdAddress: "tcp://116.228.215.210:10003"
-    }
+    }*/
 };
 
 StrategyConfig={
@@ -43,7 +42,7 @@ StrategyConfig={
             name:"Demo",
             className:"DemoStrategy",
             symbols: {
-                "Ag(T+D)":{
+                "i1801":{
                     fee:0.00006,
                     closeTodayFee:0.00024,
                     feeType:FeeType.TradeAmount

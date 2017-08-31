@@ -24,10 +24,10 @@ router.get('/', function(req, res, next) {
     let DemoStrategy=global.Application.StrategyEngine.GetStrategy("Demo");
     if(DemoStrategy)
     {
-        let lastTick = global.Application.StrategyEngine.Symbol_LastTickDic["Ag(T+D)"];
+        let lastTick = global.Application.StrategyEngine.Symbol_LastTickDic["i1801"];
         //DemoStrategy.QueryTradingAccount(lastTick.clientName);
-        //global.Application.MainEngine.QueryCommissionRate(lastTick.clientName,"Ag(T+D)");
-        global.Application.MainEngine.QueryDeferFeeRate("Sgit","Ag(T+D)");
+        global.Application.MainEngine.QueryCommissionRate(lastTick.clientName,"i1801");
+        //global.Application.MainEngine.QueryDeferFeeRate("Sgit","Ag(T+D)");
     }
 
     res.render('index', { title: 'CancelOrder successfully'});

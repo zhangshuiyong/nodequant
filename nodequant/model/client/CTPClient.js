@@ -346,11 +346,23 @@ class ctpClient{
         return this.tdClient.queryTradingAccount();
     }
 
+
+    //查询合约手续费
+    QueryCommissionRate(contractSymbol)
+    {
+        return this.tdClient.queryCommissionRate(contractSymbol);
+    }
+
     //////////////////////////////////////////////响应函数/////////////////////////////////////////////////////////
 
     OnQueryTradingAccount(tradingAccountInfo)
     {
         global.AppEventEmitter.emit(EVENT.OnQueryTradingAccount,tradingAccountInfo);
+    }
+
+    OnQueryCommissionRate(commissionRateInfo)
+    {
+        global.AppEventEmitter.emit(EVENT.OnQueryCommissionRate,commissionRateInfo);
     }
 
     OnInfo(msg) {
@@ -1038,6 +1050,44 @@ class ctpTdClient{
         });
 
         return ctpTdClient.ctpTdApi.queryTradingAccount(ctpTdClient.userID,ctpTdClient.brokerID);
+    }
+
+
+    queryCommissionRate(contractSymbol)
+    {
+        let ctpTdClient=this;
+
+        //没等登录不能查询
+        if(ctpTdClient.isLogined==false) {
+            let message="Query CommissionRate Failed. Error:Trade Front have not logined";
+            let error=new NodeQuantError(TdClient.tradingClient.ClientName,ErrorType.OperationAfterDisconnected,message);
+
+            global.AppEventEmitter.emit(EVENT.OnError,error);
+
+            return -99;
+        }
+
+        ctpTdClient.ctpTdApi.on("RspQryInstrumentCommissionRate",function (CommissionRateInfo,err,requestID,isLast) {
+            // 查询回报
+            if(err!=undefined && err.ErrorID!=0)
+            {
+                err.ErrorMsg="Query CommissionRate Failed. Error Id:"+err.ErrorID+",Error msg:"+err.ErrorMsg;
+                let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.ClientRspError,err.ErrorMsg);
+                global.AppEventEmitter.emit(EVENT.OnError,error);
+
+
+            }
+
+            if(CommissionRateInfo)
+            {
+                //设置客户端名字
+                CommissionRateInfo.clientName = ctpTdClient.ctpClient.ClientName;
+            }
+
+            ctpTdClient.ctpClient.OnQueryCommissionRate(CommissionRateInfo);
+        });
+
+        return ctpTdClient.ctpTdApi.queryCommissionRate(ctpTdClient.userID,ctpTdClient.brokerID,contractSymbol);
     }
 
     sendOrder(orderReq) {
