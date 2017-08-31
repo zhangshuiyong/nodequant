@@ -8,10 +8,9 @@ require("../userConfig.js");
 let NodeQuantLog=require("../util/NodeQuantLog");
 let NodeQuantError=require("../util/NodeQuantError");
 
-let CtpClient=require("../model/client/CTPClient");
+let ClientFactory=require("../model/client/ClientFactory");
 
 function _isTimeToWork() {
-
     let NowDateTime=new Date();
     let NowDateStr=NowDateTime.toLocaleDateString();
 
@@ -177,17 +176,7 @@ class MainEngine{
         {
             if(SystemConfig.SupportClients[clientName]!=undefined)
             {
-                switch(clientName)
-                {
-                    case "CTP":
-                        if(ClientConfig[clientName].PowerOn)
-                        {
-                            this.clientDic[clientName] = new CtpClient();
-                        }
-                        break;
-                    default:
-                        break;
-                }
+                this.clientDic[clientName]=ClientFactory.Create(clientName);
             }
         }
 
@@ -354,6 +343,18 @@ class MainEngine{
     QueryTradingAccount(clientName)
     {
         let ret = this.clientDic[clientName].QueryTradingAccount();
+        return ret;
+    }
+
+    QueryCommissionRate(clientName,contractSymbol)
+    {
+        let ret = this.clientDic[clientName].QueryCommissionRate(contractSymbol);
+        return ret;
+    }
+
+    QueryDeferFeeRate(clientName,contractSymbol)
+    {
+        let ret = this.clientDic[clientName].QueryDeferFeeRate(contractSymbol);
         return ret;
     }
 

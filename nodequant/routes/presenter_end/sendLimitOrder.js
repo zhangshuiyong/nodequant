@@ -43,11 +43,13 @@ router.get('/', function(req, res, next) {
         */
 
         //test 3
-        //DemoStrategy.SendOrder("bu1709",2670,volume,direction,openclose);
-        //DemoStrategy.SendOrder("rb1709",2850,volume,direction,openclose);
 
-        //DemoStrategy.SendOrder("bu1709",2670,volume,direction,openclose);
-        //DemoStrategy.SendOrder("rb1709",2850,volume,direction,openclose);
+        //DemoStrategy.SendOrder("bu1801",2740,volume,direction,openclose);
+        //DemoStrategy.SendOrder("rb1801",3840,volume,direction,openclose);
+
+        //DemoStrategy.SendOrder("bu1801",2580,volume,direction,openclose);
+        //DemoStrategy.SendOrder("rb1801",3840,volume,direction,openclose);
+
     }
 
     res.render('index', { title: 'FiveMAStrategy SendOrder'});

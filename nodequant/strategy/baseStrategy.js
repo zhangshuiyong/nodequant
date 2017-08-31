@@ -35,8 +35,6 @@ function _createBar(myStrategy,tick) {
                     //创建完删除上一个完整K线的TickList缓存
                     delete myStrategy.Symbol_KBarId_TickListDic[tick.symbol][barId];
                 }
-
-                break;
             }
         }else
         {
@@ -357,7 +355,7 @@ class BaseStrategy{
 
                     global.Application.StrategyEngine.SendLimitOrder(this,symbol,direction,openClose,volume,limitePrice);
 
-                    orderRecord.dateTime = new Date();
+                    orderRecord.datetime = new Date();
                     orderRecord.Type= OrderReverseType[OrderType.Market];
                     orderRecord.symbol = symbol;
                     orderRecord.direction = DirectionReverse[direction];

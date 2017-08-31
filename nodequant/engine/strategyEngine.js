@@ -157,6 +157,9 @@ function _isPassFilter(clientName,TradingDateConfig,tickDateTime) {
     if(clientName=="CTP")
     {
         return _isPassCTPFilter(TradingDateConfig,tickDateTime)
+    }else if(clientName=="Sgit")
+    {
+        return _isPassCTPFilter(TradingDateConfig,tickDateTime);
     }else
     {
         return true;
@@ -259,6 +262,16 @@ function _registerEvent(myEngine) {
 
         //调用完清掉
         delete myEngine.OnQueryTradingAccountCallBackDic[tradingAccountInfo.queryId];
+    });
+
+    //查询合约手续费
+    global.AppEventEmitter.on(EVENT.OnQueryCommissionRate,function (commissionRateInfo) {
+        console.log(commissionRateInfo);
+    });
+
+    //查询递延费
+    global.AppEventEmitter.on(EVENT.OnQueryDeferFeeRate,function (deferFeeRateInfo) {
+        console.log(deferFeeRateInfo);
     });
 }
 
@@ -456,13 +469,36 @@ class StrategyEngine {
         return this.StrategyDic[strategyName];
     }
 
+    QueryCommissionRate(clientName,contractSymbol)
+    {
+        let ret = global.Application.MainEngine.QueryCommissionRate(clientName,contractSymbol);
+        return ret;
+    }
+
+    //只有Sgit可以查询递延费
+    //1.飞鼠测试服务器该接口是无回报的,要真实连接交易所才有回报
+    //2.要在交割申报后15:30分后才能查询到递延费率与方向
+    QueryDeferFeeRate(clientName,contractSymbol)
+    {
+        let ret = global.Application.MainEngine.QueryDeferFeeRate(clientName,contractSymbol);
+        return ret;
+    }
+
     QueryTradingAccount(clientName,strategy)
     {
+        if(clientName=="Sgit")
+        {
+            //最新版本Sgit 4.2未支持此接口
+            return -1;
+        }
+
         let requestId = global.Application.MainEngine.QueryTradingAccount(clientName);
 
         let queryId = clientName+requestId;
 
         this.OnQueryTradingAccountCallBackDic[queryId] = strategy.OnQueryTradingAccount;
+
+        return requestId;
     }
 
     SubscribeStrategySymbolsOfClient(clientName)

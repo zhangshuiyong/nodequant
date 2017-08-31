@@ -372,6 +372,8 @@ EVENT={
     OnCreateStrategyFailed:"EventCreateStrategyFailed",
 
     OnQueryTradingAccount:"EventQueryTradingAccount",
+    OnQueryCommissionRate:"EventQueryCommissionRate",
+    OnQueryDeferFeeRate:"EventQueryDeferFeeRate",
 
     //连接
     OnDisconnected:"EventDisconnected",
