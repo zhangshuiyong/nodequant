@@ -21,19 +21,19 @@ MarketData_DBConfig={
 //配置客户端,NodeQuant启动,会连接已经配置的交易客户端
 ClientConfig={
        CTP:{
-           userID:"809008378",
-           password:"233717",
-           brokerID:"5010",
+           userID:"88888888",
+           password:"88888888",
+           brokerID:"9999",
            mdAddress:"tcp://180.169.68.3:11213",
            tdAddress:"tcp://180.169.68.3:11205"
-       },
+       }/*,
        Sgit:{
-          userID:"8300029",
-          password: "8300029",
+          userID:"88888888",
+          password: "88888888",
           brokerID:"",
           mdAddress: "tcp://116.228.215.210:10004",
           tdAddress: "tcp://116.228.215.210:10003"
-       }
+       }*/
 };
 
 StrategyConfig={
