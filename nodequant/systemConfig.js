@@ -7,16 +7,19 @@ AppConfig={
 };
 
 SystemConfig={
-    SupportClients:{
-        CTP:"Support",
-        Sgit:"Support"
-    },
     DayStartTime : "8:00:00",
     DayStopTime: "16:00:00",
     NightStartTime:"19:30:00",
     NightStopTime: "3:00:00"
 };
 
+SupportClients={
+    CTP:"CTP",
+    Sgit:"Sgit"
+};
+
+//可在不同交易客户端订阅的合约
+//Tick过滤器会根据时间过滤
 FuturesConfig={
     CTP:{
         IC:{
@@ -1045,7 +1048,7 @@ FuturesConfig={
             PMOpen:"13:30:00",
             PMClose:"15:00:00",
             NightOpen:"21:00:00",
-            NightClose:"2:30:00"
+            NightClose:"2:30:01"
         },
         BU:{
             name:"沥青",

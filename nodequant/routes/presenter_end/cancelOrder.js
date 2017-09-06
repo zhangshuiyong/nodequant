@@ -18,18 +18,6 @@ router.get('/', function(req, res, next) {
             res.render('index', { title: 'CancelOrder successfully'});
     });*/
 
-    //global.Application.StrategyEngine.Stop(MainEngineStatus.Stop);
-    //global.Application.MainEngine.QueryTradingAccount("CTP");
-
-    let DemoStrategy=global.Application.StrategyEngine.GetStrategy("Demo");
-    if(DemoStrategy)
-    {
-        let lastTick = global.Application.StrategyEngine.Symbol_LastTickDic["i1801"];
-        //DemoStrategy.QueryTradingAccount(lastTick.clientName);
-        global.Application.MainEngine.QueryCommissionRate(lastTick.clientName,"i1801");
-        //global.Application.MainEngine.QueryDeferFeeRate("Sgit","Ag(T+D)");
-    }
-
     res.render('index', { title: 'CancelOrder successfully'});
 });
 

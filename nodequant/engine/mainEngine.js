@@ -109,8 +109,15 @@ function _registerEvent(myEngine) {
     });
 
     global.AppEventEmitter.on(EVENT.OnContract,function (contract) {
-        myEngine.contractDic[contract.symbol]=contract;
+        if(myEngine.contractDic[contract.clientName]==undefined)
+        {
+            myEngine.contractDic[contract.clientName]={};
+        }
 
+        myEngine.contractDic[contract.clientName][contract.symbol]=contract;
+
+        //交易合约点数对应价值
+        myEngine.contractSizeDic[contract.symbol]=contract.size;
     });
 
     global.AppEventEmitter.on(EVENT.OnDisconnected,function (clientName) {
@@ -145,10 +152,6 @@ function _registerEvent(myEngine) {
         global.AppEventEmitter.emit(EVENT.OnLog,log);
     });
 
-    global.AppEventEmitter.on(EVENT.OnQueryTradingAccount,function (tradingAccountInfo) {
-
-    });
-
     global.AppEventEmitter.on(EVENT.OnError,function (error) {
 
         myEngine.RecordError(error);
@@ -172,9 +175,12 @@ class MainEngine{
 
         this.contractDic={};
 
+        //合约每点的价值字典,用于计算净值,而且与交易客户端无关
+        this.contractSizeDic={};
+
         for(let clientName in ClientConfig)
         {
-            if(SystemConfig.SupportClients[clientName]!=undefined)
+            if(SupportClients[clientName]!=undefined)
             {
                 this.clientDic[clientName]=ClientFactory.Create(clientName);
             }
@@ -286,13 +292,19 @@ class MainEngine{
         return this.clientDic;
     };
 
-    GetContract(contractName){
-        return this.contractDic[contractName];
+    GetContract(clientName,contractName){
+        return this.contractDic[clientName][contractName];
     };
 
-    GetAllContract() {
+    GetAllContract(){
         return this.contractDic;
     };
+
+    //获取交易合约每点价值
+    GetContractSize(contractName)
+    {
+        return this.contractSizeDic[contractName];
+    }
 
     Subscribe(clientName,contractName) {
        let ret = this.clientDic[clientName].Subscribe(contractName);

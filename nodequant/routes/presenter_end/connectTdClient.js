@@ -6,9 +6,7 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-    //1.
-    // global.Application.MainEngine.Connect("CTP");
-    //2.
+
     global.Application.MainEngine.Connect("CTP",function (clientName,ret) {
         if(ret==0)
             res.render('index', { title: "Connect"+clientName+"Client Successfully" });

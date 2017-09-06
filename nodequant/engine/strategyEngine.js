@@ -167,7 +167,7 @@ function _isPassFilter(clientName,TradingDateConfig,tickDateTime) {
 }
 
 function _isPassTickFilter(tick) {
-    let contract= global.Application.MainEngine.GetContract(tick.symbol);
+    let contract= global.Application.MainEngine.GetContract(tick.clientName,tick.symbol);
     let upperFutureName= contract.futureName.toUpperCase();
     let tickFutureConfig=FuturesConfig[tick.clientName][upperFutureName];
     let isPass=_isPassFilter(tick.clientName,tickFutureConfig,tick.datetime);
@@ -501,36 +501,12 @@ class StrategyEngine {
         return requestId;
     }
 
-    SubscribeStrategySymbolsOfClient(clientName)
-    {
-        let strategyConfigs = StrategyConfig.Strategys;
-        for (let index in strategyConfigs) {
-            let strategyConfig = strategyConfigs[index];
-            //策略的订阅的品种是否在这个client
-            for (let symbol in strategyConfig.symbols) {
-                let contract = global.Application.MainEngine.GetContract(symbol);
-                if (contract != undefined && contract.clientName==clientName) {
-
-                    let message= clientName+"发出重新订阅" + strategyConfig.name + "策略的品种:" + symbol+"的请求";
-                    let log=new NodeQuantLog(strategyConfig.name,LogType.INFO,message);
-                    global.AppEventEmitter.emit(EVENT.OnLog, log);
-
-                    let ret = global.Application.MainEngine.Subscribe(contract.clientName, symbol);
-
-                    if (ret != 0) {
-                        let message = strategyConfig.name + "在" + contract.clientName + "客户端订阅" + symbol + "请求发送失败,错误码：" + ret;
-                        let error = new NodeQuantError(strategyConfig.name, ErrorType.StrategyError, message);
-                        global.AppEventEmitter.emit(EVENT.OnError, error);
-
-                    }
-                }
-            }
-        }
-    }
-
-    SubscribeStrategySymbols(strategyName, strategySymbolDic) {
-        for (let symbol in strategySymbolDic) {
-            let contract = global.Application.MainEngine.GetContract(symbol);
+    //订阅合约
+    SubscribeStrategySymbols(strategyName, strategySymbolCongfigDic) {
+        for (let symbol in strategySymbolCongfigDic) {
+            let symbolConfig=strategySymbolCongfigDic[symbol];
+            let contract = global.Application.MainEngine.GetContract(symbolConfig.clientName,symbol);
+            //交易客户端的合约存在才能订阅!
             if (contract != undefined) {
                let ret = global.Application.MainEngine.Subscribe(contract.clientName, symbol);
                 if (ret != 0) {
@@ -540,7 +516,7 @@ class StrategyEngine {
                 }
             } else {
 
-                let message= strategyName + "订阅失败:" + symbol + "不存在";
+                let message= strategyName + "订阅失败:"+ contract.clientName+ "不存在合约:" + symbol ;
                 let error=new NodeQuantError(strategyName,ErrorType.StrategyError,message);
 
                 global.AppEventEmitter.emit(EVENT.OnError, error);
@@ -557,61 +533,58 @@ class StrategyEngine {
         global.AppEventEmitter.emit(EVENT.OnLog,log);
     }
 
-    SendLimitOrder(strategy, contractName, direction, openclose, volume, limitPrice) {
+    SendLimitOrder(strategy,clientName, contractName, direction, openclose, volume, limitPrice) {
         let strategyEngine=this;
-        let contract = global.Application.MainEngine.GetContract(contractName);
 
-        let ret = global.Application.MainEngine.SendLimitOrder(contract.clientName, contractName, direction, openclose, volume, limitPrice);
+        let ret = global.Application.MainEngine.SendLimitOrder(clientName, contractName, direction, openclose, volume, limitPrice);
         if (ret > 0) {
             //如果下单成功,ret返回码等于orderRefId
             let orderRefId = ret;
             // 策略对应的订单号组成规则, 用于区分不同的策略发送的Order
-            let strategyOrderID = contract.clientName + "." + orderRefId;
+            let strategyOrderID = clientName + "." + orderRefId;
 
             strategyEngine.StrategyOrderID_StrategyNameDic[strategyOrderID] = strategy.name;
         }
     }
 
-    SendFillAndKillLimitOrder(strategy,contractName,direction,openclose,volume,limitPrice) {
+    SendFillAndKillLimitOrder(strategy,clientName,contractName,direction,openclose,volume,limitPrice) {
         let strategyEngine=this;
-        let contract = global.Application.MainEngine.GetContract(contractName);
 
-        let ret = global.Application.MainEngine.SendFillAndKillLimitOrder(contract.clientName,contractName,direction,openclose,volume,limitPrice);
+        let ret = global.Application.MainEngine.SendFillAndKillLimitOrder(clientName,contractName,direction,openclose,volume,limitPrice);
         if (ret > 0) {
             //如果下单成功,ret返回码等于orderRefId
             let orderRefId = ret;
             // 策略对应的订单号组成规则, 用于区分不同的策略发送的Order
-            let strategyOrderID = contract.clientName + "." + orderRefId;
+            let strategyOrderID = clientName + "." + orderRefId;
 
             strategyEngine.StrategyOrderID_StrategyNameDic[strategyOrderID] = strategy.name;
         }
     }
 
-    SendFillOrKillLimitOrder(strategy,contractName,direction,openclose,volume,limitPrice) {
+    SendFillOrKillLimitOrder(strategy,clientName,contractName,direction,openclose,volume,limitPrice) {
         let strategyEngine = this;
-        let contract = global.Application.MainEngine.GetContract(contractName);
-        let ret = global.Application.MainEngine.SendFillOrKillLimitOrder(contract.clientName, contractName, direction, openclose, volume, limitPrice);
+
+        let ret = global.Application.MainEngine.SendFillOrKillLimitOrder(clientName, contractName, direction, openclose, volume, limitPrice);
 
         if (ret > 0) {
             //如果下单成功,ret返回码等于orderRefId
             let orderRefId = ret;
             // 策略对应的订单号组成规则, 用于区分不同的策略发送的Order
-            let strategyOrderID = contract.clientName + "." + orderRefId;
+            let strategyOrderID = clientName + "." + orderRefId;
 
             strategyEngine.StrategyOrderID_StrategyNameDic[strategyOrderID] = strategy.name;
         }
     }
 
-    SendStopLimitOrder(strategy,contractName,direction,openclose,volume,limitPrice,contingentCondition,stopPrice){
+    SendStopLimitOrder(strategy,clientName,contractName,direction,openclose,volume,limitPrice,contingentCondition,stopPrice){
         let strategyEngine = this;
-        let contract = global.Application.MainEngine.GetContract(contractName);
-        let ret = global.Application.MainEngine.SendStopLimitOrder(contract.clientName,contractName,direction,openclose,volume,limitPrice,contingentCondition,stopPrice);
+        let ret = global.Application.MainEngine.SendStopLimitOrder(clientName,contractName,direction,openclose,volume,limitPrice,contingentCondition,stopPrice);
 
         if (ret > 0) {
             //如果下单成功,ret返回码等于orderRefId
             let orderRefId = ret;
             // 策略对应的订单号组成规则, 用于区分不同的策略发送的Order
-            let strategyOrderID = contract.clientName + "." + orderRefId;
+            let strategyOrderID = clientName + "." + orderRefId;
 
             strategyEngine.StrategyOrderID_StrategyNameDic[strategyOrderID] = strategy.name;
         }
@@ -697,8 +670,8 @@ class StrategyEngine {
                 //确定手续费计算方法
                 if(feeInfo.feeType==FeeType.TradeAmount)
                 {
-                    let contract=global.Application.MainEngine.GetContract(tradeRecord.symbol);
-                    tradeRecordCommission= symbolFee * tradeRecord.volume * tradeRecord.price * contract.size;
+                    let contractSize=global.Application.MainEngine.GetContractSize(tradeRecord.symbol);
+                    tradeRecordCommission= symbolFee * tradeRecord.volume * tradeRecord.price * contractSize;
                 }else if(feeInfo.feeType==FeeType.TradeVolume){
                     tradeRecordCommission = symbolFee * tradeRecord.volume;
                 }else
@@ -723,13 +696,13 @@ class StrategyEngine {
 
     SettleTradeRecordValue(tradeRecord){
         let tradeRecordValue = undefined;
-        let contract=global.Application.MainEngine.GetContract(tradeRecord.symbol);
+        let contractSize=global.Application.MainEngine.GetContractSize(tradeRecord.symbol);
         if(tradeRecord.direction==Direction.Buy)
         {
-            tradeRecordValue = tradeRecord.volume * tradeRecord.price * contract.size;
+            tradeRecordValue = tradeRecord.volume * tradeRecord.price * contractSize;
         }else if(tradeRecord.direction==Direction.Sell)
         {
-            tradeRecordValue= tradeRecord.volume * tradeRecord.price * contract.size;
+            tradeRecordValue= tradeRecord.volume * tradeRecord.price * contractSize;
             tradeRecordValue = -tradeRecordValue;
         }
 
@@ -739,7 +712,7 @@ class StrategyEngine {
     //当天收盘的合约持仓价值
     SettleCurrentTradingDay_Exit_SymbolPositionValue(symbol_position)
     {
-        let contract=global.Application.MainEngine.GetContract(symbol_position.symbol);
+        let contractSize=global.Application.MainEngine.GetContractSize(symbol_position.symbol);
 
         let symbol_lastTick= this.Symbol_LastTickDic[symbol_position.symbol];
         let currentTradingDay_Exit_Symbol_PositionValue = 0;
@@ -747,8 +720,8 @@ class StrategyEngine {
         {
             let longPosition = symbol_position.GetLongPosition();
             let shortPosition = symbol_position.GetShortPosition();
-            currentTradingDay_Exit_Symbol_PositionValue =  longPosition  * symbol_lastTick.lastPrice * contract.size;
-            currentTradingDay_Exit_Symbol_PositionValue -= shortPosition * symbol_lastTick.lastPrice * contract.size;
+            currentTradingDay_Exit_Symbol_PositionValue =  longPosition  * symbol_lastTick.lastPrice * contractSize;
+            currentTradingDay_Exit_Symbol_PositionValue -= shortPosition * symbol_lastTick.lastPrice * contractSize;
         }else
         {
             let log=new NodeQuantLog("StrategyEngine",LogType.INFO,new Date().toLocaleString(),"无法正确计算当前品种持仓价值,策略没有订阅"+symbol_position.symbol+"品种,却有持仓");

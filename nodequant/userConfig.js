@@ -1,4 +1,5 @@
 require("./common");
+require("./systemConfig");
 
 //系统数据库配置
 System_DBConfig={
@@ -17,23 +18,22 @@ MarketData_DBConfig={
        */
 };
 
-//配置客户端,NodeQuant启动,会连接已经配置打开的交易客户端
+//配置客户端,NodeQuant启动,会连接已经配置的交易客户端
 ClientConfig={
-
-    CTP:{
-        userID:"888888",
-        password:"888888",
-        brokerID:"9999",
-        mdAddress:"tcp://180.169.68.3:11213",
-        tdAddress:"tcp://180.169.68.3:11205"
-    } /*,
-    Sgit:{
-       userID:"888888",
-       password: "888888",
-       brokerID:"",
-       mdAddress: "tcp://116.228.215.210:10004",
-       tdAddress: "tcp://116.228.215.210:10003"
-    }*/
+       CTP:{
+           userID:"809008378",
+           password:"233717",
+           brokerID:"5010",
+           mdAddress:"tcp://180.169.68.3:11213",
+           tdAddress:"tcp://180.169.68.3:11205"
+       },
+       Sgit:{
+          userID:"8300029",
+          password: "8300029",
+          brokerID:"",
+          mdAddress: "tcp://116.228.215.210:10004",
+          tdAddress: "tcp://116.228.215.210:10003"
+       }
 };
 
 StrategyConfig={
@@ -43,6 +43,8 @@ StrategyConfig={
             className:"DemoStrategy",
             symbols: {
                 "i1801":{
+                    //要配置在哪个交易客户端订阅该合约，因为上期CTP和飞鼠Sgit都可以交易商品期货
+                    clientName:SupportClients.CTP,
                     fee:0.00006,
                     closeTodayFee:0.00024,
                     feeType:FeeType.TradeAmount

@@ -77,7 +77,7 @@ class Open_CloseStrategy extends BaseStrategy{
                 if (unlockPosition > 0)
                 {
                     let price = this.PriceUp(tick.symbol, tick.lastPrice, Direction.Sell, 2);
-                    this.SendOrder(tick.symbol, tick.lastPrice, unlockPosition, Direction.Sell, OpenCloseFlagType.CloseToday);
+                    this.SendOrder(tick.clientName,tick.symbol, tick.lastPrice, unlockPosition, Direction.Sell, OpenCloseFlagType.CloseToday);
                 }
             }
         }

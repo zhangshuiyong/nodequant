@@ -265,6 +265,7 @@ class BaseStrategy{
     /// <summary>
     /// 下单接口
     /// </summary>
+    ///<param name="clientName">订单发送的交易客户端名称</param>
     /// <param name="symbol">目标合约</param>
     /// <param name="limitePrice">限定价格</param>
     /// <param name="volume">下单手数</param>
@@ -278,7 +279,7 @@ class BaseStrategy{
     //<param name="contingentCondition"> 条件单的价格条件</param>
     //<param name="stopPrice"> 条件单的触发价格，可与limitePrice对比以触发contingentCondition</param>
     /// <returns></returns>
-    SendOrder(symbol,limitePrice,volume,direction,openClose,orderType,tick,contingentCondition,stopPrice)
+    SendOrder(clientName,symbol,limitePrice,volume,direction,openClose,orderType,tick,contingentCondition,stopPrice)
     {
         if(arguments.length<5)
         {
@@ -291,18 +292,16 @@ class BaseStrategy{
 
         let sendOrderType= arguments[5] ? orderType : OrderType.Limit;
 
-        let contract = global.Application.MainEngine.GetContract(symbol);
-        let clientname=contract.clientName;
-
         //记录发出订单
         let orderRecord={};
 
         switch(sendOrderType)
         {
             case OrderType.Limit:
-                global.Application.StrategyEngine.SendLimitOrder(this,symbol,direction,openClose,volume,limitePrice);
+                global.Application.StrategyEngine.SendLimitOrder(this,clientName,symbol,direction,openClose,volume,limitePrice);
 
                 orderRecord.datetime = new Date();
+                orderRecord.clientName=clientName;
                 orderRecord.Type= OrderReverseType[OrderType.Limit];
                 orderRecord.symbol = symbol;
                 orderRecord.direction = DirectionReverse[direction];
@@ -315,9 +314,10 @@ class BaseStrategy{
                 global.Application.StrategyEngine.RecordOrder(this.name,orderRecord);
                 break;
             case OrderType.FAK:
-                global.Application.StrategyEngine.SendFillAndKillLimitOrder(this,symbol,direction,openClose,volume,limitePrice);
+                global.Application.StrategyEngine.SendFillAndKillLimitOrder(this,clientName,symbol,direction,openClose,volume,limitePrice);
 
                 orderRecord.datetime = new Date();
+                orderRecord.clientName=clientName;
                 orderRecord.Type= OrderReverseType[OrderType.FAK];
                 orderRecord.symbol = symbol;
                 orderRecord.direction = DirectionReverse[direction];
@@ -330,9 +330,10 @@ class BaseStrategy{
                 global.Application.StrategyEngine.RecordOrder(this.name,orderRecord);
                 break;
             case OrderType.FOK:
-                global.Application.StrategyEngine.SendFillOrKillLimitOrder(this,symbol,direction,openClose,volume,limitePrice);
+                global.Application.StrategyEngine.SendFillOrKillLimitOrder(this,clientName,symbol,direction,openClose,volume,limitePrice);
 
                 orderRecord.datetime = new Date();
+                orderRecord.clientName=clientName;
                 orderRecord.Type= OrderReverseType[OrderType.FOK];
                 orderRecord.symbol = symbol;
                 orderRecord.direction = DirectionReverse[direction];
@@ -353,9 +354,10 @@ class BaseStrategy{
                     else if(direction==Direction.Sell)
                         limitePrice=tick.lowerLimit;
 
-                    global.Application.StrategyEngine.SendLimitOrder(this,symbol,direction,openClose,volume,limitePrice);
+                    global.Application.StrategyEngine.SendLimitOrder(this,clientName,symbol,direction,openClose,volume,limitePrice);
 
                     orderRecord.datetime = new Date();
+                    orderRecord.clientName=clientName;
                     orderRecord.Type= OrderReverseType[OrderType.Market];
                     orderRecord.symbol = symbol;
                     orderRecord.direction = DirectionReverse[direction];
@@ -389,9 +391,10 @@ class BaseStrategy{
                     let error=new NodeQuantError(this.name,ErrorType.StrategyError,message);
                     global.AppEventEmitter.emit(EVENT.OnError,error);
                 }else{
-                    global.Application.StrategyEngine.SendStopLimitOrder(this,symbol,direction,openClose,volume,limitePrice,contingentCondition,stopPrice);
+                    global.Application.StrategyEngine.SendStopLimitOrder(this,clientName,symbol,direction,openClose,volume,limitePrice,contingentCondition,stopPrice);
 
                     orderRecord.datetime = new Date();
+                    orderRecord.clientName=clientName;
                     orderRecord.Type= OrderReverseType[OrderType.Condition];
                     orderRecord.symbol = symbol;
                     orderRecord.direction = DirectionReverse[direction];
@@ -424,7 +427,8 @@ class BaseStrategy{
         }
 
         let tickCount= arguments[4] ? priceTickCount:2;
-        let contract = global.Application.MainEngine.GetContract(symbol);
+        let symbolClientName=this.symbols[symbol].clientName;
+        let contract = global.Application.MainEngine.GetContract(symbolClientName,symbol);
         let priceTick=contract.priceTick;
 
         let orderPrice= _trimPriceByPriceTick(price,priceTick);
@@ -453,7 +457,8 @@ class BaseStrategy{
         }
 
         let tickCount= arguments[4] ? priceTickCount:2;
-        let contract = global.Application.MainEngine.GetContract(symbol);
+        let symbolClientName=this.symbols[symbol].clientName;
+        let contract = global.Application.MainEngine.GetContract(symbolClientName,symbol);
         let priceTick=contract.priceTick;
 
         let orderPrice= _trimPriceByPriceTick(price,priceTick);

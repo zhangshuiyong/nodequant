@@ -31,6 +31,7 @@ class NodeQuantApp{
         let cancelOrder = require('./routes/presenter_end/cancelOrder');
         let subscribeContract = require('./routes/presenter_end/subscribeContract');
         let unSubscribeContract = require('./routes/presenter_end/unSubscribeContract');
+        let queryCommissionRate=require('./routes/presenter_end/queryCommissionRate');
 
         application.use('/connectTdClient', connectTdClient);
         application.use('/sendMarketOrder',sendMarketOrder);
@@ -43,6 +44,7 @@ class NodeQuantApp{
         application.use('/cancelOrder',cancelOrder);
         application.use('/subscribeContract',subscribeContract);
         application.use('/unSubscribeContract',unSubscribeContract);
+        application.use('/queryCommissionRate',queryCommissionRate);
 
         let redis =require("redis");
         //初始化配置系统数据库
