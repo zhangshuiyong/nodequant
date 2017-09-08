@@ -734,7 +734,7 @@ class StrategyEngine {
     GetTradingDay()
     {
         let currentTradingDate=new Date();
-        let currentTradingDayStr=currentTradingDate.toLocaleDateString();
+        let currentTradingDayStr=currentTradingDate.getFullYear()+"-"+(currentTradingDate.getMonth()+1)+"-"+currentTradingDate.getDate();
         let dateArray=currentTradingDayStr.split("-");
         if(dateArray[1].length==1)
         {

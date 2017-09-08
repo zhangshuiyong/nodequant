@@ -583,7 +583,7 @@ FuturesConfig={
             AMClose:"11:30:00",
             PMOpen:"13:30:00",
             PMClose:"15:30:00",
-            NightOpen:"19:50:00",
+            NightOpen:"20:00:00",
             NightClose:"2:30:00"
         },
         "AU(T+D)":{
@@ -593,7 +593,7 @@ FuturesConfig={
             AMClose:"11:30:00",
             PMOpen:"13:30:00",
             PMClose:"15:30:00",
-            NightOpen:"19:50:00",
+            NightOpen:"20:00:00",
             NightClose:"2:30:00"
         },
         "AU(T+N1)":{
@@ -603,7 +603,7 @@ FuturesConfig={
             AMClose:"11:30:00",
             PMOpen:"13:30:00",
             PMClose:"15:30:00",
-            NightOpen:"19:50:00",
+            NightOpen:"20:00:00",
             NightClose:"2:30:00"
         },
         "AU(T+N2)":{
@@ -613,7 +613,7 @@ FuturesConfig={
             AMClose:"11:30:00",
             PMOpen:"13:30:00",
             PMClose:"15:30:00",
-            NightOpen:"19:50:00",
+            NightOpen:"20:00:00",
             NightClose:"2:30:00"
         },
         IC:{

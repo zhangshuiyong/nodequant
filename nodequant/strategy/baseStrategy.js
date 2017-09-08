@@ -281,7 +281,7 @@ class BaseStrategy{
     /// <returns></returns>
     SendOrder(clientName,symbol,limitePrice,volume,direction,openClose,orderType,tick,contingentCondition,stopPrice)
     {
-        if(arguments.length<5)
+        if(arguments.length<6)
         {
             let message= "Send Order Failed.Reason:Not Valid Parameters";
             let error=new NodeQuantError(this.name,ErrorType.StrategyError,message);
@@ -290,7 +290,7 @@ class BaseStrategy{
             return;
         }
 
-        let sendOrderType= arguments[5] ? orderType : OrderType.Limit;
+        let sendOrderType= arguments[6] ? orderType : OrderType.Limit;
 
         //记录发出订单
         let orderRecord={};
@@ -347,7 +347,7 @@ class BaseStrategy{
 
                 break;
             case OrderType.Market:
-                if(arguments[6]!=undefined && tick.upperLimit!=undefined && tick.lowerLimit!=undefined)
+                if(arguments[7]!=undefined && tick.upperLimit!=undefined && tick.lowerLimit!=undefined)
                 {
                     if(direction==Direction.Buy)
                         limitePrice=tick.upperLimit;
@@ -378,14 +378,14 @@ class BaseStrategy{
                 }
                 break;
             case OrderType.Condition:
-                if(arguments[7]==undefined)
+                if(arguments[8]==undefined)
                 {
 
                     let message= "Send Condition Order Failed.Reason:Miss ContingentCondition Type";
                     let error=new NodeQuantError(this.name,ErrorType.StrategyError,message);
                     global.AppEventEmitter.emit(EVENT.OnError,error);
 
-                }else if(arguments[8]==undefined)
+                }else if(arguments[9]==undefined)
                 {
                     let message="Send Condition Order Failed.Reason:Miss StopPrice";
                     let error=new NodeQuantError(this.name,ErrorType.StrategyError,message);
