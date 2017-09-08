@@ -2,7 +2,7 @@
  * Created by Administrator on 2017/6/8.
  */
 
-let TradingClientSingleton= require("./Sgit/"+process.arch+"/NodeQuant.node");;
+let TradingClientSingleton= require("./Sgit/ia32/NodeQuant.node");;
 
 let fs = require("fs");
 require("../../common.js");
