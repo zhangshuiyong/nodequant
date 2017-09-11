@@ -2,17 +2,19 @@
  * Created by Administrator on 2017/6/16.
  */
 
-var express = require('express');
-var router = express.Router();
-var URL = require('url');
+let express = require('express');
+let router = express.Router();
+let URL = require('url');
 require("../../common.js");
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
 
-    var unSubscribeReq = URL.parse(req.url, true).query;
-    var contractName=unSubscribeReq.contractName;
-    global.Application.MainEngine.UnSubscribe("CTP",contractName,function (clientName,ret) {
+    let unSubscribeReq = URL.parse(req.url, true).query;
+    let contractName=unSubscribeReq.contractName;
+
+    let lastTick = global.Application.StrategyEngine.Symbol_LastTickDic[contractName];
+    global.Application.MainEngine.UnSubscribe(lastTick.clientName,contractName,function (clientName,ret) {
         if(ret==-99)
             res.render('index', { title: clientName+' UnSubscribe Failed.Error: Market client have not logined' });
         else if(ret!=0)

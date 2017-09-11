@@ -19,32 +19,34 @@ class NodeQuantApp{
         console.log(">>>>>>>>>>  "+AppName+" <<<<<<<<<<");
         console.log("Date :" + new Date(Date.now()).toLocaleTimeString());
 
+        let sendMarketOrder = require('./routes/test/sendMarketOrder');
+        let sendLimitOrder = require('./routes/test/sendLimitOrder');
+        let sendStopLimitOrder = require('./routes/test/sendStopLimitOrder');
+        let sendMarketIfTouchedOrder = require('./routes/test/sendMarketIfTouchedOrder');
+        let sendFillOrKillLimitOrder = require('./routes/test/sendFillOrKillLimitOrder');
+        let sendFillAndKillLimitOrder = require('./routes/test/sendFillAndKillLimitOrder');
+        let cancelOrder = require('./routes/test/cancelOrder');
+        let subscribeContract = require('./routes/test/subscribeContract');
+        let unSubscribeContract = require('./routes/test/unSubscribeContract');
+        let queryCommissionRate=require('./routes/test/queryCommissionRate');
+        let queryInvestorPosition = require('./routes/test/queryInvestorPosition');
+        let queryTradingAccount = require('./routes/test/queryTradingAccount');
 
-        let connectTdClient = require('./routes/presenter_end/connectTdClient');
-        let sendMarketOrder = require('./routes/presenter_end/sendMarketOrder');
-        let sendLimitOrder = require('./routes/presenter_end/sendLimitOrder');
-        let sendStopLimitOrder = require('./routes/presenter_end/sendStopLimitOrder');
-        let sendMarketIfTouchedOrder = require('./routes/presenter_end/sendMarketIfTouchedOrder');
-        let sendFillOrKillLimitOrder = require('./routes/presenter_end/sendFillOrKillLimitOrder');
-        let sendFillAndKillLimitOrder = require('./routes/presenter_end/sendFillAndKillLimitOrder');
-        let queryInvestorPosition = require('./routes/presenter_end/queryInvestorPosition');
-        let cancelOrder = require('./routes/presenter_end/cancelOrder');
-        let subscribeContract = require('./routes/presenter_end/subscribeContract');
-        let unSubscribeContract = require('./routes/presenter_end/unSubscribeContract');
-        let queryCommissionRate=require('./routes/presenter_end/queryCommissionRate');
-
-        application.use('/connectTdClient', connectTdClient);
         application.use('/sendMarketOrder',sendMarketOrder);
         application.use('/sendLimitOrder',sendLimitOrder);
         application.use('/sendStopLimitOrder',sendStopLimitOrder);
         application.use('/sendMarketIfTouchedOrder',sendMarketIfTouchedOrder);
         application.use('/sendFillOrKillLimitOrder',sendFillOrKillLimitOrder);
         application.use('/sendFillAndKillLimitOrder',sendFillAndKillLimitOrder);
-        application.use('/queryInvestorPosition',queryInvestorPosition);
+
         application.use('/cancelOrder',cancelOrder);
+
         application.use('/subscribeContract',subscribeContract);
         application.use('/unSubscribeContract',unSubscribeContract);
+
         application.use('/queryCommissionRate',queryCommissionRate);
+        application.use('/queryInvestorPosition',queryInvestorPosition);
+        application.use('/queryTradingAccount',queryTradingAccount);
 
         let redis =require("redis");
         //初始化配置系统数据库

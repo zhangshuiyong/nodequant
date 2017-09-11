@@ -342,6 +342,22 @@ CancelOrderActionStatusType={
     Rejected:'c'
 };
 
+/////////////////////////////////////////////////////////////////////////
+///TFtdcPosiDirectionType是一个持仓多空方向类型
+/////////////////////////////////////////////////////////////////////////
+///净
+//#define THOST_FTDC_PD_Net '1'
+///多头
+//#define THOST_FTDC_PD_Long '2'
+///空头
+//#define THOST_FTDC_PD_Short '3'
+
+PosiDirectionReverseType={
+    '1':"Net",
+    '2':"Long",
+    '3':"Short"
+};
+
 //6种订单类型
 OrderType={
     Limit:"0",
@@ -371,6 +387,7 @@ EVENT={
     OnTrade:"EventTraded",
     OnCreateStrategyFailed:"EventCreateStrategyFailed",
 
+    OnQueryPosition:"EventQueryPosition",
     OnQueryTradingAccount:"EventQueryTradingAccount",
     OnQueryCommissionRate:"EventQueryCommissionRate",
     OnQueryDeferFeeRate:"EventQueryDeferFeeRate",

@@ -1,8 +1,9 @@
 /**
  * Created by Administrator on 2017/6/8.
  */
-
-let TradingClientSingleton= require("./Sgit/ia32/NodeQuant.node");;
+let NodeAddOnPath="./Sgit/"+process.platform+"/ia32/NodeQuant.node";
+console.log("Sgit Node AddOn Path:"+NodeAddOnPath);
+let TradingClientSingleton= require(NodeAddOnPath);
 
 let fs = require("fs");
 require("../../common.js");
@@ -382,7 +383,7 @@ class TradingClient{
     }
 
     OnPosition(position) {
-
+        global.AppEventEmitter.emit(EVENT.OnQueryPosition,position);
     }
 
     OnTick(tick) {
@@ -604,29 +605,32 @@ class MdClient{
             let month=parseInt(tick.date.substring(4,6));
             let day=parseInt(tick.date.substring(6,8));
 
-            //触发自然日
-            let actionYear=0;
-            let actionMonth=0;
-            let actionDay=0;
-            if(tick.actionDate=="")
-            {
-                let currentDate=new Date();
-                tick.actionDate=currentDate.toLocaleDateString();
-                actionYear = currentDate.getFullYear();
-                actionMonth=currentDate.getMonth()+1;
-                actionDay=currentDate.getDate();
-            }else{
-                actionYear=parseInt(tick.actionDate.substring(0,4));
-                actionMonth=parseInt(tick.actionDate.substring(4,6));
-                actionDay=parseInt(tick.actionDate.substring(6,8));
-            }
-
             let hour=parseInt(marketData.UpdateTime.substring(0,2));
             let minute=parseInt(marketData.UpdateTime.substring(3,5));
             let second=parseInt(marketData.UpdateTime.substring(6,8));
             //js Date对象从0开始的月份
             tick.datetime = new Date(year,month-1,day,hour,minute,second,marketData.UpdateMillisec);
-            tick.actionDatetime = new Date(actionYear,actionMonth-1,actionDay,hour,minute,second,marketData.UpdateMillisec);
+
+            //自然日
+            let actionDay=0;
+            if(tick.actionDate=="")
+            {
+                let NightSectionStartTime=new Date(year,month-1,day,16,0,0,0);
+                let NightSectionEndTime=new Date(year,month-1,day,23,59,59,999);
+                //服务器时间的Tick处于夜盘,自然日要以本地自然日
+                if(NightSectionStartTime<tick.datetime && tick.datetime<NightSectionEndTime)
+                {
+                    let currentDate=new Date();
+                    tick.actionDate=currentDate.getFullYear()+"-"+(currentDate.getMonth()+1)+"-"+currentDate.getDate();
+                    actionDay=currentDate.getDate();
+                }else{
+                    actionDay=day;
+                }
+            }else{
+                actionDay=parseInt(tick.actionDate.substring(6,8));
+            }
+
+            tick.actionDatetime = new Date(year,month-1,actionDay,hour,minute,second,marketData.UpdateMillisec);
             tick.timeStamp=tick.datetime.getTime();
             tick.Id = tick.actionDatetime.getTime();
             //五档价格无效值Double的最大值转换为0
@@ -963,23 +967,21 @@ class TdClient{
 
             //获取持仓缓存对象
             //唯一定义一条记录的仓位
-            //一个合约的开仓，可能有多条持仓记录？
-            let posName = positionInfo.InstrumentID+"."+ positionInfo.PosiDirection;
-            console.log("持仓ID:"+posName);
+            //一个合约的开仓，可能有多条持仓记录
+            let posName = positionInfo.InstrumentID+"."+ PosiDirectionReverseType[positionInfo.PosiDirection];
+
             let pos;
             if(TdClient.posDic.posName==undefined) {
                 pos = {};
 
-                pos.clientName = TdClient.tradingClient.ClientName;
+                pos.clientName = TdClient.ctpClient.ClientName;
                 pos.symbol = positionInfo.InstrumentID;
-                pos.vtSymbol = pos.symbol;
                 pos.direction = positionInfo.PosiDirection;
-                pos.vtPositionName = pos.vtSymbol + "." + pos.direction;
+                pos.positionName = pos.symbol + "." + PosiDirectionReverseType[positionInfo.PosiDirection];
                 pos.price=0;
                 pos.position=0;
                 pos.ydPosition=0;
                 pos.positionProfit=0;
-                pos.direction="";
                 pos.frozen=0;
                 TdClient.posDic[posName] = pos;
             }else
@@ -1024,11 +1026,7 @@ class TdClient{
             //查询回报结束
             if(isLast)
             {
-                //遍历推送
-                for(pos in TdClient.posDic)
-                {
-                    TdClient.tradingClient.OnPosition(pos);
-                }
+                TdClient.tradingClient.OnPosition(TdClient.posDic);
             }
 
             //清空缓存

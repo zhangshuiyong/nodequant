@@ -1,21 +1,21 @@
 /**
  * Created by Administrator on 2017/5/31.
  */
-var express = require('express');
-var router = express.Router();
-var URL = require('url');
+let express = require('express');
+let router = express.Router();
+let URL = require('url');
 /* GET home page. */
 router.get('/', function(req, res, next) {
 
-    var FOKLimitOrderReq = URL.parse(req.url, true).query;
-    var contractName=FOKLimitOrderReq.contractName;
-    var direction=FOKLimitOrderReq.direction;
+    let FAKLimitOrderReq = URL.parse(req.url, true).query;
+    let contractName=FAKLimitOrderReq.contractName;
+    let direction=FAKLimitOrderReq.direction;
     if(direction=="buy")
         direction=Direction.Buy;
     else if(direction=="sell")
         direction=Direction.Sell;
 
-    var openclose=FOKLimitOrderReq.openclose;
+    let openclose=FAKLimitOrderReq.openclose;
     if(openclose=="open")
         openclose=OpenCloseFlagType.Open;
     else if(openclose=="close")
@@ -25,17 +25,18 @@ router.get('/', function(req, res, next) {
     else if(openclose=="closeYesterday")
         openclose=OpenCloseFlagType.CloseYesterday;
 
-    var volume=parseInt(FOKLimitOrderReq.volume);
+    let volume=parseInt(FAKLimitOrderReq.volume);
 
-    var limitPrice=parseFloat(FOKLimitOrderReq.limitPrice);
+    let limitPrice=parseFloat(FAKLimitOrderReq.limitPrice);
 
     let DemoStrategy=global.Application.StrategyEngine.GetStrategy("Demo");
     if(DemoStrategy)
     {
-        DemoStrategy.SendOrder(contractName,limitPrice,volume,direction,openclose,OrderType.FOK);
+        let lastTick = global.Application.StrategyEngine.Symbol_LastTickDic[contractName];
+        DemoStrategy.SendOrder(lastTick.clientName,contractName,limitPrice,volume,direction,openclose,OrderType.FAK);
     }
 
-    res.render('index', { title: 'FiveMAStrategy Send FOK Order'});
+    res.render('index', { title: 'FiveMAStrategy Send FAK Order'});
 
 });
 

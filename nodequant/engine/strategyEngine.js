@@ -258,10 +258,13 @@ function _registerEvent(myEngine) {
     //查询资金
     global.AppEventEmitter.on(EVENT.OnQueryTradingAccount,function (tradingAccountInfo) {
         let OnQueryTradingAccountCallBack = myEngine.OnQueryTradingAccountCallBackDic[tradingAccountInfo.queryId];
-        OnQueryTradingAccountCallBack(tradingAccountInfo);
 
-        //调用完清掉
-        delete myEngine.OnQueryTradingAccountCallBackDic[tradingAccountInfo.queryId];
+        if(OnQueryTradingAccountCallBack)
+        {
+            OnQueryTradingAccountCallBack(tradingAccountInfo);
+            //调用完清掉
+            delete myEngine.OnQueryTradingAccountCallBackDic[tradingAccountInfo.queryId];
+        }
     });
 
     //查询合约手续费

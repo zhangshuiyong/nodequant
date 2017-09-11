@@ -2,17 +2,19 @@
  * Created by Administrator on 2017/6/16.
  */
 
-var express = require('express');
-var router = express.Router();
-var URL = require('url');
+let express = require('express');
+let router = express.Router();
+let URL = require('url');
 require("../../common.js");
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
 
-    var SubscribeReq = URL.parse(req.url, true).query;
-    var contractName=SubscribeReq.contractName;
-    global.Application.MainEngine.Subscribe("CTP",contractName,function (contractName,clientName,ret) {
+    let SubscribeReq = URL.parse(req.url, true).query;
+    let contractName=SubscribeReq.contractName;
+
+    let lastTick = global.Application.StrategyEngine.Symbol_LastTickDic[contractName];
+    global.Application.MainEngine.Subscribe(lastTick.clientName,contractName,function (contractName,clientName,ret) {
 
         if(ret==-99)
             res.render('index', { title: clientName+' Subscribe Failed.Error: Trader client have not logined' });

@@ -1,21 +1,21 @@
 /**
  * Created by Administrator on 2017/5/31.
  */
-var express = require('express');
-var router = express.Router();
-var URL = require('url');
+let express = require('express');
+let router = express.Router();
+let URL = require('url');
 /* GET home page. */
 router.get('/', function(req, res, next) {
 
-    var marketIfTouchedOrderReq = URL.parse(req.url, true).query;
-    var contractName=marketIfTouchedOrderReq.contractName;
-    var direction=marketIfTouchedOrderReq.direction;
+    let marketIfTouchedOrderReq = URL.parse(req.url, true).query;
+    let contractName=marketIfTouchedOrderReq.contractName;
+    let direction=marketIfTouchedOrderReq.direction;
     if(direction=="buy")
         direction=Direction.Buy;
     else if(direction=="sell")
         direction=Direction.Sell;
 
-    var openclose=marketIfTouchedOrderReq.openclose;
+    let openclose=marketIfTouchedOrderReq.openclose;
     if(openclose=="open")
         openclose=OpenCloseFlagType.Open;
     else if(openclose=="close")
@@ -25,9 +25,9 @@ router.get('/', function(req, res, next) {
     else if(openclose=="closeYesterday")
         openclose=OpenCloseFlagType.CloseYesterday;
 
-    var volume=parseInt(marketIfTouchedOrderReq.volume);
+    let volume=parseInt(marketIfTouchedOrderReq.volume);
 
-    var stopPriceCondition=marketIfTouchedOrderReq.stopPriceCondition;
+    let stopPriceCondition=marketIfTouchedOrderReq.stopPriceCondition;
     if(stopPriceCondition=="gt")
     {
         stopPriceCondition=ContingentConditionType.LastPriceGreaterThanStopPrice;
@@ -42,9 +42,10 @@ router.get('/', function(req, res, next) {
         stopPriceCondition=ContingentConditionType.LastPriceLesserEqualStopPrice;
     }
 
-    var stopPrice=parseFloat(marketIfTouchedOrderReq.stopPrice);
+    let stopPrice=parseFloat(marketIfTouchedOrderReq.stopPrice);
 
-    global.Application.MainEngine.SendMarketIfTouchedOrder("CTP",contractName,direction,openclose,volume,stopPriceCondition,stopPrice,function (clientName,ret) {
+    let lastTick = global.Application.StrategyEngine.Symbol_LastTickDic[contractName];
+    global.Application.MainEngine.SendMarketIfTouchedOrder(lastTick.clientName,contractName,direction,openclose,volume,stopPriceCondition,stopPrice,function (clientName,ret) {
 
         if(ret==-99)
             res.render('index', { title: 'SendMarketIfTouchedOrder Failed.Error: Trader client have not logined' });
