@@ -323,6 +323,7 @@ class MainEngine{
 
     SendLimitOrder(clientName,contractName,direction,openclose,volume,limitPrice) {
         let ret = this.clientDic[clientName].SendLimitOrder(contractName,direction,openclose,volume,limitPrice);
+        //console.timeEnd("NodeQuant-Sgit-TickToFinishSendOrder");
         return ret;
     }
 

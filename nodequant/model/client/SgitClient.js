@@ -752,6 +752,146 @@ class TdClient{
 
         //持仓的缓存
         this.posDic={};
+
+
+        //本来SendOrder Callbacks是放在sendOrder函数中,这里牺牲可读性,提前绑定发送订单事件，可以优化增加下单速度
+        ///////////////////////////////////SendOrder Callbacks////////////////////////////////////////////////
+        let TdClient=this;
+        ///报单录入错误信息响应
+        //交易核心对收到的交易序列报文做合法性检查，检查出错误的交易申请报文后就会返回给交易前置一个
+        //包含错误信息的报单响应报文，交易前置立即将该报文信息转发给交易终端。
+        TdClient.TdApi.on("RspOrderInsert",function (response,error,requestId,isLast) {
+
+            //订单被拒绝,不算错误,只是订单的一个状态
+
+            let order = {};
+            order.clientName = TdClient.tradingClient.ClientName;
+            order.symbol = response.InstrumentID;
+            order.exchange = response.ExchangeID;
+            order.orderID = response.OrderRef;
+            order.direction = response.Direction;
+            order.offset = response.CombOffsetFlag;
+            order.status = OrderStatusType.Canceled;
+            order.statusName=OrderStatusReverseType[order.status];
+            order.statusMsg = "Rejected";
+            order.price = response.LimitPrice;
+            order.totalVolume = response.VolumeTotalOriginal;
+
+            TdClient.tradingClient.OnOrder(order);
+
+        });
+
+        //此接口仅在报单被 CTP 端拒绝时被调用用来进行报错。
+        TdClient.TdApi.on("ErrRtnOrderInsert",function (response,error) {
+
+            //订单被拒绝,不算错误,只是订单的一个状态
+
+            let order = {};
+            order.clientName = TdClient.tradingClient.ClientName;
+            order.symbol = response.InstrumentID;
+            order.exchange = response.ExchangeID;
+            order.orderID = response.OrderRef;
+            order.direction = response.Direction;
+            order.offset = response.CombOffsetFlag;
+            order.status = OrderStatusType.Canceled;
+            order.statusName=OrderStatusReverseType[order.status];
+            order.statusMsg = "Rejected";
+            order.price = response.LimitPrice;
+            order.totalVolume = response.VolumeTotalOriginal;
+            TdClient.tradingClient.OnOrder(order);
+
+        });
+
+        //交易核心向交易所申请该报单插入的申请报文，会被调用多次
+        //1.交易所撤销 2.接受该报单时 3.该报单成交时 4.交易所端校验失败OrderStatusMsg
+        //获取有用的order数据
+        TdClient.TdApi.on("RtnOrder",function (orderInfo) {
+
+            // ""报单回报"""
+            //更新最大报单编号
+            let newOrderRefID = parseInt(orderInfo.OrderRef);
+            TdClient.orderRefID = Math.max(TdClient.orderRefID, newOrderRefID);
+
+            let order = {};
+
+            //CTP Order属性
+            order.symbol = orderInfo.InstrumentID;
+            //交易所ID
+            order.exchange = orderInfo.ExchangeID;
+
+            //CTP的报单号一致性维护需要基于frontID, sessionID, orderID三个字段
+            order.frontID = orderInfo.FrontID;
+            order.sessionID = orderInfo.SessionID;
+            order.orderID = orderInfo.OrderRef;
+
+            //多空方向
+            order.direction = orderInfo.Direction;
+            //开平
+            order.offset = orderInfo.CombOffsetFlag;
+            //订单状态
+            order.status = orderInfo.OrderStatus;
+            order.statusName = OrderStatusReverseType[order.status];
+            order.statusMsg=orderInfo.StatusMsg;
+
+            //价格、报单量
+            order.price = orderInfo.LimitPrice;
+            order.totalVolume = orderInfo.VolumeTotalOriginal;
+            order.tradedVolume = orderInfo.VolumeTraded;
+
+            //时间
+            order.orderTime = orderInfo.InsertTime;
+            order.cancelTime = orderInfo.CancelTime;
+
+            //自定义Order属性
+            order.clientName = TdClient.tradingClient.ClientName;
+            order.strategyOrderID = order.clientName + "." + order.orderID;
+
+            TdClient.tradingClient.OnOrder(order);
+
+        });
+
+        //交易所中报单成交之后，一个报单回报（OnRtnOrder）和一个成交回报（OnRtnTrade）会被发送到客户端，报单回报
+        //中报单的状态为“已成交”。但是仍然建议客户端将成交回报作为报单成交的标志，因为 CTP 的交易核心在收到 OnRtnTrade 之后才会更新该报单的状态。
+
+        TdClient.TdApi.on("RtnTrade",function (tradeInfo) {
+            //成交回报
+            let trade = {};
+
+            //保存代码和报单号
+            trade.symbol = tradeInfo.InstrumentID;
+            trade.exchange = tradeInfo.ExchangeID;
+
+            trade.tradeID = tradeInfo.TradeID;
+            trade.orderID = tradeInfo.OrderRef;
+
+            //方向
+            trade.direction = tradeInfo.Direction;
+
+            //开平
+            trade.offset = tradeInfo.OffsetFlag;
+
+            //价格、报单量等数值
+            trade.price = tradeInfo.Price;
+            trade.volume = tradeInfo.Volume;
+            trade.tradingDay=tradeInfo.TradingDay;
+            trade.tradeTime = tradeInfo.TradeTime;
+
+            //自定义 Trade属性
+            trade.clientName =TdClient.tradingClient.ClientName;
+            trade.strategyOrderID=trade.clientName+"."+ trade.orderID;
+            trade.strategyTradeID = trade.clientName+"."+ trade.tradeID;
+            trade.directionName=DirectionReverse[trade.direction];
+            trade.offsetName=OpenCloseFlagReverseType[trade.offset];
+
+            //转换时间
+
+            let tradeDateTime = DateTimeUtil.StrToDatetime(trade.tradingDay,trade.tradeTime);
+            trade.tradingDateTimeStamp = tradeDateTime.getTime();
+
+            TdClient.tradingClient.OnTrade(trade);
+        });
+        ///////////////////////////////////SendOrder Callbacks////////////////////////////////////////////////
+
     }
 
     exit() {
@@ -1160,144 +1300,6 @@ class TdClient{
 
             return -99;
         }
-
-        ///报单录入错误信息响应
-        //交易核心对收到的交易序列报文做合法性检查，检查出错误的交易申请报文后就会返回给交易前置一个
-        //包含错误信息的报单响应报文，交易前置立即将该报文信息转发给交易终端。
-        TdClient.TdApi.on("RspOrderInsert",function (response,error,requestId,isLast) {
-
-            //订单被拒绝,不算错误,只是订单的一个状态
-
-            let order = {};
-            order.clientName = TdClient.tradingClient.ClientName;
-            order.symbol = response.InstrumentID;
-            order.exchange = response.ExchangeID;
-            order.vtSymbol = order.symbol;
-            order.orderID = response.OrderRef;
-            order.vtOrderID = TdClient.tradingClient.Name + order.orderID;
-            order.direction = response.Direction;
-            order.offset = response.CombOffsetFlag;
-            order.status = OrderStatusType.Canceled;
-            order.statusName=OrderStatusReverseType[order.status];
-            order.statusMsg = "Rejected";
-            order.price = response.LimitPrice;
-            order.totalVolume = response.VolumeTotalOriginal;
-
-            TdClient.tradingClient.OnOrder(order);
-
-        });
-
-        //此接口仅在报单被 CTP 端拒绝时被调用用来进行报错。
-        TdClient.TdApi.on("ErrRtnOrderInsert",function (response,error) {
-
-            //订单被拒绝,不算错误,只是订单的一个状态
-
-            let order = {};
-            order.clientName = TdClient.tradingClient.ClientName;
-            order.symbol = response.InstrumentID;
-            order.exchange = response.ExchangeID;
-            order.vtSymbol = order.symbol
-            order.orderID = response.OrderRef;
-            order.vtOrderID = order.clientName + "." + order.orderID;
-            order.direction = response.Direction;
-            order.offset = response.CombOffsetFlag;
-            order.status = OrderStatusType.Canceled;
-            order.statusName=OrderStatusReverseType[order.status];
-            order.statusMsg = "Rejected";
-            order.price = response.LimitPrice;
-            order.totalVolume = response.VolumeTotalOriginal;
-            TdClient.tradingClient.OnOrder(order);
-
-        });
-
-        //交易核心向交易所申请该报单插入的申请报文，会被调用多次
-        //1.交易所撤销 2.接受该报单时 3.该报单成交时 4.交易所端校验失败OrderStatusMsg
-        //获取有用的order数据
-        TdClient.TdApi.on("RtnOrder",function (orderInfo) {
-
-            // ""报单回报"""
-            //更新最大报单编号
-            let newOrderRefID = parseInt(orderInfo.OrderRef);
-            TdClient.orderRefID = Math.max(TdClient.orderRefID, newOrderRefID);
-
-            let order = {};
-
-            //CTP Order属性
-            order.symbol = orderInfo.InstrumentID;
-            //交易所ID
-            order.exchange = orderInfo.ExchangeID;
-
-            //CTP的报单号一致性维护需要基于frontID, sessionID, orderID三个字段
-            order.frontID = orderInfo.FrontID;
-            order.sessionID = orderInfo.SessionID;
-            order.orderID = orderInfo.OrderRef;
-
-            //多空方向
-            order.direction = orderInfo.Direction;
-            //开平
-            order.offset = orderInfo.CombOffsetFlag;
-            //订单状态
-            order.status = orderInfo.OrderStatus;
-            order.statusName = OrderStatusReverseType[order.status];
-            order.statusMsg=orderInfo.StatusMsg;
-
-            //价格、报单量
-            order.price = orderInfo.LimitPrice;
-            order.totalVolume = orderInfo.VolumeTotalOriginal;
-            order.tradedVolume = orderInfo.VolumeTraded;
-
-            //时间
-            order.orderTime = orderInfo.InsertTime;
-            order.cancelTime = orderInfo.CancelTime;
-
-            //自定义Order属性
-            order.clientName = TdClient.tradingClient.ClientName;
-            order.strategyOrderID = order.clientName + "." + order.orderID;
-
-            TdClient.tradingClient.OnOrder(order);
-
-        });
-
-        //交易所中报单成交之后，一个报单回报（OnRtnOrder）和一个成交回报（OnRtnTrade）会被发送到客户端，报单回报
-        //中报单的状态为“已成交”。但是仍然建议客户端将成交回报作为报单成交的标志，因为 CTP 的交易核心在收到 OnRtnTrade 之后才会更新该报单的状态。
-
-        TdClient.TdApi.on("RtnTrade",function (tradeInfo) {
-            //成交回报
-            let trade = {};
-
-            //保存代码和报单号
-            trade.symbol = tradeInfo.InstrumentID;
-            trade.exchange = tradeInfo.ExchangeID;
-
-            trade.tradeID = tradeInfo.TradeID;
-            trade.orderID = tradeInfo.OrderRef;
-
-            //方向
-            trade.direction = tradeInfo.Direction;
-
-            //开平
-            trade.offset = tradeInfo.OffsetFlag;
-
-            //价格、报单量等数值
-            trade.price = tradeInfo.Price;
-            trade.volume = tradeInfo.Volume;
-            trade.tradingDay=tradeInfo.TradingDay;
-            trade.tradeTime = tradeInfo.TradeTime;
-
-            //自定义 Trade属性
-            trade.clientName =TdClient.tradingClient.ClientName;
-            trade.strategyOrderID=trade.clientName+"."+ trade.orderID;
-            trade.strategyTradeID = trade.clientName+"."+ trade.tradeID;
-            trade.directionName=DirectionReverse[trade.direction];
-            trade.offsetName=OpenCloseFlagReverseType[trade.offset];
-
-            //转换时间
-
-            let tradeDateTime = DateTimeUtil.StrToDatetime(trade.tradingDay,trade.tradeTime);
-            trade.tradingDateTimeStamp = tradeDateTime.getTime();
-
-            TdClient.tradingClient.OnTrade(trade);
-        });
 
         //订单号增加
         TdClient.orderRefID+=1;

@@ -51,7 +51,7 @@ class Open_CloseStrategy extends BaseStrategy{
                     {
                         this.isOpen=true;
                         let price=this.PriceUp(tick.symbol,tick.lastPrice,Direction.Buy,2);
-                        this.SendOrder(tick.symbol,price,1,Direction.Buy,OpenCloseFlagType.Open);
+                        this.SendOrder(tick.clientName,tick.symbol,price,1,Direction.Buy,OpenCloseFlagType.Open);
                     }
                 }
             }else
