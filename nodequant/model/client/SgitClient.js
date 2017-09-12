@@ -354,11 +354,12 @@ class TradingClient{
         return this.tdClient.queryCommissionRate(contractSymbol);
     }
 
+    /*
     //查询递延费
     QueryDeferFeeRate(contractSymbol)
     {
         return this.tdClient.queryDeferFeeRate(contractSymbol);
-    }
+    }*/
 
     //////////////////////////////////////////////响应函数/////////////////////////////////////////////////////////
 
@@ -372,10 +373,11 @@ class TradingClient{
         global.AppEventEmitter.emit(EVENT.OnQueryCommissionRate,commissionRateInfo);
     }
 
+    /*
     OnQueryDeferFeeRate(deferFeeRateInfo)
     {
         global.AppEventEmitter.emit(EVENT.OnQueryDeferFeeRate,deferFeeRateInfo);
-    }
+    }*/
 
     OnInfo(msg) {
         let log=new NodeQuantLog(this.ClientName,LogType.INFO,new Date().toLocaleString(),msg);
@@ -1110,6 +1112,7 @@ class TdClient{
         return TdClient.TdApi.queryCommissionRate(TdClient.userID,TdClient.brokerID,contractSymbol);
     }
 
+    /*
     queryDeferFeeRate(contractSymbol)
     {
         let TdClient=this;
@@ -1143,7 +1146,7 @@ class TdClient{
         });
 
         return TdClient.TdApi.queryDeferFeeRate(contractSymbol);
-    }
+    }*/
 
     sendOrder(orderReq) {
         let TdClient=this;
