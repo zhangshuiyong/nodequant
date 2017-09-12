@@ -62,7 +62,7 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 - 支持可视化策略运行状态。使用Redis数据库Windows图形化客户端查看策略运行交易数据，可以查看本地和云服务器的策略运行状态
 - 无人值守。支持配置非交易时间自动停止，交易时间自动启动交易策略
 - 支持打包加密策略
-- NodeQuant系统内Tick-To-FinishSendOrder平均耗时：1.5~0.7ms(基于python的vn.py平均耗时22.6ms)。让每笔交易付出更小的滑点成本。
+- 更小的滑点成本。NodeQuant系统内Tick-To-FinishSendOrder平均耗时：1.5~0.7ms(基于python的vn.py平均耗时22.6ms)。
 
 ## NodeQuant 2.0即将来到的特性
 - 支持连接Tick数据行情服务器，使得策略可预先加载Tick，分钟行情数据。方便策略获取预处理数据
