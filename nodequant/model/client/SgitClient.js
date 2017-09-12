@@ -1,7 +1,7 @@
 /**
  * Created by Administrator on 2017/6/8.
  */
-let NodeAddOnPath="./Sgit/"+process.platform+"/ia32/NodeQuant.node";
+let NodeAddOnPath="./Sgit/"+process.platform+"/"+process.arch+"/NodeQuant.node";
 console.log("Sgit Node AddOn Path:"+NodeAddOnPath);
 let TradingClientSingleton= require(NodeAddOnPath);
 
