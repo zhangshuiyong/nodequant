@@ -50,28 +50,28 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 3. **主引擎层**：NodeQuant系统运行会唯一创建一个主引擎实例，主引擎层代表的就是这个主引擎。主引擎负责启动上层策略引擎和连接底层的各个交易Client，接收来自底层交易Cient的行情信息，并且响应上层策略引擎的下单命令。
 4. **交易客户端层**：交易客户端层代表着各个交易客户端。连接着各种证券交易所，商品交易所，接收推送来自交易所的行情信息，合约信息。同时，响应上层主引擎的在各个交易客户端的下单命令。目前已经实现了CTP Client,可交易中金所、上期所、大商所，郑商所的合约。
 
-## NodeQuant 1.5.0 的特性
-- 支持上期CTP的API客户端。可交易中金所、上期所、大商所、郑商所的所有期货品种合约
-- 支持飞鼠Sgit的API客户端。可交易中金所、上期所、大商所、郑商所的所有期货品种合约，并且可交易上海黄金交易所的现货合约。可程序化交易现货黄金、白银。
+## NodeQuant 1.6.0 的特性
+- 支持上期CTP的API客户端(Windows Node.js-32位、Windows Node.js-64位、Linux Node.js-64位)。可交易中金所、上期所、大商所、郑商所的所有期货品种合约
+- 支持飞鼠Sgit的API客户端(Windows Node.js-32位、Linux Node.js-64位)。可交易中金所、上期所、大商所、郑商所的所有期货品种合约，并且可交易上海黄金交易所的现货合约。可程序化交易现货黄金、白银。
 - 支持一个账号 —— 多策略，支持一个账号多个策略的量化产品模式
 - 支持一个策略 —— 多合约，支持趋势、套利交易
 - 支持一个策略 —— 多市场，支持跨市场交易、套利
 - 支持交易所支持的多种类型订单：限价单，市价单，FAK单，FOK单，条件单。可灵活使用于趋势，套利，钓鱼等交易策略
 - 支持盘后自动计算策略盈亏净值
-- 使用Redis内存数据库，记录与查询交易信息，极速响应实盘交易
-- 使用Redis数据库Windows图形化客户端查看策略运行交易数据，方便管理了解策略运行状态
-- 支持配置非交易时间自动停止，交易时间自动启动交易策略
+- 极速响应实盘交易。使用Redis内存数据库，记录与查询交易信息
+- 支持可视化策略运行状态。使用Redis数据库Windows图形化客户端查看策略运行交易数据，可以查看本地和云服务器的策略运行状态
+- 无人值守。支持配置非交易时间自动停止，交易时间自动启动交易策略
 - 支持打包加密策略
-- NodeQuant系统内Tick-To-FinishSendOrder平均耗时：小于1ms(基于python的vn.py平均耗时22.6ms)。让每笔交易付出更小的滑点成本。
+- 更小的滑点成本。NodeQuant系统内Tick-To-FinishSendOrder平均耗时：1.5~0.7ms(基于python的vn.py平均耗时22.6ms)。
 
 ## NodeQuant 2.0即将来到的特性
 - 支持连接Tick数据行情服务器，使得策略可预先加载Tick，分钟行情数据。方便策略获取预处理数据
 - 支持策略运行异常邮件通知
 
 
-## 搭建NodeQuant运行环境
+## 搭建Windows系统NodeQuant运行环境
 1. 支持Win7和Win10
-2. 下载安装Windows版本的Node.js v6（NodeQuant目前已经支持32位和64位的Windows版Node.js v6）—— [到Node.js官网下载Windows版本Node.js v6](https://nodejs.org/en/download/)
+2. 下载安装Windows版本的Node.js v6。NodeQuant CTP客户端目前已经支持32位和64位的Windows版Node.js v6，只使用CTP客户端做交易,下载32位或者64位的Windows版Node.js v6都可以。NodeQuant Sgit客户端目前支持32位的Windows版Node.js v6, 需要使用飞鼠Sgit客户端做交易，请下载32位的Windows版Node.js v6——[到Node.js官网下载Windows版本Node.js v6](https://nodejs.org/en/download/)
 3. 下载安装Windows版本Redis,并启动为Windows服务——[请参考教程](http://keenwon.com/1275.html)
 
 4. 下载安装Redis的桌面客户端，可以方便查看NodeQuant保存在Redis数据库中的数据。[可以到官网下载Windows版本客户端](https://redisdesktop.com/download)
