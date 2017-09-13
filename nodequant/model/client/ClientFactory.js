@@ -2,8 +2,31 @@
  * Created by Administrator on 2017/6/12.
  */
 
-let CtpClient=require("./CTPClient");
-let SgitClient=require("./SgitClient");
+let CtpClient=undefined;
+
+if(process.platform=="win32" && process.arch=="ia32"){
+    CtpClient=require("./CTPClient");
+}else if(process.platform=="win32" && process.arch=="x64")
+{
+    CtpClient=require("./CTPClient");
+}else if(process.platform=="linux" && process.arch=="x64")
+{
+    CtpClient=require("./CTPClient");
+}else
+{
+    console.error("CtpClient is undefine!!!CtpClient Only Support Windows Node.js-v6-32bit/Windows Node.js-v6-64bit/Linux Node.js-v6-64bit");
+}
+
+let SgitClient=undefined;
+if(process.platform=="win32" && process.arch=="ia32"){
+    SgitClient=require("./SgitClient");
+}else if(process.platform=="linux" && process.arch=="x64")
+{
+    SgitClient=require("./SgitClient");
+}else
+{
+    console.error("SgitClient is undefine!!!SgitClient Only Support Windows Node.js-v6-32bit/Linux Node.js-v6-64bit");
+}
 
 class ClientFactory{
     constructor()
@@ -17,11 +40,17 @@ class ClientFactory{
         switch(clientName)
         {
             case "CTP":
-                TradingClient = new CtpClient(clientName);
+                if(CtpClient)
+                {
+                    TradingClient = new CtpClient(clientName);
+                }
                 break;
 
             case "Sgit":
-                TradingClient = new SgitClient(clientName);
+                if(SgitClient)
+                {
+                    TradingClient = new SgitClient(clientName);
+                }
                 break;
             default:
                 break;

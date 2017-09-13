@@ -6,7 +6,7 @@ require("../../common.js");
 require("../../userConfig.js");
 
 let NodeAddOnPath="./CTP/"+process.platform+"/"+process.arch+"/NodeQuant.node";
-console.log("CTP Node Addon Path:"+NodeAddOnPath);
+console.log("CtpClient Node Addon Path:"+NodeAddOnPath);
 let CTP= require(NodeAddOnPath);
 
 
