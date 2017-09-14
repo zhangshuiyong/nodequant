@@ -65,15 +65,24 @@ class NodeQuantApp{
         {
             if(MarketData_DBConfig!=undefined && MarketData_DBConfig.Port!=undefined && MarketData_DBConfig.Host != undefined)
             {
-                this.MarketDataDBClient = redis.createClient(MarketData_DBConfig.Port,MarketData_DBConfig.Host);
+
+                let SSDB = require('./model/db/SSDB.js');
+                this.MarketDataDBClient = SSDB.connect(MarketData_DBConfig.Host, MarketData_DBConfig.Port,function (err) {
+                    if(err!=0)
+                    {
+                        throw new Error("创建MarketDataDBClient连接失败,原因:"+err);
+                    }
+                });
+
                 if(MarketData_DBConfig.Password!=undefined && MarketData_DBConfig.Password!="")
                 {
-                    this.MarketDataDBClient.auth(MarketData_DBConfig.Password);
+                    this.MarketDataDBClient.request("auth",[MarketData_DBConfig.Password],function (err) {
+                        if (err[0]!="ok"){
+                            throw new Error("验证MarketDataDBClient密码失败,原因:"+err);
+                        }
+                    });
                 }
 
-                this.MarketDataDBClient.on("error", function (err) {
-                    console.log("行情数据库出错,MarketDataDBClient Error " + err);
-                });
             }
         }catch(err)
         {
@@ -98,8 +107,10 @@ class NodeQuantApp{
         console.log('NodeQuant Exit');
         global.Application.MainEngine.Stop(MainEngineStatus.Stop);
 
-        // 关闭数据库连接
+        // 关闭数据库连接(RedisDB)
         this.SystemDBClient.quit();
+        //关闭行情数据库连接(SSDB)
+        this.MarketDataDBClient.close();
     }
 }
 

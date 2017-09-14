@@ -293,7 +293,13 @@ class MainEngine{
     };
 
     GetContract(clientName,contractName){
-        return this.contractDic[clientName][contractName];
+        if(this.contractDic[clientName])
+        {
+            return this.contractDic[clientName][contractName];
+        }else
+        {
+            return undefined;
+        }
     };
 
     GetAllContract(){
@@ -323,7 +329,7 @@ class MainEngine{
 
     SendLimitOrder(clientName,contractName,direction,openclose,volume,limitPrice) {
         let ret = this.clientDic[clientName].SendLimitOrder(contractName,direction,openclose,volume,limitPrice);
-        //console.timeEnd("NodeQuant-Sgit-TickToFinishSendOrder");
+        console.timeEnd("NodeQuant-TickToFinishSendOrder");
         return ret;
     }
 

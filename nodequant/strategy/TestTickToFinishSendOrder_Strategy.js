@@ -6,7 +6,7 @@ class TestTickToFinishSendOrder_Strategy extends BaseStrategy{
         //strategyConfig为 userConfig.js 中的DemoStrategy类的策略配置对象
         //调用super(strategyConfig)的作用是基类BaseStrategy实例也需要根据strategyConfig来进行初始化
         super(strategyConfig);
-        this.TickCount=0;
+        global.TickCount=0;
     }
 
     OnClosedBar(closedBar)
@@ -21,12 +21,11 @@ class TestTickToFinishSendOrder_Strategy extends BaseStrategy{
 
     OnTick(tick)
     {
-        if(this.TickCount==30)
+        if(global.TickCount==30)
         {
-            console.time("NodeQuant-Sgit-TickToFinishSendOrder");
             this.SendOrder(tick.clientName,tick.symbol,tick.lastPrice,1,Direction.Buy,OpenCloseFlagType.Open);
         }
-        this.TickCount++;
+        global.TickCount++;
     }
 
     Stop(){

@@ -565,6 +565,12 @@ class MdClient{
         });
 
         MdClient.MdApi.on("RtnDepthMarketData",function (marketData) {
+            /*
+            if(global.TickCount==30)
+            {
+                console.time("NodeQuant-TickToFinishSendOrder");
+            }*/
+
             //行情推送
             let tick={};
 
