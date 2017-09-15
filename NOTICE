@@ -1,4 +1,7 @@
-Copyright ? 2017 by nodequant Authors
+nodequant
+https://github.com/zhangshuiyong/nodequant
+
+Copyright (C) 2017 by zhangshuiyong<632386504@qq.com>
 All rights reserved
 
 nodequant遵循Apache2开源协议发布
@@ -12,7 +15,7 @@ Apache Licence是著名的非盈利开源组织Apache采用的协议。
 3． 在延伸的代码中（修改和有源代码衍生的代码中）需要
 带有原来代码中的协议，商标，专利声明和其他原来作者规
 定需要包含的说明;如果将此软件用于商业用途请事先向作者
-获得特定书面许可。	
+获得特定书面许可	
 4． 如果再发布的产品中包含一个Notice文件，则在Notice文
 件中需要带有本协议内容。你可以在Notice中增加自己的
 许可，但不可以表现为对Apache Licence构成更改。 
