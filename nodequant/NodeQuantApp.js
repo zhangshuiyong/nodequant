@@ -66,23 +66,25 @@ class NodeQuantApp{
             if(MarketData_DBConfig!=undefined && MarketData_DBConfig.Port!=undefined && MarketData_DBConfig.Host != undefined)
             {
 
-                let SSDB = require('./model/db/SSDB.js');
-                this.MarketDataDBClient = SSDB.connect(MarketData_DBConfig.Host, MarketData_DBConfig.Port,function (err) {
-                    if(err!=0)
-                    {
-                        throw new Error("创建MarketDataDBClient连接失败,原因:"+err);
-                    }
-                });
+                let ssdb = require('./model/ssdb-node');
+                let options={
+                    host: MarketData_DBConfig.Host,
+                    port: MarketData_DBConfig.Port,
+                    size: 1,  // connection pool size
+                    timeout: 3*60*1000
+                };
 
-                if(MarketData_DBConfig.Password!=undefined && MarketData_DBConfig.Password!="")
+                this.MarketDataDBClient = new ssdb(options);
+
+                if(MarketData_DBConfig.Password)
                 {
-                    this.MarketDataDBClient.request("auth",[MarketData_DBConfig.Password],function (err) {
-                        if (err[0]!="ok"){
-                            throw new Error("验证MarketDataDBClient密码失败,原因:"+err);
+                    this.MarketDataDBClient.auth(MarketData_DBConfig.Password,function (err) {
+                        if (err)
+                        {
+                            throw new Error("验证MarketDataDB密码失败,原因:"+err);
                         }
-                    });
+                    })
                 }
-
             }
         }catch(err)
         {

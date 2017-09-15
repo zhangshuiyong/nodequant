@@ -922,9 +922,9 @@ class StrategyEngine {
     {
         if(global.Application.MarketDataDBClient!=undefined)
         {
-            global.Application.MarketDataDBClient.request("zrrange",[symbol,0,30],function (TickStampListResult) {
-                if (TickStampListResult[0]!="ok"){
-                    throw new Error("从"+symbol+"的行情数据库后往前LoadTick失败原因:"+TickStampListResult[0]);
+            global.Application.MarketDataDBClient.zrrange(symbol,0,30,function (err,TickStampListResult) {
+                if (err){
+                    throw new Error("从"+symbol+"的行情数据库后往前LoadTick失败原因:"+err);
 
                     OnFinishLoadTick(strategy,symbol,undefined);
                 }
@@ -938,9 +938,9 @@ class StrategyEngine {
                 }
 
                 //获取Tick的顺序是从后往前,要处理成按时间从前往后
-                global.Application.MarketDataDBClient.request("multi_hget",multi_hget_args,function (TickStrListResults) {
-                    if (TickStrListResults[0]!="ok"){
-                        throw new Error("LoadTickFromDB multi_hget失败，原因:" + TickStrListResults[0]);
+                global.Application.MarketDataDBClient.multi_hget(multi_hget_args,function (err,TickStrListResults) {
+                    if (err){
+                        throw new Error("LoadTickFromDB multi_hget失败，原因:" + err);
                     }else
                     {
                         let TickList = [];
@@ -1003,10 +1003,10 @@ class StrategyEngine {
                 BarMillSecondInterval=BarInterval*60*60*1000;
             }
 
-            global.Application.MarketDataDBClient.request("zrrange",[symbol, 0,TickLookBackCount], function (TickStampListResult) {
+            global.Application.MarketDataDBClient.zrrange(symbol, 0,TickLookBackCount, function (err,TickStampListResult) {
 
-                if (TickStampListResult[0]!="ok"){
-                    throw new Error("从" + symbol + "的行情数据库LoadBar失败原因:" + TickStampListResult[0]);
+                if (err){
+                    throw new Error("从" + symbol + "的行情数据库LoadBar失败原因:" + err);
 
                     //没完成收集固定K线个数
                     OnFinishLoadBar(strategy,symbol,BarType,BarInterval,undefined);
@@ -1023,9 +1023,9 @@ class StrategyEngine {
 
                 //获取Tick的顺序是从后往前,因为是倒叙获得Tickstamp-自然日id
                 //数组索引大的自然日时间小
-                global.Application.MarketDataDBClient.request("multi_hget",multi_hget_args,function (TickStrListResults) {
-                    if (TickStrListResults[0]!="ok"){
-                        throw new Error("LoadBarFromDB multi_hget失败，原因:" + TickStrListResults[0]);
+                global.Application.MarketDataDBClient.multi_hget(multi_hget_args,function (err,TickStrListResults) {
+                    if (err){
+                        throw new Error("LoadBarFromDB multi_hget失败，原因:" + err);
                     }else
                     {
                         //收集K线的数组
@@ -1036,7 +1036,7 @@ class StrategyEngine {
                          //ssdb multi_hget获取的是[k1,v1,k2,v2]数组
                         //从自然日时间大往时间小的收集tick，开始算K线
                         let TickStrList_LastIndex=TickStrListResults.length-1;
-                        for (let i = 2; i <= TickStrList_LastIndex; i += 2)
+                        for (let i = 1; i <= TickStrList_LastIndex; i += 2)
                         {
                             //自然时间最大开始遍历
                             let TickStr = TickStrListResults[i];
