@@ -269,7 +269,37 @@ function _registerEvent(myEngine) {
 
     //查询合约手续费
     global.AppEventEmitter.on(EVENT.OnQueryCommissionRate,function (commissionRateInfo) {
-        console.log(commissionRateInfo);
+        if(myEngine.Client_Symbol_CommissionRateDic[commissionRateInfo.clientName]==undefined)
+        {
+            myEngine.Client_Symbol_CommissionRateDic[commissionRateInfo.clientName]={};
+        }
+
+        myEngine.Client_Symbol_CommissionRateDic[commissionRateInfo.clientName][commissionRateInfo.InstrumentID]={};
+
+        //按手计算
+        let feeType=undefined;
+        let openFee=undefined;
+        let closeFee=undefined;
+        let closeTodayFee=undefined;
+        //按手开仓费用,不会低于0.1元,否则是按交易金额计算
+        if(commissionRateInfo.OpenRatioByVolume<0.1)
+        {
+            feeType=FeeType.ByMoney;
+            openFee=commissionRateInfo.OpenRatioByMoney;
+            closeFee=commissionRateInfo.CloseRatioByMoney;
+            closeTodayFee=commissionRateInfo.CloseTodayRatioByMoney;
+        }else
+        {
+            feeType=FeeType.ByVolume;
+            openFee=commissionRateInfo.OpenRatioByVolume;
+            closeFee=commissionRateInfo.CloseRatioByVolume;
+            closeTodayFee=commissionRateInfo.CloseTodayRatioByVolume;
+        }
+
+        myEngine.Client_Symbol_CommissionRateDic[commissionRateInfo.clientName][commissionRateInfo.InstrumentID].feeType=feeType;
+        myEngine.Client_Symbol_CommissionRateDic[commissionRateInfo.clientName][commissionRateInfo.InstrumentID].openFee=openFee;
+        myEngine.Client_Symbol_CommissionRateDic[commissionRateInfo.clientName][commissionRateInfo.InstrumentID].closeFee=closeFee;
+        myEngine.Client_Symbol_CommissionRateDic[commissionRateInfo.clientName][commissionRateInfo.InstrumentID].closeTodayFee=closeTodayFee;
     });
 
     //查询递延费
@@ -377,6 +407,10 @@ class StrategyEngine {
         //策略查询资金情况回调函数
         this.OnQueryTradingAccountCallBackDic={};
 
+        //手续费查询结果
+        //两个不同交易客户端但是可交易相同的期货,计算两个相同期货的手续费
+        this.Client_Symbol_CommissionRateDic={};
+
         _registerEvent(this);
     }
 
@@ -441,6 +475,9 @@ class StrategyEngine {
             //订阅合约
             this.SubscribeStrategySymbols(strategyInstance.name, strategyInstance.symbols);
 
+            //查询合约手续费
+            this.QueryStrategySymbolsCommissionRate(strategyInstance.symbols);
+
             //策略启动成功,(由于策略订阅合约是否成功是异步的,而且可能多品种订阅,所以如果订阅失败,会报告策略运行错误)
             let message=strategyConfig.name+"策略启动成功";
             let log=new NodeQuantLog(strategyConfig.name,LogType.INFO,new Date().toLocaleString(),message);
@@ -472,10 +509,18 @@ class StrategyEngine {
         return this.StrategyDic[strategyName];
     }
 
-    QueryCommissionRate(clientName,contractSymbol)
+    QueryStrategySymbolsCommissionRate(strategySymbolCongfigDic)
     {
-        let ret = global.Application.MainEngine.QueryCommissionRate(clientName,contractSymbol);
-        return ret;
+        for (let symbol in strategySymbolCongfigDic) {
+            let symbolConfig=strategySymbolCongfigDic[symbol];
+            let ret = global.Application.MainEngine.QueryCommissionRate(symbolConfig.clientName,symbol);
+            if(ret!=0)
+            {
+                let message="在" + symbolConfig.clientName + "查询" + symbol + "手续费发送失败,错误码：" + ret;
+                let error=new NodeQuantError(symbolConfig.clientName,ErrorType.StrategyError,message);
+                global.AppEventEmitter.emit(EVENT.OnError, error);
+            }
+        }
     }
 
     //只有Sgit可以查询递延费
@@ -519,7 +564,7 @@ class StrategyEngine {
                 }
             } else {
 
-                let message= strategyName + "订阅失败:"+ contract.clientName+ "不存在合约:" + symbol ;
+                let message= strategyName + "订阅失败:"+ symbolConfig.clientName+ "不存在合约:" + symbol ;
                 let error=new NodeQuantError(strategyName,ErrorType.StrategyError,message);
 
                 global.AppEventEmitter.emit(EVENT.OnError, error);
@@ -657,13 +702,19 @@ class StrategyEngine {
 
         if(feeInfo!=undefined)
         {
-            //确定费率
+            //确定开仓/平仓/平今仓费率 3种
             if(tradeRecord.offset==OpenCloseFlagType.CloseToday)
             {
                 symbolFee = feeInfo.closeTodayFee;
-            }else
+            }else if(tradeRecord.offset==OpenCloseFlagType.Close)
             {
-                symbolFee = feeInfo.fee;
+                symbolFee = feeInfo.closeFee;
+            }else if(tradeRecord.offset==OpenCloseFlagType.CloseYesterday)
+            {
+                symbolFee = feeInfo.closeFee;
+            }else if(tradeRecord.offset==OpenCloseFlagType.Open)
+            {
+                symbolFee = feeInfo.openFee;
             }
 
             //是否有设置fee,closeTodayFee字段
@@ -671,15 +722,14 @@ class StrategyEngine {
             if(symbolFee!=undefined)
             {
                 //确定手续费计算方法
-                if(feeInfo.feeType==FeeType.TradeAmount)
+                if(feeInfo.feeType==FeeType.ByMoney)
                 {
                     let contractSize=global.Application.MainEngine.GetContractSize(tradeRecord.symbol);
                     tradeRecordCommission= symbolFee * tradeRecord.volume * tradeRecord.price * contractSize;
-                }else if(feeInfo.feeType==FeeType.TradeVolume){
+                }else if(feeInfo.feeType==FeeType.ByVolume){
                     tradeRecordCommission = symbolFee * tradeRecord.volume;
                 }else
                 {
-
                     let log=new NodeQuantLog("StrategyEngine",LogType.INFO,new Date().toLocaleString(),"无法正确计算交易记录的手续费,策略没有正确设置feeType字段");
                     global.AppEventEmitter.emit(EVENT.OnLog,log);
                 }
@@ -780,7 +830,7 @@ class StrategyEngine {
                     let tradeRecord=tradeRecordList[index];
                     tradeRecord=JSON.parse(tradeRecord);
 
-                    let feeInfo=strategyInstance.symbols[tradeRecord.symbol];
+                    let feeInfo=strategyEngine.Client_Symbol_CommissionRateDic[tradeRecord.clientName][tradeRecord.clientName];
 
                     let tradeRecordValue=strategyEngine.SettleTradeRecordValue(tradeRecord);
                     currentTradingDay_TradeValue += tradeRecordValue;

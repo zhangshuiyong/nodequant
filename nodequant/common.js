@@ -437,9 +437,9 @@ KBarType={
 //手续费类型
 FeeType={
     //成交手数
-    TradeVolume:"TradeVolume",
+    ByVolume:"TradeByVolume",
     //成交金额
-    TradeAmount:"TradeAmount"
+    ByMoney:"TradeByMoney"
 };
 
 //出现错误的类型

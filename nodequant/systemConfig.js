@@ -304,9 +304,6 @@ FuturesConfig={
         },
         J:{
             name:"焦炭",
-            fee:0.0000636,
-            closeTodayFee:0.0000636,
-            feeType:FeeType.TradeAmount,
             exchange:"DCE",
             AMOpen:"9:00:00",
             AMBreak:"10:15:00",
@@ -319,9 +316,6 @@ FuturesConfig={
         },
         JD:{
             name:"鸡蛋",
-            fee:0.0001581,
-            closeTodayFee:0.0001581,
-            feeType:FeeType.TradeAmount,
             exchange:"DCE",
             AMOpen:"9:00:00",
             AMBreak:"10:15:00",
@@ -332,9 +326,6 @@ FuturesConfig={
         },
         JM:{
             name:"焦煤",
-            fee:0.0000636,
-            closeTodayFee:0.0000636,
-            feeType:FeeType.TradeAmount,
             exchange:"DCE",
             AMOpen:"9:00:00",
             AMBreak:"10:15:00",
@@ -347,9 +338,6 @@ FuturesConfig={
         },
         L:{
             name:"塑料",
-            fee:2.1,
-            closeTodayFee:2.1,
-            feeType:FeeType.TradeVolume,
             exchange:"DCE",
             AMOpen:"9:00:00",
             AMBreak:"10:15:00",
@@ -360,9 +348,6 @@ FuturesConfig={
         },
         M:{
             name:"豆粕",
-            fee:1.58,
-            closeTodayFee:1.58,
-            feeType:FeeType.TradeVolume,
             exchange:"DCE",
             AMOpen:"9:00:00",
             AMBreak:"10:15:00",
@@ -375,9 +360,6 @@ FuturesConfig={
         },
         P:{
             name:"棕榈",
-            fee:2.63,
-            closeTodayFee:2.63,
-            feeType:FeeType.TradeVolume,
             exchange:"DCE",
             AMOpen:"9:00:00",
             AMBreak:"10:15:00",
@@ -898,9 +880,6 @@ FuturesConfig={
         },
         J:{
             name:"焦炭",
-            fee:0.0000636,
-            closeTodayFee:0.0000636,
-            feeType:FeeType.TradeAmount,
             exchange:"DCE",
             AMOpen:"9:00:00",
             AMBreak:"10:15:00",
@@ -913,9 +892,6 @@ FuturesConfig={
         },
         JD:{
             name:"鸡蛋",
-            fee:0.0001581,
-            closeTodayFee:0.0001581,
-            feeType:FeeType.TradeAmount,
             exchange:"DCE",
             AMOpen:"9:00:00",
             AMBreak:"10:15:00",
@@ -926,9 +902,6 @@ FuturesConfig={
         },
         JM:{
             name:"焦煤",
-            fee:0.0000636,
-            closeTodayFee:0.0000636,
-            feeType:FeeType.TradeAmount,
             exchange:"DCE",
             AMOpen:"9:00:00",
             AMBreak:"10:15:00",
@@ -941,9 +914,6 @@ FuturesConfig={
         },
         L:{
             name:"塑料",
-            fee:2.1,
-            closeTodayFee:2.1,
-            feeType:FeeType.TradeVolume,
             exchange:"DCE",
             AMOpen:"9:00:00",
             AMBreak:"10:15:00",
@@ -954,9 +924,6 @@ FuturesConfig={
         },
         M:{
             name:"豆粕",
-            fee:1.58,
-            closeTodayFee:1.58,
-            feeType:FeeType.TradeVolume,
             exchange:"DCE",
             AMOpen:"9:00:00",
             AMBreak:"10:15:00",
@@ -969,9 +936,6 @@ FuturesConfig={
         },
         P:{
             name:"棕榈",
-            fee:2.63,
-            closeTodayFee:2.63,
-            feeType:FeeType.TradeVolume,
             exchange:"DCE",
             AMOpen:"9:00:00",
             AMBreak:"10:15:00",
