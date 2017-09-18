@@ -20,6 +20,7 @@ MarketData_DBConfig={
 
 //配置客户端,NodeQuant启动,会连接已经配置的交易客户端
 ClientConfig={
+
     CTP:{
         userID:"888888",
         password:"888888",
@@ -40,11 +41,11 @@ StrategyConfig={
     Strategys:[
         {
             name:"Demo",
-            className:"TestTickToFinishSendOrder_Strategy",
+            className:"DemoStrategy",
             symbols: {
-                "Au(T+D)":{
+                "i1801":{
                     //要配置在哪个交易客户端订阅该合约，因为上期CTP和飞鼠Sgit都可以交易商品期货
-                    clientName:SupportClients.Sgit
+                    clientName:SupportClients.CTP
                 }
             },
             BarType:KBarType.Minute,  //K线类型是: 分钟
