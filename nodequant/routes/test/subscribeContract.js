@@ -11,7 +11,7 @@ require("../../common.js");
 router.get('/', function(req, res, next) {
 
     let SubscribeReq = URL.parse(req.url, true).query;
-    let contractName=SubscribeReq.contractName;
+    let contractName=SubscribeReq.contractName.replace(" ","+");
 
     let lastTick = global.Application.StrategyEngine.Symbol_LastTickDic[contractName];
     global.Application.MainEngine.Subscribe(lastTick.clientName,contractName,function (contractName,clientName,ret) {

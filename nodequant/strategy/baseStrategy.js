@@ -426,7 +426,7 @@ class BaseStrategy{
             return undefined;
         }
 
-        let tickCount= arguments[4] ? priceTickCount:2;
+        let tickCount= arguments[3]?priceTickCount:2;
         let symbolClientName=this.symbols[symbol].clientName;
         let contract = global.Application.MainEngine.GetContract(symbolClientName,symbol);
         let priceTick=contract.priceTick;
@@ -456,7 +456,7 @@ class BaseStrategy{
             return undefined;
         }
 
-        let tickCount= arguments[4] ? priceTickCount:2;
+        let tickCount= arguments[3] ? priceTickCount:2;
         let symbolClientName=this.symbols[symbol].clientName;
         let contract = global.Application.MainEngine.GetContract(symbolClientName,symbol);
         let priceTick=contract.priceTick;

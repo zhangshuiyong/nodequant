@@ -8,7 +8,7 @@ let URL = require('url');
 router.get('/', function(req, res, next) {
 
     let FAKLimitOrderReq = URL.parse(req.url, true).query;
-    let contractName=FAKLimitOrderReq.contractName;
+    let contractName=FAKLimitOrderReq.contractName.replace(" ","+");
     let direction=FAKLimitOrderReq.direction;
     if(direction=="buy")
         direction=Direction.Buy;

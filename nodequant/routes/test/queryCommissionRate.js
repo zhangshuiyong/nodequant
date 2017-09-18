@@ -10,7 +10,7 @@ require("../../common.js");
 /* GET home page. */
 router.get('/', function(req, res, next) {
     let request = URL.parse(req.url, true).query;
-    let contractName=request.contractName;
+    let contractName=request.contractName.replace(" ","+");
     let clientName=request.clientName;
 
     global.Application.MainEngine.QueryCommissionRate(clientName,contractName);

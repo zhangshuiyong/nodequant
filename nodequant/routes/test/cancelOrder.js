@@ -18,6 +18,9 @@ router.get('/', function(req, res, next) {
             res.render('index', { title: 'CancelOrder successfully'});
     });*/
 
+    //global.Application.StrategyEngine.LoadTickFromDB("Demo","Au(T+D)",30,undefined);
+    global.Application.StrategyEngine.LoadBarFromDB("Demo","Au(T+D)",5,KBarType.Minute,5,undefined);
+
     res.render('index', { title: 'CancelOrder successfully'});
 });
 

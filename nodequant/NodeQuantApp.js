@@ -112,7 +112,10 @@ class NodeQuantApp{
         // 关闭数据库连接(RedisDB)
         this.SystemDBClient.quit();
         //关闭行情数据库连接(SSDB)
-        this.MarketDataDBClient.close();
+        if(this.MarketDataDBClient)
+        {
+            this.MarketDataDBClient.close();
+        }
     }
 }
 

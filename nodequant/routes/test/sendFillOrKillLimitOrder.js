@@ -8,7 +8,7 @@ let URL = require('url');
 router.get('/', function(req, res, next) {
 
     let FOKLimitOrderReq = URL.parse(req.url, true).query;
-    let contractName=FOKLimitOrderReq.contractName;
+    let contractName=FOKLimitOrderReq.contractName.replace(" ","+");
     let direction=FOKLimitOrderReq.direction;
     if(direction=="buy")
         direction=Direction.Buy;

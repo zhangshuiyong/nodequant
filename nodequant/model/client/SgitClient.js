@@ -604,8 +604,6 @@ class MdClient{
                 tick.date= MdClient.getTradingDay();
             }
 
-
-
             tick.time =marketData.UpdateTime+'.'+marketData.UpdateMillisec;
 
             //市场前置登录上,获取统一的交易日
@@ -810,7 +808,6 @@ class TdClient{
 
         //交易核心向交易所申请该报单插入的申请报文，会被调用多次
         //1.交易所撤销 2.接受该报单时 3.该报单成交时 4.交易所端校验失败OrderStatusMsg
-        //获取有用的order数据
         TdClient.TdApi.on("RtnOrder",function (orderInfo) {
 
             // ""报单回报"""
@@ -820,12 +817,11 @@ class TdClient{
 
             let order = {};
 
-            //CTP Order属性
             order.symbol = orderInfo.InstrumentID;
             //交易所ID
             order.exchange = orderInfo.ExchangeID;
 
-            //CTP的报单号一致性维护需要基于frontID, sessionID, orderID三个字段
+            //报单号一致性维护需要基于frontID, sessionID, orderID三个字段
             order.frontID = orderInfo.FrontID;
             order.sessionID = orderInfo.SessionID;
             order.orderID = orderInfo.OrderRef;
@@ -979,6 +975,10 @@ class TdClient{
         TdClient.TdApi.on("RspUserLogin",function (response,err,requestId,isLast) {
             if(err.ErrorID==0)
             {
+                //每次登陆会返回当前的最大报单号
+                //下单中的orderref必须在MaxOrderRef基础上12位递增
+                TdClient.orderRefID=parseInt(response.MaxOrderRef);
+
                 TdClient.tradingClient.OnInfo(TdClient.tradingClient.ClientName+" Trade Front login successfully");
 
                 TdClient.isLogined = true;
@@ -1314,7 +1314,7 @@ class TdClient{
         sendOrderReq.BrokerID=this.brokerID;
         sendOrderReq.InvestorID=this.userID;
         sendOrderReq.InstrumentID=orderReq.InstrumentID;
-        sendOrderReq.OrderRef=""+TdClient.orderRefID;
+        sendOrderReq.OrderRef=this.get12OrderRefIDStr(""+TdClient.orderRefID);
         sendOrderReq.UserID=this.userID;
         sendOrderReq.OrderPriceType=orderReq.OrderPriceType;
         sendOrderReq.Direction=orderReq.Direction;
@@ -1335,6 +1335,25 @@ class TdClient{
 
         return TdClient.TdApi.sendOrder(sendOrderReq);
 
+    }
+
+    get12OrderRefIDStr(orderRefIDStr)
+    {
+        if(orderRefIDStr.length<12)
+        {
+           let zeroStr="";
+           let zeroStrLen=12-orderRefIDStr.length;
+           for(let i=0;i<zeroStrLen;i++)
+           {
+               zeroStr+="0";
+           }
+
+            let _12OrderRefIDStr=zeroStr+orderRefIDStr;
+
+           return _12OrderRefIDStr;
+        }
+
+        return orderRefIDStr;
     }
 
     //撤单

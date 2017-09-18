@@ -8,7 +8,7 @@ let URL = require('url');
 router.get('/', function(req, res, next) {
 
     let marketIfTouchedOrderReq = URL.parse(req.url, true).query;
-    let contractName=marketIfTouchedOrderReq.contractName;
+    let contractName=marketIfTouchedOrderReq.contractName.replace(" ","+");
     let direction=marketIfTouchedOrderReq.direction;
     if(direction=="buy")
         direction=Direction.Buy;

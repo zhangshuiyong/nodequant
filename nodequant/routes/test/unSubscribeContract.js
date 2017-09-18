@@ -11,7 +11,7 @@ require("../../common.js");
 router.get('/', function(req, res, next) {
 
     let unSubscribeReq = URL.parse(req.url, true).query;
-    let contractName=unSubscribeReq.contractName;
+    let contractName=unSubscribeReq.contractName.replace(" ","+");
 
     let lastTick = global.Application.StrategyEngine.Symbol_LastTickDic[contractName];
     global.Application.MainEngine.UnSubscribe(lastTick.clientName,contractName,function (clientName,ret) {

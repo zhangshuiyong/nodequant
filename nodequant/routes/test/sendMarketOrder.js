@@ -10,7 +10,7 @@ let URL = require('url');
 router.get('/', function(req, res, next) {
 
     let marketOrderReq = URL.parse(req.url, true).query;
-    let contractName=marketOrderReq.contractName;
+    let contractName=marketOrderReq.contractName.replace(" ","+");
     let direction=marketOrderReq.direction;
     if(direction=="buy")
         direction=Direction.Buy;
