@@ -62,12 +62,14 @@ process.on('exit',function (code) {
 
 process.on('SIGINT', function() {
 
-    setInterval(function () {
+    //2秒后程序退出,这两秒需要做程序状态记录
+    global.Application.Exit();
+
+    setTimeout(function () {
         console.log('Got SIGINT.  Press Control-D/Control-C to exit.');
-        //2秒后程序退出,这两秒需要做程序状态记录
-        global.Application.Exit();
         process.exit();
     },2*1000);
+
 });
 
 

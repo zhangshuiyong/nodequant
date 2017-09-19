@@ -235,7 +235,13 @@ class MainEngine{
         //2.断开Clients
         for(let key in this.clientDic)
         {
-            this.clientDic[key].Exit();
+            if(this.clientDic[key]!=undefined)
+            {
+                //已经连接上交易前端,断开
+                if(this.clientDic[key].IsMdConnected()){
+                    this.clientDic[key].Exit();
+                }
+            }
         }
 
         //设置主引擎停止工作标志
