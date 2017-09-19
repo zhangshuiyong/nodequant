@@ -977,7 +977,10 @@ class TdClient{
             {
                 //每次登陆会返回当前的最大报单号
                 //下单中的orderref必须在MaxOrderRef基础上12位递增
-                TdClient.orderRefID=parseInt(response.MaxOrderRef);
+                if(response.MaxOrderRef!="")
+                {
+                    TdClient.orderRefID=parseInt(response.MaxOrderRef);
+                }
 
                 TdClient.tradingClient.OnInfo(TdClient.tradingClient.ClientName+" Trade Front login successfully");
 

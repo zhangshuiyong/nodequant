@@ -262,8 +262,8 @@ function _registerEvent(myEngine) {
         if(OnQueryTradingAccountCallBack)
         {
             OnQueryTradingAccountCallBack(tradingAccountInfo);
-            //调用完清掉
-            delete myEngine.OnQueryTradingAccountCallBackDic[tradingAccountInfo.queryId];
+            //不需要调用完清掉,因为Sgit可能有两次返回!Sgit可能有两个资金账号一个期货一个TD账号
+            //delete myEngine.OnQueryTradingAccountCallBackDic[tradingAccountInfo.queryId];
         }
     });
 
@@ -456,6 +456,9 @@ class StrategyEngine {
         }
         //3.清空策略列表
         this.StrategyDic={};
+
+        //清空查询资金账号调用函数
+        this.OnQueryTradingAccountCallBackDic={};
 
         this.IsWorking=false;
 
@@ -830,10 +833,16 @@ class StrategyEngine {
                     let tradeRecord=tradeRecordList[index];
                     tradeRecord=JSON.parse(tradeRecord);
 
-                    let feeInfo=strategyEngine.Client_Symbol_CommissionRateDic[tradeRecord.clientName][tradeRecord.clientName];
-
                     let tradeRecordValue=strategyEngine.SettleTradeRecordValue(tradeRecord);
                     currentTradingDay_TradeValue += tradeRecordValue;
+
+                    let feeInfo=strategyEngine.Client_Symbol_CommissionRateDic[tradeRecord.clientName][tradeRecord.symbol];
+                    if(feeInfo==undefined)
+                    {
+                        //CTP SimNow账号只有futureName的手续费
+                        let contract=global.Application.MainEngine.GetContract(tradeRecord.clientName,tradeRecord.symbol);
+                        feeInfo=strategyEngine.Client_Symbol_CommissionRateDic[tradeRecord.clientName][contract.futureName];
+                    }
 
                     let tradeRecordCommission = strategyEngine.SettleCommission(feeInfo,tradeRecord);
                     currentTradingDay_Commission += tradeRecordCommission;

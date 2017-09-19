@@ -17,7 +17,7 @@ function _createBar(myStrategy,tick) {
     //分钟线结束事件
     if(myStrategy.KBarMillSecondInterval)
     {
-        let KBarId = parseInt(tick.timeStamp/myStrategy.KBarMillSecondInterval);
+        let KBarId = parseInt(tick.Id/myStrategy.KBarMillSecondInterval);
 
         //不存在KBarId,说明有一个新K线产生
         if(myStrategy.Symbol_KBarId_TickListDic[tick.symbol][KBarId]==undefined)
@@ -219,11 +219,11 @@ class BaseStrategy{
 
 
     OnOrder(order){
-
+        console.log(order);
     }
 
     OnTrade(trade){
-
+        console.log(trade);
     }
 
     QueryTradingAccount(clientName)
@@ -233,7 +233,7 @@ class BaseStrategy{
 
     OnQueryTradingAccount(tradingAccountInfo)
     {
-
+        console.log(tradingAccountInfo);
     }
 
     //通过合约名字获得合约最新Tick
