@@ -219,11 +219,11 @@ class BaseStrategy{
 
 
     OnOrder(order){
-        console.log(order);
+
     }
 
     OnTrade(trade){
-        console.log(trade);
+
     }
 
     QueryTradingAccount(clientName)
@@ -233,7 +233,7 @@ class BaseStrategy{
 
     OnQueryTradingAccount(tradingAccountInfo)
     {
-        console.log(tradingAccountInfo);
+        
     }
 
     //通过合约名字获得合约最新Tick
