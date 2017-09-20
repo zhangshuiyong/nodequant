@@ -981,7 +981,7 @@ class StrategyEngine {
     {
         if(global.Application.MarketDataDBClient!=undefined)
         {
-            global.Application.MarketDataDBClient.zrrange(symbol,0,30,function (err,TickStampListResult) {
+            global.Application.MarketDataDBClient.zrrange(symbol,0,LookBackCount,function (err,TickStampListResult) {
                 if (err){
                     throw new Error("从"+symbol+"的行情数据库后往前LoadTick失败原因:"+err);
 
@@ -1184,16 +1184,18 @@ class StrategyEngine {
 
         let nextTradingDatetime=new Date(currentTradingDatetime.getFullYear(),currentTradingDatetime.getMonth(),currentTradingDatetime.getDate()+1);
         let currentTradingDayQuaryArg = [ strategyTradeBook,currentTradingDatetime.getTime(),nextTradingDatetime.getTime()];
-        global.Application.SystemDBClient.zrangebyscore(currentTradingDayQuaryArg,function (err, tradeRecordList) {
-            if (err)
-            {
-                throw new Error("GetTradeRecord失败，原因:"+err.message);
-            }else
-            {
-                getTradeRecordCallback(tradeRecordList);
-            }
-        });
-
+        if(global.Application.SystemDBClient)
+        {
+            global.Application.SystemDBClient.zrangebyscore(currentTradingDayQuaryArg,function (err, tradeRecordList) {
+                if (err)
+                {
+                    throw new Error("GetTradeRecord失败，原因:"+err.message);
+                }else
+                {
+                    getTradeRecordCallback(tradeRecordList);
+                }
+            });
+        }
     }
 
     RecordSettlement(strategyName,settlement){

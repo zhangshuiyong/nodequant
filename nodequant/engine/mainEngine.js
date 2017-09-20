@@ -262,7 +262,6 @@ class MainEngine{
     }
 
     RecordLog(log){
-
         global.Application.SystemDBClient.lpush(System_Log_DB,JSON.stringify(log),function (err,reply) {
             if(err) {
 
@@ -273,7 +272,6 @@ class MainEngine{
                 throw new Error(message);
             }
         });
-
     }
 
     ConnectAllClient()
