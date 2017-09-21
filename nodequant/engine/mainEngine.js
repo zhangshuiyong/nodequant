@@ -296,6 +296,16 @@ class MainEngine{
         return this.clientDic;
     };
 
+    GetTradingDay()
+    {
+        for(let clientName in this.clientDic)
+        {
+            return this.clientDic[clientName].GetTradingDay();
+        }
+
+        return undefined;
+    }
+
     GetContract(clientName,contractName){
         if(this.contractDic[clientName])
         {

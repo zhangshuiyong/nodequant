@@ -177,6 +177,12 @@ function _isPassTickFilter(tick) {
 function _registerEvent(myEngine) {
 
     global.AppEventEmitter.on(EVENT.OnTick,function (tick) {
+        //TradingDay赋值
+        if(myEngine.TradingDay =="" && tick.date!="")
+        {
+            myEngine.TradingDay=tick.date;
+        }
+
         //先过滤Tick
         let isPass=_isPassTickFilter(tick);
         if(isPass==false)
@@ -263,7 +269,6 @@ function _registerEvent(myEngine) {
         {
             OnQueryTradingAccountCallBack(tradingAccountInfo);
             //不需要调用完清掉,因为Sgit可能有两次返回!Sgit可能有两个资金账号一个期货一个TD账号
-            //delete myEngine.OnQueryTradingAccountCallBackDic[tradingAccountInfo.queryId];
         }
     });
 
@@ -430,7 +435,7 @@ class StrategyEngine {
 
         this.IsWorking=true;
         //获取交易日
-        this.TradingDay = this.GetTradingDay();
+        //this.TradingDay = this.GetTradingDay();
 
     }
 
@@ -793,29 +798,19 @@ class StrategyEngine {
         return currentTradingDay_Exit_Symbol_PositionValue;
     }
 
+
     GetTradingDay()
     {
-        let currentTradingDate=new Date();
-        let currentTradingDayStr=currentTradingDate.getFullYear()+"-"+(currentTradingDate.getMonth()+1)+"-"+currentTradingDate.getDate();
-        let dateArray=currentTradingDayStr.split("-");
-        if(dateArray[1].length==1)
-        {
-            dateArray[1]="0"+dateArray[1];
-        }
-
-        if(dateArray[2].length==1)
-        {
-            dateArray[2]="0"+dateArray[2];
-        }
-        let currentTradingDay=dateArray[0]+dateArray[1]+dateArray[2];
-        return currentTradingDay;
+        //飞鼠返回空字符串,暂时不用此接口
+        let currentTradingDate = global.Application.MainEngine.GetTradingDay();
+        return currentTradingDate;
     }
 
     SettleStrategyAccount(strategyInstance){
         let strategyEngine=this;
         //每个策略的净值对象,日期,策略名字,交易品种,盈利,手续费,当日盈利
 
-        let currentTradingDay=strategyEngine.GetTradingDay();
+        let currentTradingDay=strategyEngine.TradingDay;
 
         //获得上一天的持仓结算价值
         this.GetLastTradingDayStrategySettlement(strategyInstance.name,function (lastSettlement) {
