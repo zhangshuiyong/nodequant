@@ -514,15 +514,21 @@ class StrategyEngine {
 
     QueryStrategySymbolsCommissionRate(strategySymbolCongfigDic)
     {
+        let i=0;
         for (let symbol in strategySymbolCongfigDic) {
+            i++;
             let symbolConfig=strategySymbolCongfigDic[symbol];
-            let ret = global.Application.MainEngine.QueryCommissionRate(symbolConfig.clientName,symbol);
-            if(ret!=0)
-            {
-                let message="在" + symbolConfig.clientName + "查询" + symbol + "手续费发送失败,错误码：" + ret;
-                let error=new NodeQuantError(symbolConfig.clientName,ErrorType.StrategyError,message);
-                global.AppEventEmitter.emit(EVENT.OnError, error);
-            }
+            setTimeout(function () {
+                let ret = global.Application.MainEngine.QueryCommissionRate(symbolConfig.clientName,symbol);
+                if(ret!=0)
+                {
+                    global.Application.StrategyEngine.QueryStrategySymbolsCommissionRate(strategySymbolCongfigDic);
+
+                    let message="在" + symbolConfig.clientName + "查询" + symbol + "手续费发送失败,错误码：" + ret;
+                    let error=new NodeQuantError(symbolConfig.clientName,ErrorType.StrategyError,message);
+                    global.AppEventEmitter.emit(EVENT.OnError, error);
+                }
+            },5*i*1000);
         }
     }
 
