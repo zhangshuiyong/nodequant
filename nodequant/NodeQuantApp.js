@@ -31,6 +31,7 @@ class NodeQuantApp{
         let queryCommissionRate=require('./routes/test/queryCommissionRate');
         let queryInvestorPosition = require('./routes/test/queryInvestorPosition');
         let queryTradingAccount = require('./routes/test/queryTradingAccount');
+        let getTradingDay = require('./routes/test/getTradingDay');
 
         application.use('/sendMarketOrder',sendMarketOrder);
         application.use('/sendLimitOrder',sendLimitOrder);
@@ -47,6 +48,7 @@ class NodeQuantApp{
         application.use('/queryCommissionRate',queryCommissionRate);
         application.use('/queryInvestorPosition',queryInvestorPosition);
         application.use('/queryTradingAccount',queryTradingAccount);
+        application.use('/getTradingDay',getTradingDay);
 
         let redis =require("redis");
         //初始化配置系统数据库
@@ -70,8 +72,7 @@ class NodeQuantApp{
                 let options={
                     host: MarketData_DBConfig.Host,
                     port: MarketData_DBConfig.Port,
-                    size: 1,  // connection pool size
-                    timeout: 3*60*1000
+                    size: 1  // connection pool size
                 };
 
                 this.MarketDataDBClient = new ssdb(options);
@@ -83,7 +84,7 @@ class NodeQuantApp{
                         {
                             throw new Error("验证MarketDataDB密码失败,原因:"+err);
                         }
-                    })
+                    });
                 }
             }
         }catch(err)

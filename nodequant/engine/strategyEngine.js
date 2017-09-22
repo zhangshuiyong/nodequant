@@ -982,48 +982,36 @@ class StrategyEngine {
     {
         if(global.Application.MarketDataDBClient!=undefined)
         {
-            global.Application.MarketDataDBClient.zrrange(symbol,0,LookBackCount,function (err,TickStampListResult) {
+            global.Application.MarketDataDBClient.nrrange([symbol, 0,LookBackCount,-1],function (err,TickStrListResults) {
                 if (err){
-                    throw new Error("从"+symbol+"的行情数据库后往前LoadTick失败原因:"+err);
+                    console.log("从"+symbol+"的行情数据库后往前LoadTick失败原因:"+err);
 
                     OnFinishLoadTick(strategy,symbol,undefined);
+                    return;
                 }
 
-                let TickStampList_Length=TickStampListResult.length-1;
-                let multi_hget_args=[];
-                multi_hget_args.push(symbol);
-                for(let i=1;i<TickStampList_Length;i++)
-                {
-                    multi_hget_args.push(TickStampListResult[i]);
-                }
-
+                //ssdb nrrange获取的是[value,number,value,number]数组
                 //获取Tick的顺序是从后往前,要处理成按时间从前往后
-                global.Application.MarketDataDBClient.multi_hget(multi_hget_args,function (err,TickStrListResults) {
-                    if (err){
-                        throw new Error("LoadTickFromDB multi_hget失败，原因:" + err);
-                    }else
-                    {
-                        let TickList = [];
-                        let TickStrList_LastIndex=TickStrListResults.length-1;
-                        //ssdb multi_hget获取的是[k1,v1,k2,v2]数组
-                        for (let i = TickStrList_LastIndex; i >= 2; i -= 2) {
-                            let TickStr = TickStrListResults[i];
-                            let tick = JSON.parse(TickStr);
-                            TickList.push(tick);
-                        }
+                // 最后一个是最靠近当前时间
+                //nrrange获取的个数会比需要的多
+                let TickList = [];
+                let TickStrList_LastIndex=TickStrListResults.length-2;
+                for (let i = TickStrList_LastIndex; i >= 0; i -= 2) {
+                    let TickStr = TickStrListResults[i];
+                    let tick = JSON.parse(TickStr);
+                    TickList.push(tick);
+                }
 
-                        //最后收集的Tick个数对比想要获取的个数
-                        if(LookBackCount<=TickList.length) {
-                            let needTickStartIndex=TickList.length-LookBackCount;
-                            let needTickList=TickList.slice(needTickStartIndex);
-                            OnFinishLoadTick(strategy, symbol, needTickList);
-                        }else
-                        {
-                            //不够LookBackCount个tick，也是返回undefined
-                            OnFinishLoadTick(strategy, symbol, undefined);
-                        }
-                    }
-                });
+                //最后收集的Tick个数对比想要获取的个数
+                if(LookBackCount<=TickList.length) {
+                    let needTickStartIndex=TickList.length-LookBackCount;
+                    let needTickList=TickList.slice(needTickStartIndex);
+                    OnFinishLoadTick(strategy, symbol, needTickList);
+                }else
+                {
+                    //不够LookBackCount个tick，也是返回undefined
+                    OnFinishLoadTick(strategy, symbol, undefined);
+                }
 
             });
 
@@ -1063,84 +1051,67 @@ class StrategyEngine {
                 BarMillSecondInterval=BarInterval*60*60*1000;
             }
 
-            global.Application.MarketDataDBClient.zrrange(symbol, 0,TickLookBackCount, function (err,TickStampListResult) {
 
+            global.Application.MarketDataDBClient.nrrange([symbol, 0,TickLookBackCount,-1],function (err,TickStrListResults) {
                 if (err){
-                    throw new Error("从" + symbol + "的行情数据库LoadBar失败原因:" + err);
+                    console.log("从" + symbol + "的行情数据库LoadBar失败原因:" + err);
 
                     //没完成收集固定K线个数
                     OnFinishLoadBar(strategy,symbol,BarType,BarInterval,undefined);
+                    return;
                 }
 
+                //收集K线的数组
+                let ClosedBarList=[];
+                //每根K线的Tick缓存字典
+                let BarId_TickListDic={};
 
-                let TickStampList_Length=TickStampListResult.length-1;
-                let multi_hget_args=[];
-                multi_hget_args.push(symbol);
-                for(let i=1;i<TickStampList_Length;i++)
+                //ssdb nrrange获取的是[v1,num2,v2,num2]数组
+                //从自然日时间大往时间小的收集tick，开始算K线
+                let TickStrList_LastIndex=TickStrListResults.length-1;
+                for (let i = 0; i <= TickStrList_LastIndex; i += 2)
                 {
-                    multi_hget_args.push(TickStampListResult[i]);
-                }
+                    //自然时间最大开始遍历
+                    let TickStr = TickStrListResults[i];
+                    let Tick = JSON.parse(TickStr);
+                    Tick.datetime = new Date(Tick.timeStamp);
 
-                //获取Tick的顺序是从后往前,因为是倒叙获得Tickstamp-自然日id
-                //数组索引大的自然日时间小
-                global.Application.MarketDataDBClient.multi_hget(multi_hget_args,function (err,TickStrListResults) {
-                    if (err){
-                        throw new Error("LoadBarFromDB multi_hget失败，原因:" + err);
+                    let KBarId=undefined;
+                    if(BarType!=KBarType.Day)
+                    {
+                        //分钟K线的收集按Tick的timeStamp是否相同KBarId来收集
+                        //如5分钟K线,2017/9/7日 23:55:00~2017/9/7 00:00:00,间隔了-1天,间隔为不同的KBarId
+                        //如果是2小时线就会有问题,例如黄金期货夜盘21:00-23:00为1个2小时
+                        // 23:00-1:00为另一个2小时,但是2017/9/7 23:00 - 2017/9/7 00:00:00,就相隔了不只2小时
+                        // 无法将之后00:00:00~1:00:00之间Tick
+                        //所以不能用Tick.timeStamp这个非自然时间，而应该要用tick的自然时间!
+                        //这段时间会变成2017/9/7 23:00 - 2017/9/8 00:00:00~1:00:00
+                        KBarId = parseInt(Tick.Id/BarMillSecondInterval);
                     }else
                     {
-                        //收集K线的数组
-                        let ClosedBarList=[];
-                        //每根K线的Tick缓存字典
-                        let BarId_TickListDic={};
-
-                         //ssdb multi_hget获取的是[k1,v1,k2,v2]数组
-                        //从自然日时间大往时间小的收集tick，开始算K线
-                        let TickStrList_LastIndex=TickStrListResults.length-1;
-                        for (let i = 1; i <= TickStrList_LastIndex; i += 2)
-                        {
-                            //自然时间最大开始遍历
-                            let TickStr = TickStrListResults[i];
-                            let Tick = JSON.parse(TickStr);
-                            Tick.datetime = new Date(Tick.timeStamp);
-
-                            let KBarId=undefined;
-                            if(BarType!=KBarType.Day)
-                            {
-                                //分钟K线的收集按Tick的timeStamp是否相同KBarId来收集
-                                //如5分钟K线,2017/9/7日 23:55:00~2017/9/7 00:00:00,间隔了-1天,间隔为不同的KBarId
-                                //如果是2小时线就会有问题,例如黄金期货夜盘21:00-23:00为1个2小时
-                                // 23:00-1:00为另一个2小时,但是2017/9/7 23:00 - 2017/9/7 00:00:00,就相隔了不只2小时
-                                // 无法将之后00:00:00~1:00:00之间Tick
-                                //所以不能用Tick.timeStamp这个非自然时间，而应该要用tick的自然时间!
-                                //这段时间会变成2017/9/7 23:00 - 2017/9/8 00:00:00~1:00:00
-                                KBarId = parseInt(Tick.Id/BarMillSecondInterval);
-                            }else
-                            {
-                                //日K线BarId生成
-                                KBarId = Tick.date;
-                            }
-
-                            //生成分钟K线的方法,日K线不能这样生成!
-                            _reverseCreateBarByBarId(BarId_TickListDic,ClosedBarList,Tick,KBarId);
-
-
-                            if(ClosedBarList.length==LookBackCount)
-                            {
-                                break;
-                            }
-                        }
-
-                        //在Tick数组内完成收集K线工作
-                        if(ClosedBarList.length==LookBackCount)
-                        {
-                            OnFinishLoadBar(strategy,symbol,BarType,BarInterval,ClosedBarList);
-                        }else
-                        {
-                            //没完成收集固定K线个数
-                            OnFinishLoadBar(strategy,symbol,BarType,BarInterval,undefined);
-                        }
+                        //日K线BarId生成
+                        KBarId = Tick.date;
                     }
-                });
+
+                    //生成分钟K线的方法,日K线不能这样生成!
+                    _reverseCreateBarByBarId(BarId_TickListDic,ClosedBarList,Tick,KBarId);
+
+
+                    if(ClosedBarList.length==LookBackCount)
+                    {
+                        break;
+                    }
+                }
+
+                //在Tick数组内完成收集K线工作
+                if(ClosedBarList.length==LookBackCount)
+                {
+                    OnFinishLoadBar(strategy,symbol,BarType,BarInterval,ClosedBarList);
+                }else
+                {
+                    //没完成收集固定K线个数
+                    OnFinishLoadBar(strategy,symbol,BarType,BarInterval,undefined);
+                }
             });
         }else
         {

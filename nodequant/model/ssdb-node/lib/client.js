@@ -125,7 +125,11 @@ const commands = {
   qrlist            : 'list',
   dbsize            : 'int',
   info              : 'list',
-  auth              : 'bool'
+  auth              : 'bool',
+    request:'list',
+    nrrange:"list",
+    nlist:"list",
+    nset:"int"
 };
 
 // Connection object
@@ -343,7 +347,7 @@ class Client {
                 self[cmd] = function() {
                     let cb;
                     let params=[];
-                    if(cmd=="multi_hget")
+                    if(cmd=="multi_hget"||cmd=="nrrange"||cmd=="nlist"||cmd=="nset")
                     {
                         params = arguments[0];
                     }else
