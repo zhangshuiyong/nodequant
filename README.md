@@ -116,4 +116,8 @@ QQ群：197110856
 ## Node.js多线程库
 - [tagg2](https://github.com/DoubleSpout/node-threads-a-gogo2) - Cross platform Simple and fast JavaScript threads for Node.js
 
+## Javascript前端图形库
+
+- [echarts 3]http://echarts.baidu.com/
+
 
