@@ -118,6 +118,6 @@ QQ群：197110856
 
 ## Javascript前端图形库
 
-- [echarts 3]http://echarts.baidu.com/
+- [echarts 3](http://echarts.baidu.com/)
 
 
