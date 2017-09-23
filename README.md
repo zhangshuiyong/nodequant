@@ -88,14 +88,6 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 13. 点击调试运行。看到运行调试信息，运行成功。打印出log：“Demo策略启动成功 ”等log,说明样例策略启动成功。这个空策略的配置在userConfig.js用户配置文件中的StrategyConfig中
 ![image](http://chuantu.biz/t6/2/1502551531x2890149655.png)
 
-
-
-## 技术交流
-
-欢迎各位对NodeQuant有兴趣的Quanter加入QQ群进行技术交流和建议
-
-QQ群：197110856
-
 ## 入门教程
 
 [NodeQuant开发文档](https://www.markbj.com/book/2ui9718/15921)
@@ -120,4 +112,8 @@ QQ群：197110856
 
 - [echarts 3](http://echarts.baidu.com/)
 
+## 技术交流
 
+欢迎各位对NodeQuant有兴趣的Quanter加入QQ群进行技术交流和建议
+
+QQ群：197110856
