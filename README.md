@@ -51,11 +51,12 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 4. **交易客户端层**：交易客户端层代表着各个交易客户端。连接着各种证券交易所，商品交易所，接收推送来自交易所的行情信息，合约信息。同时，响应上层主引擎的在各个交易客户端的下单命令。目前已经实现了CTP Client,可交易中金所、上期所、大商所，郑商所的合约。
 
 ## NodeQuant 1.6.0 的特性
-- 支持上期CTP的API客户端(Windows Node.js-v6-32位、Windows Node.js-v6-64位、Linux Node.js-v6-64位)。可交易中金所、上期所、大商所、郑商所的所有期货品种合约
-- 支持飞鼠Sgit的API客户端(Windows Node.js-v6-32位、Linux Node.js-v6-64位)。可交易中金所、上期所、大商所、郑商所的所有期货品种合约，并且可交易上海黄金交易所的现货合约。可程序化交易现货黄金、白银。
+- 支持上期CTP的API客户端(**Windows Node.js-v6-32位、Windows Node.js-v6-64位、Linux Node.js-v6-64位**)。可交易中金所、上期所、大商所、郑商所的所有期货品种合约
+- 支持飞鼠Sgit的API客户端(**Windows Node.js-v6-32位、Linux Node.js-v6-64位**)。可交易中金所、上期所、大商所、郑商所的所有期货品种合约，并且可交易上海黄金交易所的现货合约。可程序化交易现货黄金、白银。
 - 支持一个账号 —— 多策略，支持一个账号多个策略的量化产品模式
 - 支持一个策略 —— 多合约，支持趋势、套利交易
 - 支持一个策略 —— 多市场，支持跨市场交易、套利
+- 支持交易K线周期：秒、分钟、小时
 - 支持交易所支持的多种类型订单：限价单，市价单，FAK单，FOK单，条件单。可灵活使用于趋势，套利，钓鱼等交易策略
 - 支持盘后自动计算策略盈亏净值
 - 极速响应实盘交易。使用Redis内存数据库，记录与查询交易信息
@@ -98,3 +99,21 @@ QQ群：197110856
 ## 入门教程
 
 [NodeQuant开发文档](https://www.markbj.com/book/2ui9718/15921)
+
+## Node.js科学计算库
+
+- [mathjs](https://github.com/josdejong/mathjs) - An extensive math library for JavaScript and Node.js.
+- [numeric](https://github.com/sloisel/numeric) - Numerical analysis in Javascript.
+- [numbers.js](https://github.com/numbers/numbers.js) - Advanced Mathematics Library for Node.js and JavaScript.
+- [jmat](https://github.com/lvandeve/jmat) - Complex special functions, numerical linear algebra and statistics in JavaScript.
+- [accounting.js](https://github.com/openexchangerates/accounting.js) - A lightweight JavaScript library for number, money and currency formatting - fully localisable, zero dependencies.
+- [science.js](https://github.com/jasondavies/science.js) - Scientific and statistical computing in JavaScript.
+- [linearReg.js](https://github.com/lastlegion/linearReg.js) - Linear regression with Gradient descent package for NPM.
+- [sylvester](https://github.com/jcoglan/sylvester) - Vector, matrix and geometry math JavaScript http://sylvester.jcoglan.com
+- [node-svm](https://github.com/nicolaspanel/node-svm) - Support Vector Machines for nodejs
+- [numjs](https://github.com/nicolaspanel/numjs) - Like NumPy, in JavaScript
+
+## Node.js多线程库
+- [tagg2](https://github.com/DoubleSpout/node-threads-a-gogo2) - Cross platform Simple and fast JavaScript threads for Node.js
+
+
