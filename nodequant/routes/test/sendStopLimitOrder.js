@@ -10,35 +10,35 @@ router.get('/', function(req, res, next) {
     let stopLimitOrderReq = URL.parse(req.url, true).query;
     let contractName=stopLimitOrderReq.contractName.replace(" ","+");
     let direction=stopLimitOrderReq.direction;
-    if(direction=="buy")
+    if(direction==="buy")
         direction=Direction.Buy;
-    else if(direction=="sell")
+    else if(direction==="sell")
         direction=Direction.Sell;
 
     let openclose=stopLimitOrderReq.openclose;
-    if(openclose=="open")
+    if(openclose==="open")
         openclose=OpenCloseFlagType.Open;
-    else if(openclose=="close")
+    else if(openclose==="close")
         openclose=OpenCloseFlagType.Close;
-    else if(openclose=="closeToday")
+    else if(openclose==="closeToday")
         openclose=OpenCloseFlagType.CloseToday;
-    else if(openclose=="closeYesterday")
+    else if(openclose==="closeYesterday")
         openclose=OpenCloseFlagType.CloseYesterday;
 
     let volume=parseInt(stopLimitOrderReq.volume);
     let limitPrice=parseFloat(stopLimitOrderReq.limitPrice);
 
     let stopPriceCondition=stopLimitOrderReq.stopPriceCondition;
-    if(stopPriceCondition=="gt")
+    if(stopPriceCondition==="gt")
     {
         stopPriceCondition=ContingentConditionType.LastPriceGreaterThanStopPrice;
-    }else if(stopPriceCondition=="gte")
+    }else if(stopPriceCondition==="gte")
     {
         stopPriceCondition=ContingentConditionType.LastPriceGreaterEqualStopPrice;
-    }else if(stopPriceCondition=="lt")
+    }else if(stopPriceCondition==="lt")
     {
         stopPriceCondition=ContingentConditionType.LastPriceLesserThanStopPrice;
-    }else if(stopPriceCondition=="lte")
+    }else if(stopPriceCondition==="lte")
     {
         stopPriceCondition=ContingentConditionType.LastPriceLesserEqualStopPrice;
     }else

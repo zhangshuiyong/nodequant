@@ -10,34 +10,34 @@ router.get('/', function(req, res, next) {
     let marketIfTouchedOrderReq = URL.parse(req.url, true).query;
     let contractName=marketIfTouchedOrderReq.contractName.replace(" ","+");
     let direction=marketIfTouchedOrderReq.direction;
-    if(direction=="buy")
+    if(direction==="buy")
         direction=Direction.Buy;
-    else if(direction=="sell")
+    else if(direction==="sell")
         direction=Direction.Sell;
 
     let openclose=marketIfTouchedOrderReq.openclose;
-    if(openclose=="open")
+    if(openclose==="open")
         openclose=OpenCloseFlagType.Open;
-    else if(openclose=="close")
+    else if(openclose==="close")
         openclose=OpenCloseFlagType.Close;
-    else if(openclose=="closeToday")
+    else if(openclose==="closeToday")
         openclose=OpenCloseFlagType.CloseToday;
-    else if(openclose=="closeYesterday")
+    else if(openclose==="closeYesterday")
         openclose=OpenCloseFlagType.CloseYesterday;
 
     let volume=parseInt(marketIfTouchedOrderReq.volume);
 
     let stopPriceCondition=marketIfTouchedOrderReq.stopPriceCondition;
-    if(stopPriceCondition=="gt")
+    if(stopPriceCondition==="gt")
     {
         stopPriceCondition=ContingentConditionType.LastPriceGreaterThanStopPrice;
-    }else if(stopPriceCondition=="gte")
+    }else if(stopPriceCondition==="gte")
     {
         stopPriceCondition=ContingentConditionType.LastPriceGreaterEqualStopPrice;
-    }else if(stopPriceCondition=="lt")
+    }else if(stopPriceCondition==="lt")
     {
         stopPriceCondition=ContingentConditionType.LastPriceLesserThanStopPrice;
-    }else if(stopPriceCondition=="lte")
+    }else if(stopPriceCondition==="lte")
     {
         stopPriceCondition=ContingentConditionType.LastPriceLesserEqualStopPrice;
     }
@@ -47,9 +47,9 @@ router.get('/', function(req, res, next) {
     let lastTick = global.Application.StrategyEngine.Symbol_LastTickDic[contractName];
     global.Application.MainEngine.SendMarketIfTouchedOrder(lastTick.clientName,contractName,direction,openclose,volume,stopPriceCondition,stopPrice,function (clientName,ret) {
 
-        if(ret==-99)
+        if(ret===-99)
             res.render('index', { title: 'SendMarketIfTouchedOrder Failed.Error: Trader client have not logined' });
-        else if(ret!=0)
+        else if(ret!==0)
             res.render('index', { title: 'SendMarketIfTouchedOrder failed, err:'+ret });
         else
             res.render('index', { title: 'SendMarketIfTouchedOrder successfully'});

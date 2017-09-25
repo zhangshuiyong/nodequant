@@ -9,7 +9,7 @@ let KBar = require("../util/KBar");
 //////////////////////////////// Private Method ////////////////////////////////////////////
 function _createBar(myStrategy,tick) {
 
-    if(myStrategy.Symbol_KBarId_TickListDic[tick.symbol]==undefined)
+    if(myStrategy.Symbol_KBarId_TickListDic[tick.symbol]===undefined)
     {
         myStrategy.Symbol_KBarId_TickListDic[tick.symbol]={};
     }
@@ -20,7 +20,7 @@ function _createBar(myStrategy,tick) {
         let KBarId = parseInt(tick.Id/myStrategy.KBarMillSecondInterval);
 
         //不存在KBarId,说明有一个新K线产生
-        if(myStrategy.Symbol_KBarId_TickListDic[tick.symbol][KBarId]==undefined)
+        if(myStrategy.Symbol_KBarId_TickListDic[tick.symbol][KBarId]===undefined)
         {
             //创建新K线包含的TickList缓存数组
             _createNewBar(myStrategy,KBarId,tick);
@@ -28,7 +28,7 @@ function _createBar(myStrategy,tick) {
             //创建上一个完整K线,加入到策略订阅合约的K线列表
             for(let barId in myStrategy.Symbol_KBarId_TickListDic[tick.symbol])
             {
-                if(barId!=KBarId)
+                if(barId!==KBarId)
                 {
                     //创建上一个完整K线,加入到策略订阅合约的K线列表
                     _createClosedBar(myStrategy,barId,tick);
@@ -77,7 +77,7 @@ function _createClosedBar(myStrategy,barId,tick) {
 
         let bar=new KBar(barId,bar_StartDatetime,bar_EndDatetime,tick.symbol,bar_Open,bar_High,bar_Low,bar_Close,volume,openInterest);
 
-        if(myStrategy.Symbol_KBarListDic[tick.symbol]==undefined)
+        if(myStrategy.Symbol_KBarListDic[tick.symbol]===undefined)
         {
             let KBarList=[];
             myStrategy.Symbol_KBarListDic[tick.symbol]=KBarList;
@@ -134,7 +134,7 @@ class BaseStrategy{
 
         this.Symbol_KBarId_TickListDic={};
 
-        if(this.KBarType!=undefined && this.KBarInterval!=undefined)
+        if(this.KBarType!==undefined && this.KBarInterval!==undefined)
         {
             switch(this.KBarType)
             {
@@ -156,9 +156,9 @@ class BaseStrategy{
 
         //预加载数据库中行情数据
         this.PreloadConfig=strategyConfig.PreloadConfig;
-        if(this.PreloadConfig!=undefined)
+        if(this.PreloadConfig!==undefined)
         {
-            if(this.PreloadConfig.BarType==KBarType.Tick)
+            if(this.PreloadConfig.BarType===KBarType.Tick)
             {
                 for(let symbol in this.symbols)
                 {
@@ -198,7 +198,7 @@ class BaseStrategy{
 
     OnTick(tick){
         //KarType没有设置或者设置为Tick,默认都不生成K线，不触发OnClosedBar,OnNewBar事件
-        if(this.KBarType==undefined || this.KBarType==KBarType.Tick)
+        if(this.KBarType===undefined || this.KBarType===KBarType.Tick)
         {
             return;
         }else
@@ -255,7 +255,7 @@ class BaseStrategy{
     /// <returns>仓位对象</returns>
     GetPosition(symbol)
     {
-        if(symbol==undefined)
+        if(symbol===undefined)
             return undefined;
 
         let position = global.Application.StrategyEngine.GetPosition(this.name,symbol);
@@ -347,11 +347,11 @@ class BaseStrategy{
 
                 break;
             case OrderType.Market:
-                if(arguments[7]!=undefined && tick.upperLimit!=undefined && tick.lowerLimit!=undefined)
+                if(arguments[7]!==undefined && tick.upperLimit!==undefined && tick.lowerLimit!==undefined)
                 {
-                    if(direction==Direction.Buy)
+                    if(direction===Direction.Buy)
                         limitePrice=tick.upperLimit;
-                    else if(direction==Direction.Sell)
+                    else if(direction===Direction.Sell)
                         limitePrice=tick.lowerLimit;
 
                     global.Application.StrategyEngine.SendLimitOrder(this,clientName,symbol,direction,openClose,volume,limitePrice);
@@ -378,14 +378,14 @@ class BaseStrategy{
                 }
                 break;
             case OrderType.Condition:
-                if(arguments[8]==undefined)
+                if(arguments[8]===undefined)
                 {
 
                     let message= "Send Condition Order Failed.Reason:Miss ContingentCondition Type";
                     let error=new NodeQuantError(this.name,ErrorType.StrategyError,message);
                     global.AppEventEmitter.emit(EVENT.OnError,error);
 
-                }else if(arguments[9]==undefined)
+                }else if(arguments[9]===undefined)
                 {
                     let message="Send Condition Order Failed.Reason:Miss StopPrice";
                     let error=new NodeQuantError(this.name,ErrorType.StrategyError,message);
@@ -434,9 +434,9 @@ class BaseStrategy{
         let orderPrice= _trimPriceByPriceTick(price,priceTick);
 
         let worsePrice=undefined;
-        if(direction==Direction.Buy)
+        if(direction===Direction.Buy)
             worsePrice=orderPrice+tickCount*priceTick;
-        else if(direction==Direction.Sell)
+        else if(direction===Direction.Sell)
             worsePrice=orderPrice-tickCount*priceTick;
 
         return worsePrice;
@@ -464,9 +464,9 @@ class BaseStrategy{
         let orderPrice= _trimPriceByPriceTick(price,priceTick);
 
         let betterPrice=undefined;
-        if(direction==Direction.Buy)
+        if(direction===Direction.Buy)
             betterPrice=orderPrice-tickCount*priceTick;
-        else if(direction==Direction.Sell)
+        else if(direction===Direction.Sell)
             betterPrice=orderPrice+tickCount*priceTick;
 
         return betterPrice;

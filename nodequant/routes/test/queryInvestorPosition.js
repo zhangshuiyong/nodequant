@@ -14,9 +14,9 @@ router.get('/', function(req, res, next) {
 
 
     global.Application.MainEngine.QueryInvestorPosition(clientName,function (clientName,ret) {
-        if(ret==-99)
+        if(ret===-99)
            console.log('QueryInvestorPosition Failed.Error: Trader client have not logined');
-        else if(ret!=0)
+        else if(ret!==0)
             console.log('QueryInvestorPosition Failed.Error: ');
         else
             console.log('QueryInvestorPosition successfully');

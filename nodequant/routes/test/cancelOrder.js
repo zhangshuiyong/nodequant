@@ -10,9 +10,9 @@ require("../../common.js");
 router.get('/', function(req, res, next) {
     /*
     global.Application.MainEngine.CancelOrder("CTP",function (clientName,ret) {
-        if(ret==-99)
+        if(ret===-99)
             res.render('index', { title: 'CancelOrder Failed.Error: Trader client have not logined' });
-        else if(ret!=0)
+        else if(ret!==0)
             res.render('index', { title: 'CancelOrder Failed.Error: '+ret });
         else
             res.render('index', { title: 'CancelOrder successfully'});

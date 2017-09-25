@@ -10,19 +10,19 @@ router.get('/', function(req, res, next) {
     let limitOrderReq = URL.parse(req.url, true).query;
     let contractName=limitOrderReq.contractName.replace(" ","+");
     let direction=limitOrderReq.direction;
-    if(direction=="buy")
+    if(direction==="buy")
         direction=Direction.Buy;
-    else if(direction=="sell")
+    else if(direction==="sell")
         direction=Direction.Sell;
 
     let openclose=limitOrderReq.openclose;
-    if(openclose=="open")
+    if(openclose==="open")
         openclose=OpenCloseFlagType.Open;
-    else if(openclose=="close")
+    else if(openclose==="close")
         openclose=OpenCloseFlagType.Close;
-    else if(openclose=="closeToday")
+    else if(openclose==="closeToday")
         openclose=OpenCloseFlagType.CloseToday;
-    else if(openclose=="closeYesterday")
+    else if(openclose==="closeYesterday")
         openclose=OpenCloseFlagType.CloseYesterday;
 
     let volume=parseInt(limitOrderReq.volume);

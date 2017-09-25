@@ -17,14 +17,14 @@ class DateTimeUtil
         let minute=0;
         let second=0;
 
-        if(dateStr!=undefined)
+        if(dateStr!==undefined)
         {
             year=parseInt(dateStr.substring(0,4));
             month=parseInt(dateStr.substring(4,6));
             day=parseInt(dateStr.substring(6,8));
         }
 
-        if(timeStr!=undefined)
+        if(timeStr!==undefined)
         {
             hour=parseInt(timeStr.substring(0,2));
             minute=parseInt(timeStr.substring(3,5));

@@ -15,9 +15,9 @@ router.get('/', function(req, res, next) {
 
     let lastTick = global.Application.StrategyEngine.Symbol_LastTickDic[contractName];
     global.Application.MainEngine.UnSubscribe(lastTick.clientName,contractName,function (clientName,ret) {
-        if(ret==-99)
+        if(ret===-99)
             res.render('index', { title: clientName+' UnSubscribe Failed.Error: Market client have not logined' });
-        else if(ret!=0)
+        else if(ret!==0)
             res.render('index', { title: clientName+' UnSubscribe Failed.Error: '+ret });
         else
             res.render('index', { title: clientName+' UnSubscribe successfully'});

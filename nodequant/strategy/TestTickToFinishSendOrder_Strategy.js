@@ -21,7 +21,7 @@ class TestTickToFinishSendOrder_Strategy extends BaseStrategy{
 
     OnTick(tick)
     {
-        if(global.TickCount==30)
+        if(global.TickCount===30)
         {
             this.SendOrder(tick.clientName,tick.symbol,tick.lastPrice,1,Direction.Buy,OpenCloseFlagType.Open);
         }

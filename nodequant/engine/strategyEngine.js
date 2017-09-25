@@ -23,7 +23,7 @@ let Position=require("../util/Position");
 
 function _isPassCTPFilter(tickFutureConfig,tickDateTime)
 {
-    if(tickFutureConfig==undefined)
+    if(tickFutureConfig===undefined)
     {
         //没有配置时间,不录入数据库
         return false;
@@ -32,7 +32,7 @@ function _isPassCTPFilter(tickFutureConfig,tickDateTime)
     let tickTradingDate = tickDateTime.toLocaleDateString();
     //早盘开盘时间,用于对比判断,夜盘是否到了凌晨的交易品种,如黄金
     let AMOpenDateTime=undefined;
-    if(tickFutureConfig.AMOpen!=undefined)
+    if(tickFutureConfig.AMOpen!==undefined)
     {
         let AMOpenDateTimeStr=tickTradingDate+" "+tickFutureConfig.AMOpen;
         AMOpenDateTime=new Date(AMOpenDateTimeStr);
@@ -44,10 +44,10 @@ function _isPassCTPFilter(tickFutureConfig,tickDateTime)
 
     //由于5.2,凌晨夜盘超过到另外一天到另一个交易日的凌晨
     //一个交易日的tick最开始有效时间,可能是凌晨(黄金),也可能是早盘开始!!!
-    if(tickFutureConfig.NightClose==undefined)
+    if(tickFutureConfig.NightClose===undefined)
     {
         //1.没有夜盘,如果tick的时间在当前交易日的AMOpen的之前,就过滤掉
-        if(AMOpenDateTime!=undefined)
+        if(AMOpenDateTime!==undefined)
         {
 
             if(tickDateTime<AMOpenDateTime)
@@ -79,7 +79,7 @@ function _isPassCTPFilter(tickFutureConfig,tickDateTime)
     }
 
     //2.如果有早盘停盘时间,早盘重新开盘时间(中金所股指期货没有,商品期货有)。BreakDateTime<Tick的时间<ResumeDateTime是要过滤掉
-    if(tickFutureConfig.AMBreak!=undefined && tickFutureConfig.AMResume!=undefined)
+    if(tickFutureConfig.AMBreak!==undefined && tickFutureConfig.AMResume!==undefined)
     {
         let AMBreakDateTimeStr= tickTradingDate +" "+ tickFutureConfig.AMBreak;
         let AMBreakDateTime=new Date(AMBreakDateTimeStr);
@@ -94,7 +94,7 @@ function _isPassCTPFilter(tickFutureConfig,tickDateTime)
     }
 
     //3.上午收盘，到下午开盘（所有CTP国内商品都有）。AMCloseTime<Tick的时间<PMOpenDateTime要过滤掉
-    if(tickFutureConfig.AMClose!=undefined && tickFutureConfig.PMOpen!=undefined)
+    if(tickFutureConfig.AMClose!==undefined && tickFutureConfig.PMOpen!==undefined)
     {
         let AMCloseDateTimeStr= tickTradingDate +" "+ tickFutureConfig.AMClose;
         let AMCloseDateTime=new Date(AMCloseDateTimeStr);
@@ -113,7 +113,7 @@ function _isPassCTPFilter(tickFutureConfig,tickDateTime)
     let PMCloseDateTime=new Date(PMCloseDateTimeStr);
 
     //5.有夜盘。夜盘就是当前tick交易日比下午后盘的时间要大.(只是这段时间提前出现，这段时间是存在的!!!)
-    if(tickFutureConfig.NightOpen != undefined && tickFutureConfig.NightClose!=undefined)
+    if(tickFutureConfig.NightOpen !== undefined && tickFutureConfig.NightClose!==undefined)
     {
         let NightOpenDateTimeStr= tickTradingDate +" "+ tickFutureConfig.NightOpen;
         let NightOpenDateTime=new Date(NightOpenDateTimeStr);
@@ -154,10 +154,10 @@ function _isPassCTPFilter(tickFutureConfig,tickDateTime)
 //每个客户端过滤无效Tick的时间不同,有CTP的过滤器就过滤,没有过滤器就不过滤
 //以下是ctp的客户端
 function _isPassFilter(clientName,TradingDateConfig,tickDateTime) {
-    if(clientName=="CTP")
+    if(clientName==="CTP")
     {
         return _isPassCTPFilter(TradingDateConfig,tickDateTime)
-    }else if(clientName=="Sgit")
+    }else if(clientName==="Sgit")
     {
         return _isPassCTPFilter(TradingDateConfig,tickDateTime);
     }else
@@ -178,14 +178,14 @@ function _registerEvent(myEngine) {
 
     global.AppEventEmitter.on(EVENT.OnTick,function (tick) {
         //TradingDay赋值
-        if(myEngine.TradingDay =="" && tick.date!="")
+        if(myEngine.TradingDay ==="" && tick.date!=="")
         {
             myEngine.TradingDay=tick.date;
         }
 
         //先过滤Tick
         let isPass=_isPassTickFilter(tick);
-        if(isPass==false)
+        if(isPass===false)
         {
             return;
         }
@@ -194,12 +194,12 @@ function _registerEvent(myEngine) {
         {
             let strategy = myEngine.StrategyDic[strategyName];
 
-            if(strategy!=undefined)
+            if(strategy!==undefined)
             {
                 let strategySymbolDic = strategy.symbols;
                 for(let symbol in strategySymbolDic)
                 {
-                    if(tick.symbol==symbol)
+                    if(tick.symbol===symbol)
                     {
                         //更新策略-合约中的最新Tick
                         myEngine.Symbol_LastTickDic[symbol]=tick;
@@ -218,14 +218,14 @@ function _registerEvent(myEngine) {
         let strategyName = myEngine.StrategyOrderID_StrategyNameDic[order.strategyOrderID];
         let strategy= myEngine.StrategyDic[strategyName];
 
-        if(strategy!=undefined)
+        if(strategy!==undefined)
         {
             //推送到下单策略
             strategy.OnOrder(order);
 
             //记录策略的所有Order
             let orderDic=myEngine.StrategyName_OrderDic[strategy.name];
-            if(orderDic==undefined)
+            if(orderDic===undefined)
             {
                 orderDic={};
                 myEngine.StrategyName_OrderDic[strategy.name]=orderDic;
@@ -242,13 +242,13 @@ function _registerEvent(myEngine) {
         let strategyName = myEngine.StrategyOrderID_StrategyNameDic[trade.strategyOrderID];
         let strategy= myEngine.StrategyDic[strategyName];
 
-        if(strategy!=undefined)
+        if(strategy!==undefined)
         {
             strategy.OnTrade(trade);
 
             //记录策略的所有成交
             let tradeDic=myEngine.StrategyName_TradeDic[strategy.name];
-            if(tradeDic==undefined)
+            if(tradeDic===undefined)
             {
                 tradeDic={};
                 myEngine.StrategyName_TradeDic[strategy.name]=tradeDic;
@@ -274,7 +274,7 @@ function _registerEvent(myEngine) {
 
     //查询合约手续费
     global.AppEventEmitter.on(EVENT.OnQueryCommissionRate,function (commissionRateInfo) {
-        if(myEngine.Client_Symbol_CommissionRateDic[commissionRateInfo.clientName]==undefined)
+        if(myEngine.Client_Symbol_CommissionRateDic[commissionRateInfo.clientName]===undefined)
         {
             myEngine.Client_Symbol_CommissionRateDic[commissionRateInfo.clientName]={};
         }
@@ -355,7 +355,7 @@ function _createNewBar(BarId_TickListDic,tick,KBarId)
 function _reverseCreateBarByBarId(BarId_TickListDic,ClosedBarList,tick,KBarId)
 {
     //如果字典已经有1个KBarID,不存在KBarId,说明有一个新K线产生
-    if(BarId_TickListDic[KBarId]==undefined)
+    if(BarId_TickListDic[KBarId]===undefined)
     {
         //创建新K线包含的TickList缓存数组
         _createNewBar(BarId_TickListDic,tick,KBarId);
@@ -364,7 +364,7 @@ function _reverseCreateBarByBarId(BarId_TickListDic,ClosedBarList,tick,KBarId)
         for(let barId in BarId_TickListDic)
         {
             //不存在KBarId,说明有一个新K线产生
-            if(barId!=KBarId)
+            if(barId!==KBarId)
             {
                 //创建上一个完整K线,加入到策略订阅合约的K线列表
                 let closedBar=_createClosedBar(BarId_TickListDic,tick,barId);
@@ -448,7 +448,7 @@ class StrategyEngine {
         }
 
         //2.白天收盘当做一天的结束(3:00 or 3.15), 结算各个策略的当天净值
-        if(mainEngineStatus==MainEngineStatus.DayStop)
+        if(mainEngineStatus===MainEngineStatus.DayStop)
         {
             for(let strategyName in this.StrategyDic)
             {
@@ -473,7 +473,7 @@ class StrategyEngine {
 
     StartStrategy(strategyConfig) {
         let strategyInstance = this.CreateStrategy(strategyConfig);
-        if (strategyInstance != undefined) {
+        if (strategyInstance !== undefined) {
             //加入事件推送策略字典
             this.StrategyDic[strategyConfig.name] = strategyInstance;
 
@@ -525,7 +525,7 @@ class StrategyEngine {
             let symbolConfig=strategySymbolCongfigDic[symbol];
             setTimeout(function () {
                 let ret = global.Application.MainEngine.QueryCommissionRate(symbolConfig.clientName,symbol);
-                if(ret!=0)
+                if(ret!==0)
                 {
                     global.Application.StrategyEngine.QueryStrategySymbolsCommissionRate(strategySymbolCongfigDic);
 
@@ -548,7 +548,7 @@ class StrategyEngine {
 
     QueryTradingAccount(clientName,strategy)
     {
-        if(clientName=="Sgit")
+        if(clientName==="Sgit")
         {
             //最新版本Sgit 4.2未支持此接口
             return -1;
@@ -569,9 +569,9 @@ class StrategyEngine {
             let symbolConfig=strategySymbolCongfigDic[symbol];
             let contract = global.Application.MainEngine.GetContract(symbolConfig.clientName,symbol);
             //交易客户端的合约存在才能订阅!
-            if (contract != undefined) {
+            if (contract !== undefined) {
                let ret = global.Application.MainEngine.Subscribe(contract.clientName, symbol);
-                if (ret != 0) {
+                if (ret !== 0) {
                     let message=strategyName + "在" + contract.clientName + "客户端订阅" + symbol + "请求发送失败,错误码：" + ret;
                     let error=new NodeQuantError(strategyName,ErrorType.StrategyError,message);
                     global.AppEventEmitter.emit(EVENT.OnError, error);
@@ -660,8 +660,8 @@ class StrategyEngine {
         for(let strategyOrderId in orderDic)
         {
             let order = orderDic[strategyOrderId];
-            let isOrderFinish = (order.status == OrderStatusType.Canceled || order.status == OrderStatusType.AllTraded);
-            if (isOrderFinish == false) {
+            let isOrderFinish = (order.status === OrderStatusType.Canceled || order.status === OrderStatusType.AllTraded);
+            if (isOrderFinish === false) {
                 unFinishOrderList.push(order);
             }
         }
@@ -690,7 +690,7 @@ class StrategyEngine {
         //成交记录，记录策略名字
         trade.strategyName= strategyName;
         let PositionDic = this.StrategyName_PositionDic[strategyName];
-        if (PositionDic == undefined) {
+        if (PositionDic === undefined) {
             PositionDic = {};
             this.StrategyName_PositionDic[strategyName] = PositionDic;
         }
@@ -698,7 +698,7 @@ class StrategyEngine {
         //position对象键值是合约名字,凡是该合约，都要更新这个position对象
         let position = PositionDic[trade.symbol];
 
-        if (position == undefined) {
+        if (position === undefined) {
             position = new Position();
             PositionDic[trade.symbol] = position;
             position.symbol = trade.symbol;
@@ -714,33 +714,33 @@ class StrategyEngine {
         let symbolFee=0;
         let tradeRecordCommission = 0 ;
 
-        if(feeInfo!=undefined)
+        if(feeInfo!==undefined)
         {
             //确定开仓/平仓/平今仓费率 3种
-            if(tradeRecord.offset==OpenCloseFlagType.CloseToday)
+            if(tradeRecord.offset===OpenCloseFlagType.CloseToday)
             {
                 symbolFee = feeInfo.closeTodayFee;
-            }else if(tradeRecord.offset==OpenCloseFlagType.Close)
+            }else if(tradeRecord.offset===OpenCloseFlagType.Close)
             {
                 symbolFee = feeInfo.closeFee;
-            }else if(tradeRecord.offset==OpenCloseFlagType.CloseYesterday)
+            }else if(tradeRecord.offset===OpenCloseFlagType.CloseYesterday)
             {
                 symbolFee = feeInfo.closeFee;
-            }else if(tradeRecord.offset==OpenCloseFlagType.Open)
+            }else if(tradeRecord.offset===OpenCloseFlagType.Open)
             {
                 symbolFee = feeInfo.openFee;
             }
 
             //是否有设置fee,closeTodayFee字段
 
-            if(symbolFee!=undefined)
+            if(symbolFee!==undefined)
             {
                 //确定手续费计算方法
-                if(feeInfo.feeType==FeeType.ByMoney)
+                if(feeInfo.feeType===FeeType.ByMoney)
                 {
                     let contractSize=global.Application.MainEngine.GetContractSize(tradeRecord.symbol);
                     tradeRecordCommission= symbolFee * tradeRecord.volume * tradeRecord.price * contractSize;
-                }else if(feeInfo.feeType==FeeType.ByVolume){
+                }else if(feeInfo.feeType===FeeType.ByVolume){
                     tradeRecordCommission = symbolFee * tradeRecord.volume;
                 }else
                 {
@@ -764,10 +764,10 @@ class StrategyEngine {
     SettleTradeRecordValue(tradeRecord){
         let tradeRecordValue = undefined;
         let contractSize=global.Application.MainEngine.GetContractSize(tradeRecord.symbol);
-        if(tradeRecord.direction==Direction.Buy)
+        if(tradeRecord.direction===Direction.Buy)
         {
             tradeRecordValue = tradeRecord.volume * tradeRecord.price * contractSize;
-        }else if(tradeRecord.direction==Direction.Sell)
+        }else if(tradeRecord.direction===Direction.Sell)
         {
             tradeRecordValue= tradeRecord.volume * tradeRecord.price * contractSize;
             tradeRecordValue = -tradeRecordValue;
@@ -783,7 +783,7 @@ class StrategyEngine {
 
         let symbol_lastTick= this.Symbol_LastTickDic[symbol_position.symbol];
         let currentTradingDay_Exit_Symbol_PositionValue = 0;
-        if(symbol_lastTick!=undefined)
+        if(symbol_lastTick!==undefined)
         {
             let longPosition = symbol_position.GetLongPosition();
             let shortPosition = symbol_position.GetShortPosition();
@@ -816,7 +816,7 @@ class StrategyEngine {
         this.GetLastTradingDayStrategySettlement(strategyInstance.name,function (lastSettlement) {
 
             let lastTradingDay_Exit_PositionValue = 0;
-            if(lastSettlement!=undefined)
+            if(lastSettlement!==undefined)
             {
                 lastTradingDay_Exit_PositionValue= lastSettlement.exitPositionValue;
             }
@@ -838,7 +838,7 @@ class StrategyEngine {
                     currentTradingDay_TradeValue += tradeRecordValue;
 
                     let feeInfo=strategyEngine.Client_Symbol_CommissionRateDic[tradeRecord.clientName][tradeRecord.symbol];
-                    if(feeInfo==undefined)
+                    if(feeInfo===undefined)
                     {
                         //CTP SimNow账号只有futureName的手续费
                         let contract=global.Application.MainEngine.GetContract(tradeRecord.clientName,tradeRecord.symbol);
@@ -931,7 +931,7 @@ class StrategyEngine {
                 throw new Error("LoadPosition失败，原因:"+err.message);
             }else{
                 let PositionDic = global.Application.StrategyEngine.StrategyName_PositionDic[strategyName];
-                if (PositionDic == undefined) {
+                if (PositionDic === undefined) {
                     PositionDic = {};
                     global.Application.StrategyEngine.StrategyName_PositionDic[strategyName] = PositionDic;
                 }
@@ -939,7 +939,7 @@ class StrategyEngine {
                 for(let index in symbolSet)
                 {
                     let symbol= symbolSet[index];
-                    if(PositionDic[symbol]==undefined)
+                    if(PositionDic[symbol]===undefined)
                     {
                         //加载仓位列表的时候没有这个仓位,要查询列表
                         let positionObj=new Position();
@@ -960,10 +960,10 @@ class StrategyEngine {
                             {
                                 let tradeRecordStr=tradeRecordStrList[index];
                                 let tradeRecord=JSON.parse(tradeRecordStr);
-                                if (tradeRecord.offset == OpenCloseFlagType.Open && tradeRecord.direction == Direction.Buy) {
+                                if (tradeRecord.offset === OpenCloseFlagType.Open && tradeRecord.direction === Direction.Buy) {
                                     //多方开仓,持仓
                                     PositionDic[tradeRecord.symbol].longPositionTradeRecordList.push(tradeRecord);
-                                }else if(tradeRecord.offset == OpenCloseFlagType.Open && tradeRecord.direction == Direction.Sell)
+                                }else if(tradeRecord.offset === OpenCloseFlagType.Open && tradeRecord.direction === Direction.Sell)
                                 {
                                     //空方开仓，持仓
                                     PositionDic[tradeRecord.symbol].shortPositionTradeRecordList.push(tradeRecord);
@@ -980,7 +980,7 @@ class StrategyEngine {
 
     LoadTickFromDB(strategy,symbol,LookBackCount,OnFinishLoadTick)
     {
-        if(global.Application.MarketDataDBClient!=undefined)
+        if(global.Application.MarketDataDBClient!==undefined)
         {
             global.Application.MarketDataDBClient.nrrange([symbol, 0,LookBackCount,-1],function (err,TickStrListResults) {
                 if (err){
@@ -1023,7 +1023,7 @@ class StrategyEngine {
 
     LoadBarFromDB(strategy,symbol,LookBackCount,BarType,BarInterval,OnFinishLoadBar)
     {
-        if(global.Application.MarketDataDBClient!=undefined)
+        if(global.Application.MarketDataDBClient!==undefined)
         {
             //获得Tick数据库
             //K线是根据K线的定义而产生的，根据K的交易策略要注意!回测与实盘交易系统一定要一致
@@ -1037,15 +1037,15 @@ class StrategyEngine {
             let TickLookBackCount = 0;
             //K线周期默认1分钟=60*1000ms
             let BarMillSecondInterval=60*1000;
-            if(BarType==KBarType.Second)
+            if(BarType===KBarType.Second)
             {
                 TickLookBackCount = LookBackCount * BarInterval * 4;
                 BarMillSecondInterval=BarInterval*1000;
-            }else if(BarType==KBarType.Minute)
+            }else if(BarType===KBarType.Minute)
             {
                 TickLookBackCount = LookBackCount * BarInterval * 60 * 4;
                 BarMillSecondInterval=BarInterval*60*1000;
-            }else if(BarType==KBarType.Hour)
+            }else if(BarType===KBarType.Hour)
             {
                 TickLookBackCount = LookBackCount * BarInterval * 60 * 60 * 4;
                 BarMillSecondInterval=BarInterval*60*60*1000;
@@ -1077,7 +1077,7 @@ class StrategyEngine {
                     Tick.datetime = new Date(Tick.timeStamp);
 
                     let KBarId=undefined;
-                    if(BarType!=KBarType.Day)
+                    if(BarType!==KBarType.Day)
                     {
                         //分钟K线的收集按Tick的timeStamp是否相同KBarId来收集
                         //如5分钟K线,2017/9/7日 23:55:00~2017/9/7 00:00:00,间隔了-1天,间隔为不同的KBarId
@@ -1097,14 +1097,14 @@ class StrategyEngine {
                     _reverseCreateBarByBarId(BarId_TickListDic,ClosedBarList,Tick,KBarId);
 
 
-                    if(ClosedBarList.length==LookBackCount)
+                    if(ClosedBarList.length===LookBackCount)
                     {
                         break;
                     }
                 }
 
                 //在Tick数组内完成收集K线工作
-                if(ClosedBarList.length==LookBackCount)
+                if(ClosedBarList.length===LookBackCount)
                 {
                     OnFinishLoadBar(strategy,symbol,BarType,BarInterval,ClosedBarList);
                 }else
@@ -1195,7 +1195,7 @@ class StrategyEngine {
                     let lastSettlementJsonStr = settlementList[settlementList.length-1];
                     let lastSettlement=JSON.parse(lastSettlementJsonStr);
                     callback(lastSettlement);
-                }else if(settlementList.length==0)
+                }else if(settlementList.length===0)
                 {
                     callback(undefined);
                 }

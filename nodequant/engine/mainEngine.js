@@ -24,7 +24,7 @@ function _isTimeToWork() {
     if(weekDay<1)
     {
         return MainEngineStatus.Stop;
-    }else if(weekDay==6)
+    }else if(weekDay===6)
     {
         //周六凌晨03:00以后就不工作
         if(NightStopDateTime<NowDateTime)
@@ -62,7 +62,7 @@ function _registerEvent(myEngine) {
 
     setInterval(function () {
         let enginStatus=_isTimeToWork();
-        if(MainEngineStatus.Start!=enginStatus)
+        if(MainEngineStatus.Start!==enginStatus)
         {
             if(myEngine.isWorking)
             {
@@ -70,7 +70,7 @@ function _registerEvent(myEngine) {
             }
         }else
         {
-            if(false==myEngine.isWorking)
+            if(false===myEngine.isWorking)
             {
                 myEngine.ReStart();
             }
@@ -81,12 +81,12 @@ function _registerEvent(myEngine) {
     global.AppEventEmitter.on(EVENT.OnReceivedAllContract,function (clientName) {
 
         //策略引擎是否已经启动
-        if(global.Application.StrategyEngine.IsWorking == false)
+        if(global.Application.StrategyEngine.IsWorking === false)
         {
             //策略引擎还没启动,检查所有策略引擎所需要的交易客户端是否已经都启动了
             //检查所有交易客户端是否已经都连接上
             for (let clientNameInstance in myEngine.clientDic) {
-                if (myEngine.clientDic[clientNameInstance].IsGetAllContract() == false) {
+                if (myEngine.clientDic[clientNameInstance].IsGetAllContract() === false) {
                     return;
                 }
             }
@@ -100,7 +100,7 @@ function _registerEvent(myEngine) {
 
         //所有配置的客户端，启动策略引擎
 
-        if(global.Application.StrategyEngine.IsWorking==false)
+        if(global.Application.StrategyEngine.IsWorking===false)
         {
             //没有启动过,但是所有客户端已经连接成功,策略引擎启动过，策略启动过
             global.Application.StrategyEngine.Start();
@@ -109,7 +109,7 @@ function _registerEvent(myEngine) {
     });
 
     global.AppEventEmitter.on(EVENT.OnContract,function (contract) {
-        if(myEngine.contractDic[contract.clientName]==undefined)
+        if(myEngine.contractDic[contract.clientName]===undefined)
         {
             myEngine.contractDic[contract.clientName]={};
         }
@@ -131,7 +131,7 @@ function _registerEvent(myEngine) {
     //绑定事件多次,会有多次回调
     global.AppEventEmitter.on(EVENT.OnSubscribeContract,function (contractName,clientName,error) {
         let message="";
-        if(error.ErrorID!=0)
+        if(error.ErrorID!==0)
         {
             message="Subscribe "+contractName+" Error,errorID:"+error.ErrorID+",errorMsg:"+error.Message;
         }else
@@ -180,7 +180,7 @@ class MainEngine{
 
         for(let clientName in ClientConfig)
         {
-            if(SupportClients[clientName]!=undefined)
+            if(SupportClients[clientName]!==undefined)
             {
                 this.clientDic[clientName]=ClientFactory.Create(clientName);
             }
@@ -192,7 +192,7 @@ class MainEngine{
     Start(){
 
         let enginStatus=_isTimeToWork();
-        if(MainEngineStatus.Start!=enginStatus)
+        if(MainEngineStatus.Start!==enginStatus)
             return;
 
         let log=new NodeQuantLog("MainEngine",LogType.INFO,new Date().toLocaleString(),"MainEngine Start");
@@ -235,7 +235,7 @@ class MainEngine{
         //2.断开Clients
         for(let key in this.clientDic)
         {
-            if(this.clientDic[key]!=undefined)
+            if(this.clientDic[key]!==undefined)
             {
                 //已经连接上交易前端,断开
                 if(this.clientDic[key].IsMdConnected()){

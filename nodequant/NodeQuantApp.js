@@ -53,7 +53,7 @@ class NodeQuantApp{
         let redis =require("redis");
         //初始化配置系统数据库
         this.SystemDBClient = redis.createClient(System_DBConfig.Port,System_DBConfig.Host);
-        if(System_DBConfig.Password!=undefined && System_DBConfig.Password!="")
+        if(System_DBConfig.Password!==undefined && System_DBConfig.Password!=="")
         {
             this.SystemDBClient.auth(System_DBConfig.Password);
         }
@@ -65,7 +65,7 @@ class NodeQuantApp{
         //初始化配置行情数据库
         try
         {
-            if(MarketData_DBConfig!=undefined && MarketData_DBConfig.Port!=undefined && MarketData_DBConfig.Host != undefined)
+            if(MarketData_DBConfig!==undefined && MarketData_DBConfig.Port!==undefined && MarketData_DBConfig.Host !== undefined)
             {
 
                 let ssdb = require('./model/ssdb-node');

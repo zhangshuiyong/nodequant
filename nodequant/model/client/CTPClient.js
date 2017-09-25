@@ -55,7 +55,7 @@ class ctpClient{
         //创建行情和交易接口对象
         //先登录行情接口，行情接口连接上，再登录
         let ret = this.mdClient.connect();
-        if(ret!=0)
+        if(ret!==0)
         {
             let message="启动连接"+this.ClientName+"的mdClient失败.错误号:"+ret;
             let error=new NodeQuantError(this.ClientName,ErrorType.Disconnected,message);
@@ -64,7 +64,7 @@ class ctpClient{
 
         ret = this.tdClient.connect();
 
-        if(ret!=0)
+        if(ret!==0)
         {
             let message="启动连接"+this.ClientName+"的tdClient失败.错误号:"+ret;
             let error=new NodeQuantError(this.ClientName,ErrorType.Disconnected,message);
@@ -446,7 +446,7 @@ class ctpMdClient{
         });
 
         ctpMdClient.ctpMdApi.on("RspError",function (err,requestId,isLast) {
-            if(err==undefined)
+            if(err===undefined)
             {
                 err={};
             }
@@ -464,12 +464,12 @@ class ctpMdClient{
             fs.mkdirSync(mdFlowPath);
         }
 
-        if(ctpMdClient.isConnected==false)
+        if(ctpMdClient.isConnected===false)
         {
             return ctpMdClient.ctpMdApi.connect(this.address,mdFlowPath);
         }else
         {
-            if(ctpMdClient.isLogined==false)
+            if(ctpMdClient.isLogined===false)
             {
                 ctpMdClient.ctpClient.OnInfo("Market Fornt have connected. -->Not Login --> Then Login");
 
@@ -490,7 +490,7 @@ class ctpMdClient{
         //login的回调函数，先绑定登录的回调函数，再调用主动函数
         ctpMdClient.ctpMdApi.on("RspUserLogin",function (response,err,requestId,isLast) {
 
-            if(err.ErrorID==0)
+            if(err.ErrorID===0)
             {
                 ctpMdClient.ctpClient.OnInfo("Market Front login successfully");
 
@@ -524,7 +524,7 @@ class ctpMdClient{
         this.subscribedContractSymbolDic[contractSymbol]=contractSymbol;
 
         //登录成功才可以订阅
-        if(ctpMdClient.isLogined==false)
+        if(ctpMdClient.isLogined===false)
         {
 
             let message="Subscribe "+contractSymbol+" Failed,Error: Market Front have not Login";
@@ -537,7 +537,7 @@ class ctpMdClient{
 
         ctpMdClient.ctpMdApi.on("RspSubMarketData",function (contractSymbol,err,requestId,isLast) {
 
-            if(err.ErrorID==0)
+            if(err.ErrorID===0)
             {
                 ctpMdClient.ctpClient.OnInfo("Market Subscribe "+ contractSymbol+" Successfully.RequestId:"+requestId);
             }else
@@ -554,7 +554,7 @@ class ctpMdClient{
 
         ctpMdClient.ctpMdApi.on("RtnDepthMarketData",function (marketData) {
             /*
-            if(global.TickCount==30)
+            if(global.TickCount===30)
             {
                 console.time("NodeQuant-TickToFinishSendOrder");
             }*/
@@ -587,7 +587,7 @@ class ctpMdClient{
             tick.actionDate=marketData.ActionDay;
 
             //有可能ctp返回的tradingDay为空
-            if(tick.date=="")
+            if(tick.date==="")
             {
                 tick.date= ctpMdClient.getTradingDay();
             }
@@ -610,38 +610,8 @@ class ctpMdClient{
             tick.actionDatetime = new Date(year,month-1,actionDay,hour,minute,second,marketData.UpdateMillisec);
             tick.timeStamp=tick.datetime.getTime();
             tick.Id = tick.actionDatetime.getTime();
-            //五档价格无效值Double的最大值转换为0
-            //五档买价
-            tick.bidPrice1 = marketData.BidPrice1==Number.MAX_VALUE?0:marketData.BidPrice1;
-            tick.bidVolume1 = marketData.BidVolume1;
+            //五档价格不转换,提高速度
 
-            tick.bidPrice2 = marketData.BidPrice2==Number.MAX_VALUE?0:marketData.BidPrice2;
-            tick.bidVolume2 = marketData.BidVolume2;
-
-            tick.bidPrice3 = marketData.BidPrice3==Number.MAX_VALUE?0:marketData.BidPrice3;
-            tick.bidVolume3 = marketData.BidVolume3;
-
-            tick.bidPrice4 = marketData.BidPrice4==Number.MAX_VALUE?0:marketData.BidPrice4;
-            tick.bidVolume4 = marketData.BidVolume4;
-
-            tick.bidPrice5 = marketData.BidPrice5==Number.MAX_VALUE?0:marketData.BidPrice5;
-            tick.bidVolume5 = marketData.BidVolume5;
-
-            //五档卖价格
-            tick.askPrice1 = marketData.AskPrice1==Number.MAX_VALUE?0:marketData.AskPrice1;
-            tick.askVolume1 = marketData.AskVolume1;
-
-            tick.askPrice2 = marketData.AskPrice2==Number.MAX_VALUE?0:marketData.AskPrice2;
-            tick.askVolume2 = marketData.AskVolume2;
-
-            tick.askPrice3 = marketData.AskPrice3==Number.MAX_VALUE?0:marketData.AskPrice3;
-            tick.askVolume3 = marketData.AskVolume3;
-
-            tick.askPrice4 = marketData.AskPrice4==Number.MAX_VALUE?0:marketData.AskPrice4;
-            tick.askVolume4 = marketData.AskVolume4;
-
-            tick.askPrice5 = marketData.AskPrice5==Number.MAX_VALUE?0:marketData.AskPrice5;
-            tick.askVolume5 = marketData.AskVolume5;
 
             ctpMdClient.ctpClient.OnTick(tick);
         });
@@ -656,7 +626,7 @@ class ctpMdClient{
         delete this.subscribedContractSymbolDic[contractName];
 
         //登录成功才可以取消订阅
-        if(ctpMdClient.isLogined==false)
+        if(ctpMdClient.isLogined===false)
         {
             let message="UnSubscribe "+contractName+" Failed,Error: Market Font have not Login";
             let error=new NodeQuantError(ctpMdClient.ctpClient.ClientName,ErrorType.OperationAfterDisconnected,message);
@@ -667,7 +637,7 @@ class ctpMdClient{
         }
 
         ctpMdClient.ctpMdApi.on("RspUnSubMarketData",function (contractName,err,requestId,isLast) {
-            if(err.ErrorID==0)
+            if(err.ErrorID===0)
             {
                 ctpMdClient.ctpClient.OnInfo("Market UnSubscribe "+ contractName+" Successfully.RequestId:"+requestId);
             }else
@@ -909,7 +879,7 @@ class ctpTdClient{
         });
 
         ctpTdClient.ctpTdApi.on("RspError",function (err,requestId,isLast) {
-            if(err==undefined)
+            if(err===undefined)
             {
                 err={};
             }
@@ -927,12 +897,12 @@ class ctpTdClient{
             fs.mkdirSync(tdFlowPath);
         }
 
-        if(ctpTdClient.isConnected==false)
+        if(ctpTdClient.isConnected===false)
         {
             return ctpTdClient.ctpTdApi.connect(this.address,tdFlowPath);
         }else
         {
-            if(ctpTdClient.isLogined == false)
+            if(ctpTdClient.isLogined === false)
             {
                 //如果交易客户端是Connected,说明交易前置没问题
                 ctpTdClient.ctpClient.OnInfo("Trader Font have connected. -->Not Login, Then Login");
@@ -949,7 +919,7 @@ class ctpTdClient{
         //login的回调函数，登录的回调函数
         ctpTdClient.ctpTdApi.on("RspUserLogin",function (response,err,requestId,isLast) {
 
-            if(err.ErrorID==0)
+            if(err.ErrorID===0)
             {
                 ctpTdClient.ctpClient.OnInfo(ctpTdClient.ctpClient.ClientName+" Trade Front login successfully");
 
@@ -973,7 +943,7 @@ class ctpTdClient{
     confirmSettlement() {
         let ctpTdClient=this;
         ctpTdClient.ctpTdApi.on("RspSettlementInfoConfirm",function (response,err,requestId,isLast) {
-            if(err.ErrorID==0)
+            if(err.ErrorID===0)
             {
                 ctpTdClient.ctpClient.OnInfo("Trade Front confirm settlementInfo successfully. --> Then query all contracts.");
                 //查询所有合约
@@ -996,7 +966,7 @@ class ctpTdClient{
         let ctpTdClient=this;
 
         //没等登录不能查询
-        if(ctpTdClient.isLogined==false)
+        if(ctpTdClient.isLogined===false)
         {
 
             let message="Query All Contract Failed. Error:Trade Front have not logined";
@@ -1009,7 +979,7 @@ class ctpTdClient{
 
         ctpTdClient.ctpTdApi.on("RspQryInstrument",function (instrument,err,requestId,isLast) {
             //"""查询合约回应"""
-            if(err!=undefined && err.ErrorID!=0)
+            if(err!==undefined && err.ErrorID!==0)
             {
                 err.ErrorMsg="Query All Contract Failed. Error Id:"+err.ErrorID+",Error msg:"+err.ErrorMsg;
                 let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.ClientRspError,err.ErrorMsg);
@@ -1033,11 +1003,11 @@ class ctpTdClient{
             contract.productClass = ProductClassReverseType[instrument.ProductClass];
 
             //期权类型
-            if(instrument.ProductClass==ProductClassType.Options)
+            if(instrument.ProductClass===ProductClassType.Options)
             {
-                if(instrument.OptionsType == '1')
+                if(instrument.OptionsType === '1')
                     contract.optionType = "CALL";
-                else(instrument.OptionsType == '2')
+                else(instrument.OptionsType === '2')
                 contract.optionType =  "PUT";
             }else
             {
@@ -1066,7 +1036,7 @@ class ctpTdClient{
         let ctpTdClient=this;
 
         //没等登录不能查询
-        if(ctpTdClient.isLogined==false)
+        if(ctpTdClient.isLogined===false)
         {
 
             let message="Query Investor Position Failed. Error:Trade Front have not logined";
@@ -1080,7 +1050,7 @@ class ctpTdClient{
 
         ctpTdClient.ctpTdApi.on("RspQryInvestorPosition",function (positionInfo,error,requestID,isLast) {
             // """持仓查询回报"""
-            if(positionInfo.InstrumentID==undefined ||positionInfo.InstrumentID==0 )
+            if(positionInfo.InstrumentID===undefined ||positionInfo.InstrumentID===0 )
             {
                 return;
             }
@@ -1091,7 +1061,7 @@ class ctpTdClient{
             let posName = positionInfo.InstrumentID+"."+ PosiDirectionReverseType[positionInfo.PosiDirection];
 
             let pos;
-            if(ctpTdClient.posDic.posName==undefined) {
+            if(ctpTdClient.posDic.posName===undefined) {
                 pos = {};
 
                 pos.clientName = ctpTdClient.ctpClient.ClientName;
@@ -1117,7 +1087,7 @@ class ctpTdClient{
             //Position 表示当前持仓数量
             //TodayPosition 表示今新开仓
             //当前的昨仓数量 = ∑Position - ∑TodayPosition
-            if(positionInfo.YdPosition && (positionInfo.TodayPosition==undefined || positionInfo.TodayPosition==0))
+            if(positionInfo.YdPosition && (positionInfo.TodayPosition===undefined || positionInfo.TodayPosition===0))
             {
                 pos.ydPosition = positionInfo.Position;
             }
@@ -1136,7 +1106,7 @@ class ctpTdClient{
             }
 
             //读取冻结
-            if(pos.direction =="0")
+            if(pos.direction ==="0")
             {
                 pos.frozen += positionInfo.LongFrozen;
             } else{
@@ -1161,7 +1131,7 @@ class ctpTdClient{
         let ctpTdClient=this;
 
         //没等登录不能查询
-        if(ctpTdClient.isLogined==false) {
+        if(ctpTdClient.isLogined===false) {
             let message="Query Trading Account Failed. Error:Trade Front have not logined";
             let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.OperationAfterDisconnected,message);
 
@@ -1173,7 +1143,7 @@ class ctpTdClient{
 
         ctpTdClient.ctpTdApi.on("RspQryTradingAccount",function (tradingAccountInfo,err,requestID,isLast) {
             // """账户查询回报"""
-            if(err!=undefined && err.ErrorID!=0)
+            if(err!==undefined && err.ErrorID!==0)
             {
                 err.ErrorMsg="Query Trading Account Failed. Error Id:"+error.ErrorID+",Error msg:"+err.ErrorMsg;
                 let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.ClientRspError,err.ErrorMsg);
@@ -1200,7 +1170,7 @@ class ctpTdClient{
         let ctpTdClient=this;
 
         //没等登录不能查询
-        if(ctpTdClient.isLogined==false) {
+        if(ctpTdClient.isLogined===false) {
             let message="Query CommissionRate Failed. Error:Trade Front have not logined";
             let error=new NodeQuantError(TdClient.tradingClient.ClientName,ErrorType.OperationAfterDisconnected,message);
 
@@ -1211,7 +1181,7 @@ class ctpTdClient{
 
         ctpTdClient.ctpTdApi.on("RspQryInstrumentCommissionRate",function (CommissionRateInfo,err,requestID,isLast) {
             // 查询回报
-            if(err!=undefined && err.ErrorID!=0)
+            if(err!==undefined && err.ErrorID!==0)
             {
                 err.ErrorMsg="Query CommissionRate Failed. Error Id:"+err.ErrorID+",Error msg:"+err.ErrorMsg;
                 let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.ClientRspError,err.ErrorMsg);
@@ -1235,7 +1205,7 @@ class ctpTdClient{
     sendOrder(orderReq) {
         let ctpTdClient=this;
         //没登录不能下订单
-        if(ctpTdClient.isLogined==false)
+        if(ctpTdClient.isLogined===false)
         {
             let message="Send Order Failed. Error:Trade Front have not logined";
             let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.OperationAfterDisconnected,message);
@@ -1281,7 +1251,7 @@ class ctpTdClient{
         let ctpTdClient=this;
 
         //没登录不能撤订单
-        if(ctpTdClient.isLogined==false)
+        if(ctpTdClient.isLogined===false)
         {
             let message="Cancel Order Failed. Error:Trade Front have not logined";
             let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.OperationAfterDisconnected,message);
@@ -1295,7 +1265,7 @@ class ctpTdClient{
         //撤单响应。交易核心返回的含有错误信息的撤单响应
         ctpTdClient.ctpTdApi.on("RspOrderAction",function (response,err,requestID,isLast) {
 
-            if(err==undefined)
+            if(err===undefined)
             {
                 err = {};
             }
@@ -1309,7 +1279,7 @@ class ctpTdClient{
 
         //交易所会再次验证撤单指令的合法性，如果交易所认为该指令不合法，交易核心通过此函数转发交易所给出的错误。
         ctpTdClient.ctpTdApi.on("ErrRtnOrderAction",function (response,err) {
-            if(err==undefined)
+            if(err===undefined)
             {
                 err = {};
             }

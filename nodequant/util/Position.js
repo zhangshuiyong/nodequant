@@ -85,7 +85,7 @@ class Position {
             longPositionSumAmount += tradeRecord.price*tradeRecord.volume;
         }
         let longPositionAveragePrice=0;
-        if(longPositionSumVolume!=0)
+        if(longPositionSumVolume!==0)
         {
             longPositionAveragePrice = longPositionSumAmount/longPositionSumVolume;
         }
@@ -104,7 +104,7 @@ class Position {
             shortPositionSumAmount += tradeRecord.price*tradeRecord.volume;
         }
         let shortPositionAveragePrice=0;
-        if(shortPositionSumVolume!=0)
+        if(shortPositionSumVolume!==0)
         {
             shortPositionAveragePrice = shortPositionSumAmount/shortPositionSumVolume;
         }
@@ -172,7 +172,7 @@ class Position {
         for(let index in this.longPositionTradeRecordList)
         {
             let tradeRecord=this.longPositionTradeRecordList[index];
-            if(tradeRecord.tradingDay==TodayTradingDay)
+            if(tradeRecord.tradingDay===TodayTradingDay)
             {
                 longTdPosition+=tradeRecord.volume;
             }
@@ -192,7 +192,7 @@ class Position {
         for(let index in this.shortPositionTradeRecordList)
         {
             let tradeRecord=this.shortPositionTradeRecordList[index];
-            if(tradeRecord.tradingDay==TodayTradingDay)
+            if(tradeRecord.tradingDay===TodayTradingDay)
             {
                 shortTdPosition+=tradeRecord.volume;
             }
@@ -262,7 +262,7 @@ class Position {
         for(let index in this.longPositionTradeRecordList)
         {
             let tradeRecord=this.longPositionTradeRecordList[index];
-            if(tradeRecord.tradingDay!=TodayTradingDay)
+            if(tradeRecord.tradingDay!==TodayTradingDay)
             {
                 longYdPosition+=tradeRecord.volume;
             }
@@ -281,7 +281,7 @@ class Position {
         for(let index in this.shortPositionTradeRecordList)
         {
             let tradeRecord=this.shortPositionTradeRecordList[index];
-            if(tradeRecord.tradingDay!=TodayTradingDay)
+            if(tradeRecord.tradingDay!==TodayTradingDay)
             {
                 shortYdPosition+=tradeRecord.volume;
             }
@@ -290,17 +290,17 @@ class Position {
     }
 
     UpdatePosition(trade) {
-        if (this.symbol != trade.symbol) {
+        if (this.symbol !== trade.symbol) {
             let error = new NodeQuantError("StrategyEngine", ErrorType.StrategyError, "UpdatePosition not contain this symbol:" + trade.symbol);
             global.AppEventEmitter.emit(EVENT.OnError, error);
             return;
         }
 
-        if (trade.direction == Direction.Buy) {
+        if (trade.direction === Direction.Buy) {
             //多方开仓，则对应多头的持仓和今仓增加
-            if (trade.offset == OpenCloseFlagType.Open) {
+            if (trade.offset === OpenCloseFlagType.Open) {
                 this.longPositionTradeRecordList.push(trade);
-            } else if (trade.offset == OpenCloseFlagType.CloseToday) {
+            } else if (trade.offset === OpenCloseFlagType.CloseToday) {
                 this.CloseBuyTodayPosition(trade);
 
                 if(trade.volume>0)
@@ -309,7 +309,7 @@ class Position {
                     global.AppEventEmitter.emit(EVENT.OnError,error);
                 }
 
-            } else if (trade.offset == OpenCloseFlagType.CloseYesterday) {
+            } else if (trade.offset === OpenCloseFlagType.CloseYesterday) {
 
                 //买入平昨，对应空头的持仓和昨仓减少
                 this.CloseBuyYesterDayPosition(trade);
@@ -320,7 +320,7 @@ class Position {
                     global.AppEventEmitter.emit(EVENT.OnError,error);
                 }
 
-            } else if (trade.offset == OpenCloseFlagType.Close) {
+            } else if (trade.offset === OpenCloseFlagType.Close) {
                 //买入平仓,默认先平昨天空仓,再平今空仓
                 //有昨仓先平昨仓
                 this.CloseBuyYesterDayPosition(trade);
@@ -336,11 +336,11 @@ class Position {
             }
         }else{
             // 空头,和多头相同
-            if(trade.offset == OpenCloseFlagType.Open){
+            if(trade.offset === OpenCloseFlagType.Open){
                 //卖出开仓
                 //计算开仓均价
                 this.shortPositionTradeRecordList.push(trade);
-            }else if(trade.offset == OpenCloseFlagType.CloseToday)
+            }else if(trade.offset === OpenCloseFlagType.CloseToday)
             {
                 //卖出平今
                 this.CloseSellTodayPosition(trade);
@@ -351,7 +351,7 @@ class Position {
                     global.AppEventEmitter.emit(EVENT.OnError,error);
                 }
 
-            }else if(trade.offset == OpenCloseFlagType.CloseYesterday){
+            }else if(trade.offset === OpenCloseFlagType.CloseYesterday){
                 //卖出平昨
                 this.CloseSellYesterDayPosition(trade);
 
@@ -361,7 +361,7 @@ class Position {
                     global.AppEventEmitter.emit(EVENT.OnError,error);
                 }
 
-            }else if(trade.offset == OpenCloseFlagType.Close){
+            }else if(trade.offset === OpenCloseFlagType.Close){
                 //卖出平仓,默认先平昨天多仓,再平今多仓
                 this.CloseSellYesterDayPosition(trade);
                 //再平今空仓
@@ -380,7 +380,7 @@ class Position {
     CloseBuyTodayPosition(trade)
     {
         //一共要更新多少手,平今仓的仓位,空仓记录可能有多条今仓记录，需要一直减
-        if(trade==undefined || trade.volume<=0)
+        if(trade===undefined || trade.volume<=0)
         {
             return;
         }
@@ -390,7 +390,7 @@ class Position {
             let tradeRecord=this.shortPositionTradeRecordList[index];
 
             //非当天的空仓不做处理
-            if(tradeRecord.tradingDay != trade.tradingDay)
+            if(tradeRecord.tradingDay !== trade.tradingDay)
             {
                 continue;
             }
@@ -401,7 +401,7 @@ class Position {
 
             tradeRecord.volume -= CloseVolume;
             //手数目为0的成交记录,要删除掉
-            if(tradeRecord.volume==0)
+            if(tradeRecord.volume===0)
             {
                 delete this.shortPositionTradeRecordList[index];
             }
@@ -409,7 +409,7 @@ class Position {
             //判断是否更新完
             trade.volume -= CloseVolume;
 
-            if (trade.volume==0)
+            if (trade.volume===0)
             {
                 break;
             }
@@ -420,7 +420,7 @@ class Position {
     CloseBuyYesterDayPosition(trade)
     {
         //一共要更新多少手,平今仓的仓位,空仓记录可能有多条今仓记录，需要一直减
-        if(trade==undefined || trade.volume<=0)
+        if(trade===undefined || trade.volume<=0)
         {
             return;
         }
@@ -430,7 +430,7 @@ class Position {
             let tradeRecord = this.shortPositionTradeRecordList[index];
 
             //当天的空仓不做处理
-            if(tradeRecord.tradingDay == trade.tradingDay)
+            if(tradeRecord.tradingDay === trade.tradingDay)
             {
                 continue;
             }
@@ -441,7 +441,7 @@ class Position {
 
             tradeRecord.volume -= CloseVolume;
             //手数目为0的成交记录,要删除掉
-            if(tradeRecord.volume==0)
+            if(tradeRecord.volume===0)
             {
                 delete this.shortPositionTradeRecordList[index];
             }
@@ -449,7 +449,7 @@ class Position {
             //判断是否更新完
             trade.volume -= CloseVolume;
 
-            if (trade.volume == 0)
+            if (trade.volume === 0)
             {
                 break;
             }
@@ -460,7 +460,7 @@ class Position {
     CloseSellTodayPosition(trade)
     {
         //一共要更新多少手,平今仓的仓位,空仓记录可能有多条今仓记录，需要一直减
-        if(trade==undefined || trade.volume<=0)
+        if(trade===undefined || trade.volume<=0)
         {
             return;
         }
@@ -470,7 +470,7 @@ class Position {
             let tradeRecord=this.longPositionTradeRecordList[index];
 
             //非当天的空仓不做处理
-            if(tradeRecord.tradingDay != trade.tradingDay)
+            if(tradeRecord.tradingDay !== trade.tradingDay)
             {
                 continue;
             }
@@ -481,7 +481,7 @@ class Position {
 
             tradeRecord.volume -= CloseVolume;
             //手数目为0的成交记录,要删除掉
-            if(tradeRecord.volume==0)
+            if(tradeRecord.volume===0)
             {
                 delete this.longPositionTradeRecordList[index];
             }
@@ -489,7 +489,7 @@ class Position {
             //判断是否更新完
             trade.volume -= CloseVolume;
 
-            if (trade.volume==0)
+            if (trade.volume===0)
             {
                 break;
             }
@@ -499,7 +499,7 @@ class Position {
     CloseSellYesterDayPosition(trade)
     {
         //一共要更新多少手,平今仓的仓位,空仓记录可能有多条今仓记录，需要一直减
-        if(trade==undefined || trade.volume<=0)
+        if(trade===undefined || trade.volume<=0)
         {
             return;
         }
@@ -509,7 +509,7 @@ class Position {
             let tradeRecord=this.longPositionTradeRecordList[index];
 
             //当天的多仓不做处理
-            if(tradeRecord.tradingDay == trade.tradingDay)
+            if(tradeRecord.tradingDay === trade.tradingDay)
             {
                 continue;
             }
@@ -520,7 +520,7 @@ class Position {
 
             tradeRecord.volume -= CloseVolume;
             //手数目为0的成交记录,要删除掉
-            if(tradeRecord.volume==0)
+            if(tradeRecord.volume===0)
             {
                 delete this.longPositionTradeRecordList[index];
             }
@@ -528,7 +528,7 @@ class Position {
             //判断是否更新完
             trade.volume -= CloseVolume;
 
-            if (trade.volume==0)
+            if (trade.volume===0)
             {
                 break;
             }

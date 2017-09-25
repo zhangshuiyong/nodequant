@@ -6,10 +6,10 @@ let CtpClient=undefined;
 
 if(process.platform=="win32" && process.arch=="ia32"){
     CtpClient=require("./CTPClient");
-}else if(process.platform=="win32" && process.arch=="x64")
+}else if(process.platform==="win32" && process.arch==="x64")
 {
     CtpClient=require("./CTPClient");
-}else if(process.platform=="linux" && process.arch=="x64")
+}else if(process.platform==="linux" && process.arch==="x64")
 {
     CtpClient=require("./CTPClient");
 }else
@@ -18,9 +18,9 @@ if(process.platform=="win32" && process.arch=="ia32"){
 }
 
 let SgitClient=undefined;
-if(process.platform=="win32" && process.arch=="ia32"){
+if(process.platform==="win32" && process.arch==="ia32"){
     SgitClient=require("./SgitClient");
-}else if(process.platform=="linux" && process.arch=="x64")
+}else if(process.platform==="linux" && process.arch==="x64")
 {
     SgitClient=require("./SgitClient");
 }else

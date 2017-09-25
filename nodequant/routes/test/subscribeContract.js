@@ -16,9 +16,9 @@ router.get('/', function(req, res, next) {
     let lastTick = global.Application.StrategyEngine.Symbol_LastTickDic[contractName];
     global.Application.MainEngine.Subscribe(lastTick.clientName,contractName,function (contractName,clientName,ret) {
 
-        if(ret==-99)
+        if(ret===-99)
             res.render('index', { title: clientName+' Subscribe Failed.Error: Trader client have not logined' });
-        else if(ret!=0)
+        else if(ret!==0)
             res.render('index', { title: clientName+' Subscribe Failed.Error: '+ret });
         else
             res.render('index', { title: clientName+' Subscribe successfully'});

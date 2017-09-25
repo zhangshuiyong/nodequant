@@ -41,13 +41,13 @@ class Open_CloseStrategy extends BaseStrategy{
             //开仓
             //是否有未完成的Order
             let unFinishOrderList=this.GetUnFinishOrderList();
-            if(unFinishOrderList.length==0)
+            if(unFinishOrderList.length===0)
             {
                 //多仓是否存在
                 let position = this.GetPosition(tick.symbol);
-                if(position==undefined || position.longPosition==0)
+                if(position===undefined || position.longPosition===0)
                 {
-                    if(this.isOpen==false)
+                    if(this.isOpen===false)
                     {
                         this.isOpen=true;
                         let price=this.PriceUp(tick.symbol,tick.lastPrice,Direction.Buy,2);
@@ -71,7 +71,7 @@ class Open_CloseStrategy extends BaseStrategy{
             //平仓
             //是否有未完成的Order
             let unFinishOrderList=this.GetUnFinishOrderList();
-            if(unFinishOrderList.length==0)
+            if(unFinishOrderList.length===0)
             {
                 let unlockPosition = this.GetTodayUnLockLongPosition(tick.symbol);
                 if (unlockPosition > 0)
