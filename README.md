@@ -51,11 +51,12 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 4. **交易客户端层**：交易客户端层代表着各个交易客户端。连接着各种证券交易所，商品交易所，接收推送来自交易所的行情信息，合约信息。同时，响应上层主引擎的在各个交易客户端的下单命令。目前已经实现了CTP Client,可交易中金所、上期所、大商所，郑商所的合约。
 
 ## NodeQuant 1.6.0 的特性
-- 支持上期CTP的API客户端(Windows Node.js-v6-32位、Windows Node.js-v6-64位、Linux Node.js-v6-64位)。可交易中金所、上期所、大商所、郑商所的所有期货品种合约
-- 支持飞鼠Sgit的API客户端(Windows Node.js-v6-32位、Linux Node.js-v6-64位)。可交易中金所、上期所、大商所、郑商所的所有期货品种合约，并且可交易上海黄金交易所的现货合约。可程序化交易现货黄金、白银。
+- 支持上期CTP的API客户端(**Windows Node.js-v6-32位、Windows Node.js-v6-64位、Linux Node.js-v6-64位**)。可交易中金所、上期所、大商所、郑商所的所有期货品种合约
+- 支持飞鼠Sgit的API客户端(**Windows Node.js-v6-32位、Linux Node.js-v6-64位**)。可交易中金所、上期所、大商所、郑商所的所有期货品种合约，并且可交易上海黄金交易所的现货合约。可程序化交易现货黄金、白银。
 - 支持一个账号 —— 多策略，支持一个账号多个策略的量化产品模式
 - 支持一个策略 —— 多合约，支持趋势、套利交易
 - 支持一个策略 —— 多市场，支持跨市场交易、套利
+- 支持交易K线周期：秒、分钟、小时
 - 支持交易所支持的多种类型订单：限价单，市价单，FAK单，FOK单，条件单。可灵活使用于趋势，套利，钓鱼等交易策略
 - 支持盘后自动计算策略盈亏净值
 - 极速响应实盘交易。使用Redis内存数据库，记录与查询交易信息
@@ -68,33 +69,32 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 - 支持连接Tick数据行情服务器，使得策略可预先加载Tick，分钟行情数据。方便策略获取预处理数据
 - 支持策略运行异常邮件通知
 
+## 入门教程
 
-## 搭建Windows系统NodeQuant运行环境
-1. 支持Win7和Win10
-2. 下载安装Windows版本的Node.js v6。NodeQuant CTP客户端目前已经支持32位和64位的Windows版Node.js v6，只使用CTP客户端做交易,下载32位或者64位的Windows版Node.js v6都可以。NodeQuant Sgit客户端目前支持32位的Windows版Node.js v6, 需要使用飞鼠Sgit客户端做交易，请下载32位的Windows版Node.js v6——[到Node.js官网下载Windows版本Node.js v6](https://nodejs.org/en/download/)
-3. 下载安装Windows版本Redis,并启动为Windows服务——[请参考教程](http://keenwon.com/1275.html)
+[NodeQuant开发文档](https://www.markbj.com/book/2ui9718/15921)
 
-4. 下载安装Redis的桌面客户端，可以方便查看NodeQuant保存在Redis数据库中的数据。[可以到官网下载Windows版本客户端](https://redisdesktop.com/download)
-5. 下载NodeQuant源代码
-6. 安装NodeQuant的第三方模块。打开cmd命令窗口，用命令行去到NodeQuant项目根目录，根目录中有package.json文件，cmd命令窗口输入命令```npm install```，安装package.json中的第三方模块
+## Node.js科学计算库
 
-7. 下载WebStorm集成开发软件——[到WebStorm官网下载Windows版本](http://www.jetbrains.com/webstorm/)
-8. WebStorm打开NodeQuant项目,在Settings中设置使用Es6语法。 ![image](http://i2.kiimg.com/1949/c8ce699f9931f362.png)
-9. 在WebStorm中打开Node.js的代码提示功能，可以在编写代码的时候自动提示对象的函数，属性等名字，更方便编写Node.js程序。在WebStorm的Settings -> Languages & Frameworks -> Node.js and NPM -> Node.js Core library is not enabled -> 点击Enable，就启用了Node.js的代码提示功能了。![image](http://i2.kiimg.com/1949/9762caca3f7503f6.png)
-10. WebStorm添加一个Node.js的运行和调试环境。点击Edit Configurations->点击+号按钮添加Node.js环境![image](http://i1.buimg.com/1949/c9b638912962296f.png)
-11. 配置运行和调试环境，nodequant文件夹为工作目录，bin文件夹的www文件为项目的启动文件![image](http://i2.kiimg.com/1949/e5fee1112eec9505.png)
-12. 在NodeQuant项目根目录中，userConfig.js文件中ClientConfig项中配置自己的期货账号，密码，行情地址，交易地址![userConfig](http://uploadimg.markbj.com/static/resource/image/book/0f6c72da9da611e7866000163e13356e.PNG)
-13. 点击调试运行。看到运行调试信息，运行成功。打印出log：“Demo策略启动成功 ”等log,说明样例策略启动成功。这个空策略的配置在userConfig.js用户配置文件中的StrategyConfig中
-![image](http://chuantu.biz/t6/2/1502551531x2890149655.png)
+- [mathjs](https://github.com/josdejong/mathjs) - An extensive math library for JavaScript and Node.js.
+- [numeric](https://github.com/sloisel/numeric) - Numerical analysis in Javascript.
+- [numbers.js](https://github.com/numbers/numbers.js) - Advanced Mathematics Library for Node.js and JavaScript.
+- [jmat](https://github.com/lvandeve/jmat) - Complex special functions, numerical linear algebra and statistics in JavaScript.
+- [accounting.js](https://github.com/openexchangerates/accounting.js) - A lightweight JavaScript library for number, money and currency formatting - fully localisable, zero dependencies.
+- [science.js](https://github.com/jasondavies/science.js) - Scientific and statistical computing in JavaScript.
+- [linearReg.js](https://github.com/lastlegion/linearReg.js) - Linear regression with Gradient descent package for NPM.
+- [sylvester](https://github.com/jcoglan/sylvester) - Vector, matrix and geometry math JavaScript http://sylvester.jcoglan.com
+- [node-svm](https://github.com/nicolaspanel/node-svm) - Support Vector Machines for nodejs
+- [numjs](https://github.com/nicolaspanel/numjs) - Like NumPy, in JavaScript
 
+## Node.js多线程库
+- [tagg2](https://github.com/DoubleSpout/node-threads-a-gogo2) - Cross platform Simple and fast JavaScript threads for Node.js
 
+## Javascript前端图形库
+
+- [echarts 3](http://echarts.baidu.com/)
 
 ## 技术交流
 
 欢迎各位对NodeQuant有兴趣的Quanter加入QQ群进行技术交流和建议
 
 QQ群：197110856
-
-## 入门教程
-
-[NodeQuant开发文档](https://www.markbj.com/book/2ui9718/15921)
