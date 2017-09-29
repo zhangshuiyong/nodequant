@@ -1172,7 +1172,7 @@ class ctpTdClient{
         //没等登录不能查询
         if(ctpTdClient.isLogined===false) {
             let message="Query CommissionRate Failed. Error:Trade Front have not logined";
-            let error=new NodeQuantError(TdClient.tradingClient.ClientName,ErrorType.OperationAfterDisconnected,message);
+            let error=new NodeQuantError(ctpTdClient.ctpClient.ClientName,ErrorType.OperationAfterDisconnected,message);
 
             global.AppEventEmitter.emit(EVENT.OnError,error);
 
