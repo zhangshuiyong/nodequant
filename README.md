@@ -100,5 +100,5 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 QQ群：197110856
 
 ## 贡献
-灵感来源于[vn.py](https://github.com/vnpy/vnpy)
-灵感来源于@James-F-Zhang
+- 灵感来源于[vn.py](https://github.com/vnpy/vnpy)
+- 灵感来源于@James-F-Zhang
