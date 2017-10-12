@@ -87,7 +87,7 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 - [numjs](https://github.com/nicolaspanel/numjs) - Like NumPy, in JavaScript
 
 ## Node.js多线程库
-- [tagg2](https://github.com/DoubleSpout/node-threads-a-gogo2) - Cross platform Simple and fast JavaScript threads for Node.js
+- [node-webworker-threads](https://github.com/audreyt/node-webworker-threads) - Lightweight Web Worker API implementation with native threads
 
 ## Javascript前端图形库
 
@@ -98,3 +98,6 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 欢迎各位对NodeQuant有兴趣的Quanter加入QQ群进行技术交流和建议
 
 QQ群：197110856
+
+## 贡献
+- @James-F-Zhang
