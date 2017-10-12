@@ -89,6 +89,9 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 ## Node.js多线程库
 - [node-webworker-threads](https://github.com/audreyt/node-webworker-threads) - Lightweight Web Worker API implementation with native threads
 
+## Node.js多进程库
+- [Cluster](https://nodejs.org/dist/latest-v6.x/docs/api/cluster.html) - A single instance of Node.js runs in a single thread. To take advantage of multi-core systems the user will sometimes want to launch a cluster of Node.js processes to handle the load.
+
 ## Javascript前端图形库
 
 - [echarts 3](http://echarts.baidu.com/)
