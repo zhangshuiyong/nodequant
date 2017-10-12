@@ -178,14 +178,6 @@ class MainEngine{
         //合约每点的价值字典,用于计算净值,而且与交易客户端无关
         this.contractSizeDic={};
 
-        for(let clientName in ClientConfig)
-        {
-            if(SupportClients[clientName]!==undefined)
-            {
-                this.clientDic[clientName]=ClientFactory.Create(clientName);
-            }
-        }
-
         _registerEvent(this);
     }
 
@@ -201,8 +193,22 @@ class MainEngine{
         //重置主引擎变量
         this.Reset();
 
+        //创建所有客户端
+        this.CreateAllClient();
+
         //连接所有客户端
         this.ConnectAllClient();
+    }
+
+    CreateAllClient()
+    {
+        for(let clientName in ClientConfig)
+        {
+            if(SupportClients[clientName]!==undefined)
+            {
+                this.clientDic[clientName]=ClientFactory.Create(clientName);
+            }
+        }
     }
 
     Reset()
@@ -211,6 +217,9 @@ class MainEngine{
         this.isWorking = true;
         //重置合约字典
         this.contractDic={};
+
+        //重置交易客户端
+        this.clientDic={};
     }
 
 
@@ -222,9 +231,25 @@ class MainEngine{
         //重置主引擎变量
         this.Reset();
 
+        //创建所有客户端
+        this.CreateAllClient();
+
         //连接Clients
         this.ConnectAllClient();
 
+    }
+
+    ConnectAllClient()
+    {
+        for(let clientName in this.clientDic)
+        {
+            this.Connect(clientName);
+        }
+    }
+
+    //主引擎进程可以启动多个交易客户端
+    Connect(clientName) {
+        this.clientDic[clientName].Connect();
     }
 
     Stop(mainEngineStatus) {
@@ -243,6 +268,9 @@ class MainEngine{
                 }
             }
         }
+
+        //释放交易客户端
+        this.clientDic={};
 
         //设置主引擎停止工作标志
         this.isWorking = false;
@@ -274,18 +302,7 @@ class MainEngine{
         });
     }
 
-    ConnectAllClient()
-    {
-        for(let clientName in this.clientDic)
-        {
-            this.Connect(clientName);
-        }
-    }
 
-    //主引擎进程可以启动多个交易客户端
-    Connect(clientName) {
-        this.clientDic[clientName].Connect();
-    }
 
 
     GetClient(clientName) {

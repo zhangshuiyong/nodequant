@@ -257,6 +257,9 @@ function _registerEvent(myEngine) {
 
             myEngine.UpdateStrategyPosition(strategy.name,trade);
             myEngine.RecordTrade(strategy.name,trade);
+        }else
+        {
+            console.log("找不到策略");
         }
 
     });
@@ -472,24 +475,33 @@ class StrategyEngine {
     }
 
     StartStrategy(strategyConfig) {
-        let strategyInstance = this.CreateStrategy(strategyConfig);
-        if (strategyInstance !== undefined) {
-            //加入事件推送策略字典
-            this.StrategyDic[strategyConfig.name] = strategyInstance;
+        //订阅合约
+        let result=this.SubscribeStrategySymbols(strategyConfig.name, strategyConfig.symbols);
 
-            //加载策略的持仓数据,准备交易
-            this.LoadPosition(strategyConfig.name);
+        if(result)
+        {
+            let strategyInstance = this.CreateStrategy(strategyConfig);
+            if (strategyInstance !== undefined) {
+                //加入事件推送策略字典
+                this.StrategyDic[strategyConfig.name] = strategyInstance;
 
-            //订阅合约
-            this.SubscribeStrategySymbols(strategyInstance.name, strategyInstance.symbols);
+                //加载策略的持仓数据,准备交易
+                this.LoadPosition(strategyConfig.name);
 
-            //查询合约手续费
-            this.QueryStrategySymbolsCommissionRate(strategyInstance.symbols);
+                //查询合约手续费
+                this.QueryStrategySymbolsCommissionRate(strategyInstance.symbols);
 
-            //策略启动成功,(由于策略订阅合约是否成功是异步的,而且可能多品种订阅,所以如果订阅失败,会报告策略运行错误)
-            let message=strategyConfig.name+"策略启动成功";
-            let log=new NodeQuantLog(strategyConfig.name,LogType.INFO,new Date().toLocaleString(),message);
-            global.AppEventEmitter.emit(EVENT.OnLog,log);
+                //策略启动成功,(由于策略订阅合约是否成功是异步的,而且可能多品种订阅,所以如果订阅失败,会报告策略运行错误)
+                let message=strategyConfig.name+"策略启动成功";
+                let log=new NodeQuantLog(strategyConfig.name,LogType.INFO,new Date().toLocaleString(),message);
+                global.AppEventEmitter.emit(EVENT.OnLog,log);
+            }
+        }else
+        {
+            let message= "New Strategy Instance Failed.Strategy Name:" + strategyConfig.name + ",Error Msg:" + "订阅策略品种失败";
+            let error=new NodeQuantError(strategyConfig.name,ErrorType.StrategyError,message);
+
+            global.AppEventEmitter.emit(EVENT.OnError,error);
         }
     }
 
@@ -565,6 +577,7 @@ class StrategyEngine {
 
     //订阅合约
     SubscribeStrategySymbols(strategyName, strategySymbolCongfigDic) {
+
         for (let symbol in strategySymbolCongfigDic) {
             let symbolConfig=strategySymbolCongfigDic[symbol];
             let contract = global.Application.MainEngine.GetContract(symbolConfig.clientName,symbol);
@@ -575,6 +588,9 @@ class StrategyEngine {
                     let message=strategyName + "在" + contract.clientName + "客户端订阅" + symbol + "请求发送失败,错误码：" + ret;
                     let error=new NodeQuantError(strategyName,ErrorType.StrategyError,message);
                     global.AppEventEmitter.emit(EVENT.OnError, error);
+
+                    //订阅失败,需要再次订阅
+                    return false;
                 }
             } else {
 
@@ -583,8 +599,12 @@ class StrategyEngine {
 
                 global.AppEventEmitter.emit(EVENT.OnError, error);
 
+                //订阅失败,需要再次订阅
+                return false;
             }
         }
+
+        return true;
     }
 
     StopStrategy(strategyName) {
