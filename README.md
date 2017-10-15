@@ -93,7 +93,7 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 - [Cluster](https://nodejs.org/dist/latest-v6.x/docs/api/cluster.html) - A single instance of Node.js runs in a single thread. To take advantage of multi-core systems the user will sometimes want to launch a cluster of Node.js processes to handle the load.
 
 ## Node.js的机器学习库
-- [machine_learning](https://nodejs.org/dist/latest-v6.x/docs/api/cluster.html) - Machine learning library for Node.js http://joonku.com/project/machine_learning
+- [machine_learning](https://github.com/junku901/machine_learning) - Machine learning library for Node.js http://joonku.com/project/machine_learning
 
 - [各语言机器学习库整理](https://www.douban.com/group/topic/89453462/)
 
