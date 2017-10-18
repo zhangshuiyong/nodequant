@@ -2,6 +2,8 @@
  * Created by Administrator on 2017/6/12.
  */
 let fs=require("fs");
+let async = require('async');
+
 require("../common");
 require("../userConfig");
 
@@ -177,11 +179,6 @@ function _isPassTickFilter(tick) {
 function _registerEvent(myEngine) {
 
     global.AppEventEmitter.on(EVENT.OnTick,function (tick) {
-        //TradingDay赋值
-        if(myEngine.TradingDay ==="" && tick.date!=="")
-        {
-            myEngine.TradingDay=tick.date;
-        }
 
         //先过滤Tick
         let isPass=_isPassTickFilter(tick);
@@ -257,11 +254,7 @@ function _registerEvent(myEngine) {
 
             myEngine.UpdateStrategyPosition(strategy.name,trade);
             myEngine.RecordTrade(strategy.name,trade);
-        }else
-        {
-            console.log("找不到策略");
         }
-
     });
     
     //查询资金
@@ -392,9 +385,6 @@ class StrategyEngine {
 
         this.IsWorking=false;
 
-        //交易日
-        this.TradingDay="";
-
         //事件推送策略字典,策略名字—策略实例字典
         this.StrategyDic = {};
 
@@ -431,14 +421,17 @@ class StrategyEngine {
 
         //启动
         let strategyConfigs = StrategyConfig.Strategys;
+        //查询策略手续费,用于计算净值和其他系统计算
+        this.QueryStrategySymbolsCommissionRate(strategyConfigs);
+
         for (let index in strategyConfigs) {
             let strategyConfig = strategyConfigs[index];
             this.StartStrategy(strategyConfig);
         }
 
+
+
         this.IsWorking=true;
-        //获取交易日
-        //this.TradingDay = this.GetTradingDay();
 
     }
 
@@ -482,14 +475,12 @@ class StrategyEngine {
         {
             let strategyInstance = this.CreateStrategy(strategyConfig);
             if (strategyInstance !== undefined) {
-                //加入事件推送策略字典
-                this.StrategyDic[strategyConfig.name] = strategyInstance;
 
                 //加载策略的持仓数据,准备交易
                 this.LoadPosition(strategyConfig.name);
 
-                //查询合约手续费
-                this.QueryStrategySymbolsCommissionRate(strategyInstance.symbols);
+                //先加载策略持仓,再把策略加入事件推送策略字典
+                this.StrategyDic[strategyConfig.name] = strategyInstance;
 
                 //策略启动成功,(由于策略订阅合约是否成功是异步的,而且可能多品种订阅,所以如果订阅失败,会报告策略运行错误)
                 let message=strategyConfig.name+"策略启动成功";
@@ -529,24 +520,40 @@ class StrategyEngine {
         return this.StrategyDic[strategyName];
     }
 
-    QueryStrategySymbolsCommissionRate(strategySymbolCongfigDic)
+    //查询多个策略,每个策略多品种的手续费
+    QueryStrategySymbolsCommissionRate(strategyConfigs)
     {
-        let i=0;
-        for (let symbol in strategySymbolCongfigDic) {
-            i++;
-            let symbolConfig=strategySymbolCongfigDic[symbol];
-            setTimeout(function () {
-                let ret = global.Application.MainEngine.QueryCommissionRate(symbolConfig.clientName,symbol);
-                if(ret!==0)
-                {
-                    global.Application.StrategyEngine.QueryStrategySymbolsCommissionRate(strategySymbolCongfigDic);
-
-                    let message="在" + symbolConfig.clientName + "查询" + symbol + "手续费发送失败,错误码：" + ret;
-                    let error=new NodeQuantError(symbolConfig.clientName,ErrorType.StrategyError,message);
-                    global.AppEventEmitter.emit(EVENT.OnError, error);
-                }
-            },5*i*1000);
+        let QueryCommissionRateTaskList=[];
+        
+        for (let index in strategyConfigs) {
+            let strategyConfig = strategyConfigs[index];
+            for (let symbol in strategyConfig.symbols) {
+                let symbolConfig=strategyConfig.symbols[symbol];
+                let queryCommissionRateTask=function (callback) {
+                    let ret = global.Application.MainEngine.QueryCommissionRate(symbolConfig.clientName,symbol);
+                    //连续查询手续费要相隔1段时间再查
+                    setTimeout(function () {
+                        if(ret!==0)
+                        {
+                            let errMessage="在" + symbolConfig.clientName + "查询" + symbol + "手续费发送失败,错误码：" + ret;
+                            callback(errMessage,{clientName: symbolConfig.clientName,symbol:symbol});
+                        }else
+                        {
+                            callback(null,{clientName: symbolConfig.clientName,symbol:symbol});
+                        }
+                    },8000);
+                };
+                QueryCommissionRateTaskList.push(queryCommissionRateTask);
+            }
         }
+
+
+        async.series(QueryCommissionRateTaskList,function(err,result){
+            if (err) {
+                let error=new NodeQuantError(result[result.length-1].clientName,ErrorType.StrategyError,err);
+                global.AppEventEmitter.emit(EVENT.OnError, error);
+            }
+        });
     }
 
     //只有Sgit可以查询递延费
@@ -830,7 +837,7 @@ class StrategyEngine {
         let strategyEngine=this;
         //每个策略的净值对象,日期,策略名字,交易品种,盈利,手续费,当日盈利
 
-        let currentTradingDay=strategyEngine.TradingDay;
+        let currentTradingDay=global.Application.MainEngine.TradingDay;
 
         //获得上一天的持仓结算价值
         this.GetLastTradingDayStrategySettlement(strategyInstance.name,function (lastSettlement) {

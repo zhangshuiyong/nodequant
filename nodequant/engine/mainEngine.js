@@ -171,6 +171,9 @@ class MainEngine{
     constructor(){
         this.isWorking = false;
 
+        //交易日
+        this.TradingDay="";
+
         this.clientDic = {};
 
         this.contractDic={};

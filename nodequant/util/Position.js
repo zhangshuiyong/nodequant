@@ -168,7 +168,7 @@ class Position {
     GetLongTodayPosition()
     {
         let longTdPosition=0;
-        let TodayTradingDay=global.Application.StrategyEngine.TradingDay;
+        let TodayTradingDay=global.Application.MainEngine.TradingDay;
         for(let index in this.longPositionTradeRecordList)
         {
             let tradeRecord=this.longPositionTradeRecordList[index];
@@ -188,7 +188,7 @@ class Position {
     GetShortTodayPosition()
     {
         let shortTdPosition=0;
-        let TodayTradingDay=global.Application.StrategyEngine.TradingDay;
+        let TodayTradingDay=global.Application.MainEngine.TradingDay;
         for(let index in this.shortPositionTradeRecordList)
         {
             let tradeRecord=this.shortPositionTradeRecordList[index];
@@ -258,7 +258,7 @@ class Position {
     GetLongYesterdayPosition()
     {
         let longYdPosition=0;
-        let TodayTradingDay=global.Application.StrategyEngine.TradingDay;
+        let TodayTradingDay=global.Application.MainEngine.TradingDay;
         for(let index in this.longPositionTradeRecordList)
         {
             let tradeRecord=this.longPositionTradeRecordList[index];
@@ -277,7 +277,7 @@ class Position {
     GetShortYesterdayPosition()
     {
         let shortYdPosition=0;
-        let TodayTradingDay=global.Application.StrategyEngine.TradingDay;
+        let TodayTradingDay=global.Application.MainEngine.TradingDay;
         for(let index in this.shortPositionTradeRecordList)
         {
             let tradeRecord=this.shortPositionTradeRecordList[index];

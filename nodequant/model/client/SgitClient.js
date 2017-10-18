@@ -598,12 +598,12 @@ class MdClient{
             tick.actionDate=marketData.ActionDay;
 
             //有可能ctp返回的tradingDay为空
-            if(tick.date==="")
+            if(tick.date===undefined || tick.date.length!==8)
             {
-                tick.date= MdClient.getTradingDay();
+                tick.date= global.Application.MainEngine.TradingDay;
             }
 
-            tick.time =marketData.UpdateTime+'.'+marketData.UpdateMillisec;
+            tick.timeStr =marketData.UpdateTime+'.'+marketData.UpdateMillisec;
 
             //市场前置登录上,获取统一的交易日
             let year=parseInt(tick.date.substring(0,4));
@@ -943,6 +943,9 @@ class TdClient{
         TdClient.TdApi.on("RspUserLogin",function (response,err,requestId,isLast) {
             if(err.ErrorID===0)
             {
+                //由于飞鼠win Sgit 4.2只有交易端口的交易日是确定正常的,行情的Tick的TradingDay经常不同交易所有问题,getTradingDay接口也没有维护,所以交易日初始化CTPClient和SgitClient统一在登录成功接口初始化!!!
+                global.Application.MainEngine.TradingDay=response.TradingDay;
+
                 //每次登陆会返回当前的最大报单号
                 //下单中的orderref必须在MaxOrderRef基础上12位递增
                 if(response.MaxOrderRef!=="")
