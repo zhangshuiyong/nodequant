@@ -28,7 +28,7 @@ function _createBar(myStrategy,tick) {
             //创建上一个完整K线,加入到策略订阅合约的K线列表
             for(let barId in myStrategy.Symbol_KBarId_TickListDic[tick.symbol])
             {
-                if(barId!==KBarId)
+                if(barId!==KBarId.toString())
                 {
                     //创建上一个完整K线,加入到策略订阅合约的K线列表
                     _createClosedBar(myStrategy,barId,tick);
