@@ -187,26 +187,14 @@ function _registerEvent(myEngine) {
             return;
         }
 
-        for(let strategyName in myEngine.StrategyDic)
+        //合约-策略推送字典
+        let symbol_StrategyArray=myEngine.Symbol_StrategyArrayDic[tick.symbol];
+        for(let strategyIndex in symbol_StrategyArray)
         {
-            let strategy = myEngine.StrategyDic[strategyName];
-
-            if(strategy!==undefined)
-            {
-                let strategySymbolDic = strategy.symbols;
-                for(let symbol in strategySymbolDic)
-                {
-                    if(tick.symbol===symbol)
-                    {
-                        //更新策略-合约中的最新Tick
-                        myEngine.Symbol_LastTickDic[symbol]=tick;
-
-                        //推送最新Tick
-                        strategy.OnTick(tick);
-                    }
-                }
-            }
+            let strategy=symbol_StrategyArray[strategyIndex]
+            strategy.OnTick(tick);
         }
+
     });
 
 
@@ -409,6 +397,9 @@ class StrategyEngine {
         //两个不同交易客户端但是可交易相同的期货,计算两个相同期货的手续费
         this.Client_Symbol_CommissionRateDic={};
 
+        //合约-策略数组推送字典
+        this.Symbol_StrategyArrayDic={};
+
         _registerEvent(this);
     }
 
@@ -428,8 +419,6 @@ class StrategyEngine {
             let strategyConfig = strategyConfigs[index];
             this.StartStrategy(strategyConfig);
         }
-
-
 
         this.IsWorking=true;
 
@@ -479,7 +468,19 @@ class StrategyEngine {
                 //加载策略的持仓数据,准备交易
                 this.LoadPosition(strategyConfig.name);
 
-                //先加载策略持仓,再把策略加入事件推送策略字典
+                //先加载策略持仓
+                //创建合约-策略数组推送字典
+                for(let symbol in strategyConfig.symbols)
+                {
+                    if(this.Symbol_StrategyArrayDic[symbol]===undefined)
+                    {
+                        this.Symbol_StrategyArrayDic[symbol]=[];
+                    }
+
+                    this.Symbol_StrategyArrayDic[symbol].push(strategyInstance);
+                }
+
+                //再把策略加入策略字典
                 this.StrategyDic[strategyConfig.name] = strategyInstance;
 
                 //策略启动成功,(由于策略订阅合约是否成功是异步的,而且可能多品种订阅,所以如果订阅失败,会报告策略运行错误)
@@ -524,7 +525,12 @@ class StrategyEngine {
     QueryStrategySymbolsCommissionRate(strategyConfigs)
     {
         let QueryCommissionRateTaskList=[];
-        
+        QueryCommissionRateTaskList.push(function (callback) {
+            setTimeout(function () {
+                callback(null,"Delay QueryCommissionRate After conneted Trade Client");
+            },8000);
+        });
+
         for (let index in strategyConfigs) {
             let strategyConfig = strategyConfigs[index];
             for (let symbol in strategyConfig.symbols) {

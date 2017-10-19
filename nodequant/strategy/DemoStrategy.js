@@ -11,12 +11,12 @@ class DemoStrategy extends BaseStrategy{
 
     OnClosedBar(closedBar)
     {
-       console.log(closedBar.symbol+"K线结束,结束时间:"+closedBar.endDatetime.toLocaleString()+",Close价:"+closedBar.closePrice);
+       console.log(this.name+"策略的"+closedBar.symbol+"K线结束,结束时间:"+closedBar.endDatetime.toLocaleString()+",Close价:"+closedBar.closePrice);
     }
 
     OnNewBar(newBar)
     {
-        console.log(newBar.symbol+"K线开始,开始时间"+newBar.startDatetime.toLocaleString()+",Open价:"+newBar.openPrice);
+        console.log(this.name+"策略的"+newBar.symbol+"K线开始,开始时间"+newBar.startDatetime.toLocaleString()+",Open价:"+newBar.openPrice);
     }
 
     OnTick(tick)
@@ -24,7 +24,7 @@ class DemoStrategy extends BaseStrategy{
         //调用基类的OnTick函数,否则无法触发OnNewBar、OnClosedBar等事件响应函数
         //如果策略不需要计算K线,只用到Tick行情,可以把super.OnTick(tick);这句代码去掉,加快速度
         super.OnTick(tick);
-        console.log(tick.symbol+"的Tick,时间:"+tick.date+" "+tick.time+",价格:"+tick.lastPrice);
+        console.log(this.name+"策略的"+tick.symbol+"的Tick,时间:"+tick.date+" "+tick.timeStr+",价格:"+tick.lastPrice);
     }
 
     Stop(){
