@@ -444,8 +444,12 @@ class StrategyEngine {
 
             }
         }
-        //3.清空策略列表
+
+        //清空策略字典
         this.StrategyDic={};
+
+        //清空合约-策略数组字典
+        this.Symbol_StrategyArrayDic={};
 
         //清空查询资金账号调用函数
         this.OnQueryTradingAccountCallBackDic={};
@@ -835,7 +839,7 @@ class StrategyEngine {
     GetTradingDay()
     {
         //飞鼠返回空字符串,暂时不用此接口
-        let currentTradingDate = global.Application.MainEngine.GetTradingDay();
+        let currentTradingDate = global.Application.MainEngine.TradingDay;
         return currentTradingDate;
     }
 
@@ -1011,10 +1015,11 @@ class StrategyEngine {
     }
 
 
-    LoadTickFromDB(strategy,symbol,LookBackCount,OnFinishLoadTick)
+    LoadTickFromDB(strategy,symbol,LookBackDays,OnFinishLoadTick)
     {
         if(global.Application.MarketDataDBClient!==undefined)
         {
+            /*
             global.Application.MarketDataDBClient.nrrange([symbol, 0,LookBackCount,-1],function (err,TickStrListResults) {
                 if (err){
                     console.log("从"+symbol+"的行情数据库后往前LoadTick失败原因:"+err);
@@ -1046,6 +1051,11 @@ class StrategyEngine {
                     OnFinishLoadTick(strategy, symbol, undefined);
                 }
 
+            });
+            */
+
+            global.Application.MarketDataDBClient.LoadTick(symbol,LookBackDays,function (tickList) {
+                OnFinishLoadTick(strategy,symbol,tickList);
             });
 
         }else

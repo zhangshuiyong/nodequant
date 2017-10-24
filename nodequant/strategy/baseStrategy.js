@@ -103,13 +103,14 @@ function _trimPriceByPriceTick(price,priceTick){
 
 //预加载Tick完成
 function _onFinishLoadTick(strategy,symbol,TickList) {
+    //多策略
     strategy.OnFinishPreLoadTick(symbol,TickList);
 }
 
 //数据从数据库中预先加载
-function _loadTickFromDB(myStrategy,symbol,LookBackCount)
+function _loadTickFromDB(myStrategy,symbol,LookBackDays)
 {
-    global.Application.StrategyEngine.LoadTickFromDB(myStrategy,symbol,LookBackCount,_onFinishLoadTick);
+    global.Application.StrategyEngine.LoadTickFromDB(myStrategy,symbol,LookBackDays,_onFinishLoadTick);
 }
 
 //预加载Bar完成
@@ -158,18 +159,20 @@ class BaseStrategy{
         this.PreloadConfig=strategyConfig.PreloadConfig;
         if(this.PreloadConfig!==undefined)
         {
-            if(this.PreloadConfig.BarType===KBarType.Tick)
+            if(global.Application.MarketDataDBClient)
             {
-                for(let symbol in this.symbols)
-                {
-                    _loadTickFromDB(this,symbol,this.PreloadConfig.LookBack);
+                if (this.PreloadConfig.BarType === KBarType.Tick) {
+                    for (let symbol in this.symbols) {
+                        _loadTickFromDB(this, symbol, this.PreloadConfig.LookBackDays);
+                    }
+                } else {
+                    for (let symbol in this.symbols) {
+                        _loadBarFromDB(this, symbol, this.PreloadConfig.LookBackDays, this.PreloadConfig.BarType, this.PreloadConfig.BarInterval);
+                    }
                 }
             }else
             {
-                for(let symbol in this.symbols)
-                {
-                    _loadBarFromDB(this,symbol,this.PreloadConfig.LookBack,this.PreloadConfig.BarType,this.PreloadConfig.BarInterval);
-                }
+                console.log("无法预加载数据,数据库客户端没有实例,请检查系统配置");
             }
         }
     }

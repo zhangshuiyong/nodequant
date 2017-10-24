@@ -91,6 +91,12 @@ function _registerEvent(myEngine) {
                 }
             }
 
+            if(myEngine.contractDic==={})
+            {
+                console.log("Received all contract But contract dictionnary is empty.Will not start strategy engine.please check");
+                return;
+            }
+
             global.AppEventEmitter.emit(EVENT.OnAllConfigClientReadyed, "AllConfigClientReadyed");
         }
     });

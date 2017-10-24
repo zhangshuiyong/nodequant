@@ -10,7 +10,7 @@ SystemConfig={
     DayStartTime : "8:00:00",
     DayStopTime: "16:00:00",
     NightStartTime:"19:30:00",
-    NightStopTime: "3:00:00"
+    NightStopTime: "2:40:00"
 };
 
 SupportClients={

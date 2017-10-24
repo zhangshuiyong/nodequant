@@ -67,25 +67,8 @@ class NodeQuantApp{
         {
             if(MarketData_DBConfig!==undefined && MarketData_DBConfig.Port!==undefined && MarketData_DBConfig.Host !== undefined)
             {
-
-                let ssdb = require('./model/ssdb-node');
-                let options={
-                    host: MarketData_DBConfig.Host,
-                    port: MarketData_DBConfig.Port,
-                    size: 1  // connection pool size
-                };
-
-                this.MarketDataDBClient = new ssdb(options);
-
-                if(MarketData_DBConfig.Password)
-                {
-                    this.MarketDataDBClient.auth(MarketData_DBConfig.Password,function (err) {
-                        if (err)
-                        {
-                            throw new Error("验证MarketDataDB密码失败,原因:"+err);
-                        }
-                    });
-                }
+                let InfluxDB = require('./model/influxdb/influxdb');
+                this.MarketDataDBClient=new InfluxDB();
             }
         }catch(err)
         {
@@ -102,7 +85,16 @@ class NodeQuantApp{
 
     Start()
     {
-        this.MainEngine.Start();
+        if(this.MarketDataDBClient)
+        {
+            //数据库启动,主引擎才启动
+            this.MarketDataDBClient.Start(function () {
+                global.Application.MainEngine.Start();
+            });
+        }else
+        {
+            global.Application.MainEngine.Start();
+        }
     }
 
     Exit()
@@ -112,12 +104,6 @@ class NodeQuantApp{
 
         // 关闭数据库连接(RedisDB)
         this.SystemDBClient.quit();
-
-        //关闭行情数据库连接(SSDB)
-        if(this.MarketDataDBClient)
-        {
-            this.MarketDataDBClient.close();
-        }
     }
 }
 
