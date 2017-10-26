@@ -89,6 +89,18 @@ function _registerEvent(myEngine) {
                 if (myEngine.clientDic[clientNameInstance].IsGetAllContract() === false) {
                     return;
                 }
+
+                //获得所有合约是交易端,市场端与交易端相互独立,订阅要市场端订阅
+                //发生过交易端登录了，返回所有合约列表，但是市场端没有登录成功情况
+                if(myEngine.clientDic[clientNameInstance].IsMdConnected() === false)
+                {
+                    let message="获得"+clientNameInstance+"所有市场合约,但是其市场前置没登录成功,不会启动StrategyEngine.";
+                    let error=new NodeQuantError("MainEngine",ErrorType.DBError,message);
+
+                    global.AppEventEmitter.emit(EVENT.OnError,error);
+
+                    return;
+                }
             }
 
             if(myEngine.contractDic==={})
