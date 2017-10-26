@@ -104,7 +104,7 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 
 ## 技术交流
 
-欢迎各位对NodeQuant有兴趣的Quanter加入QQ群进行技术交流和建议
+欢迎各位对NodeQuant有兴趣的Quanter加入QQ群进行交流和建议
 
 QQ群：197110856
 
