@@ -172,7 +172,10 @@ class BaseStrategy{
                 }
             }else
             {
-                console.log("无法预加载数据,数据库客户端没有实例,请检查系统配置");
+                let message= "无法预加载数据,数据库客户端没有实例,请检查系统配置";
+                let error=new NodeQuantError(this.name,ErrorType.StrategyError,message);
+
+                global.AppEventEmitter.emit(EVENT.OnError,error);
             }
         }
     }

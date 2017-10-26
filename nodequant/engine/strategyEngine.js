@@ -170,9 +170,15 @@ function _isPassFilter(clientName,TradingDateConfig,tickDateTime) {
 
 function _isPassTickFilter(tick) {
     let contract= global.Application.MainEngine.GetContract(tick.clientName,tick.symbol);
-    let upperFutureName= contract.futureName.toUpperCase();
-    let tickFutureConfig=FuturesConfig[tick.clientName][upperFutureName];
-    let isPass=_isPassFilter(tick.clientName,tickFutureConfig,tick.datetime);
+    let isPass=false;
+
+    if(contract!==undefined)
+    {
+        let upperFutureName= contract.futureName.toUpperCase();
+        let tickFutureConfig=FuturesConfig[tick.clientName][upperFutureName];
+        isPass =_isPassFilter(tick.clientName,tickFutureConfig,tick.datetime);
+    }
+
     return isPass;
 }
 
@@ -820,15 +826,17 @@ class StrategyEngine {
 
         let symbol_lastTick= this.Symbol_LastTickDic[symbol_position.symbol];
         let currentTradingDay_Exit_Symbol_PositionValue = 0;
+
+        let longPosition = symbol_position.GetLongPosition();
+        let shortPosition = symbol_position.GetShortPosition();
+
         if(symbol_lastTick!==undefined)
         {
-            let longPosition = symbol_position.GetLongPosition();
-            let shortPosition = symbol_position.GetShortPosition();
             currentTradingDay_Exit_Symbol_PositionValue =  longPosition  * symbol_lastTick.lastPrice * contractSize;
             currentTradingDay_Exit_Symbol_PositionValue -= shortPosition * symbol_lastTick.lastPrice * contractSize;
         }else
         {
-            let log=new NodeQuantLog("StrategyEngine",LogType.INFO,new Date().toLocaleString(),"无法正确计算当前品种持仓价值,策略没有订阅"+symbol_position.symbol+"品种,却有持仓");
+            let log=new NodeQuantLog("StrategyEngine",LogType.INFO,new Date().toLocaleString(),"无法正确计算当前品种持仓价值,原因：策略没有找到"+symbol_position.symbol+"的最新Tick价格。当前多仓："+longPosition+"当前空仓："+shortPosition);
             global.AppEventEmitter.emit(EVENT.OnLog,log);
         }
 
