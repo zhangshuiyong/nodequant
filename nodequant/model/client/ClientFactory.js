@@ -14,7 +14,7 @@ if(process.platform=="win32" && process.arch=="ia32"){
     CtpClient=require("./CTPClient");
 }else
 {
-    console.error("CtpClient is undefine!!!CtpClient Only Support Windows Node.js-v6-32bit/Windows Node.js-v6-64bit/Linux Node.js-v6-64bit");
+    console.error("CtpClient is undefine!!!CtpClient Only Support Windows Node.js-"+process.version+"-32bit/Windows Node.js-"+process.version+"-64bit/Linux x64 Node.js"+process.version);
 }
 
 let SgitClient=undefined;
@@ -25,7 +25,7 @@ if(process.platform==="win32" && process.arch==="ia32"){
     SgitClient=require("./SgitClient");
 }else
 {
-    console.error("SgitClient is undefine!!!SgitClient Only Support Windows Node.js-v6-32bit/Linux Node.js-v6-64bit");
+    console.error("SgitClient is undefine!!!SgitClient Only Support Windows Node.js-"+process.version+"-32bit/Linux x64 Node.js-"+process.version);
 }
 
 class ClientFactory{
