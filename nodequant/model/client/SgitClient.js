@@ -625,9 +625,9 @@ class MdClient{
                 //服务器时间的Tick处于夜盘,自然日要以本地自然日
                 if(NightSectionStartTime<tick.datetime && tick.datetime<NightSectionEndTime)
                 {
-                    let currentDate=new Date();
-                    tick.actionDate=currentDate.getFullYear()+"-"+(currentDate.getMonth()+1)+"-"+currentDate.getDate();
-                    actionDay=currentDate.getDate();
+                    tick.datetime.setDate(tick.datetime.getDate()-1);
+                    tick.actionDate=tick.datetime.getFullYear()+"-"+(tick.datetime.getMonth()+1)+"-"+tick.datetime.getDate();
+                    actionDay=tick.datetime.getDate();
                 }else{
                     actionDay=day;
                 }
@@ -636,6 +636,7 @@ class MdClient{
             }
 
             tick.actionDatetime = new Date(year,month-1,actionDay,hour,minute,second,marketData.UpdateMillisec);
+            tick.datetime = new Date(year,month-1,day,hour,minute,second,marketData.UpdateMillisec);
             tick.timeStamp=tick.datetime.getTime();
             tick.Id = tick.actionDatetime.getTime();
             //五档价格不做转换,提高速度
