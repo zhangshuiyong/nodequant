@@ -48,6 +48,9 @@ class TradingClient{
 
         this.tdClient.exit();
         this.mdClient.exit();
+
+        delete this.tdClient;
+        delete  this.mdClient;
         this.tdClient=null;
         this.mdClient=null;
     }
@@ -706,6 +709,7 @@ class MdClient{
         this.isLogined=false;
         this.MdApi.exit();
         //删除
+        delete this.MdApi;
         this.MdApi=null;
     }
 }
@@ -879,6 +883,8 @@ class TdClient{
         this.posDic={};
 
         this.TdApi.exit();
+
+        delete this.TdApi;
         this.TdApi=null;
     }
 
