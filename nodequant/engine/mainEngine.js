@@ -1,6 +1,7 @@
 /**
  * Created by Administrator on 2017/6/12.
  */
+let path=require("path");
 require("../common.js");
 require("../systemConfig");
 require("../userConfig.js");
@@ -11,6 +12,9 @@ let NodeQuantError=require("../util/NodeQuantError");
 let ClientFactory=require("../model/client/ClientFactory");
 
 function _isTimeToWork() {
+    let systemConfigPath=path.resolve(__dirname+"/../systemConfig.js");
+    delete require.cache[systemConfigPath];
+    require("../systemConfig");
     let NowDateTime=new Date();
     let NowDateStr=NowDateTime.toLocaleDateString();
 
@@ -43,9 +47,13 @@ function _isTimeToWork() {
     let NightStartDateTimeStr= NowDateStr +" "+ SystemConfig.NightStartTime;
     let NightStartDateTime=new Date(NightStartDateTimeStr);
 
-    if(NightStopDateTime<NowDateTime && NowDateTime<DayStartDateTime)
+    if(NightStopDateTime<DayStartDateTime && NightStopDateTime<NowDateTime && NowDateTime<DayStartDateTime)
     {
         //在当天凌晨3:00 ~ 早上9:00是不需要打开的
+        return MainEngineStatus.NightStop;
+    }else if(NightStopDateTime>DayStartDateTime && NightStopDateTime<NowDateTime)
+    {
+        //现在时间大于结束时间23:00
         return MainEngineStatus.NightStop;
     }else if(DayStopDateTime<NowDateTime && NowDateTime<NightStartDateTime)
     {
@@ -75,7 +83,7 @@ function _registerEvent(myEngine) {
                 myEngine.ReStart();
             }
         }
-    },5*60*1000);
+    },2*60*1000);
 
 
     global.AppEventEmitter.on(EVENT.OnReceivedAllContract,function (clientName) {
@@ -286,10 +294,14 @@ class MainEngine{
                 //已经连接上交易前端,断开
                 if(this.clientDic[key].IsMdConnected()){
                     this.clientDic[key].Exit();
+                    //删除对象
+                    delete this.clientDic[key];
+                    this.clientDic[key]=null;
                 }
             }
         }
 
+        this.clientDic=null;
         //释放交易客户端
         this.clientDic={};
 

@@ -43,6 +43,7 @@ class ClientFactory{
                 if(CtpClient)
                 {
                     TradingClient = new CtpClient(clientName);
+                    console.error("CtpClient Created");
                 }
                 break;
 
@@ -50,6 +51,7 @@ class ClientFactory{
                 if(SgitClient)
                 {
                     TradingClient = new SgitClient(clientName);
+                    console.error("SgitClient Created");
                 }
                 break;
             default:

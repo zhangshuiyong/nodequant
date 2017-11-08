@@ -48,6 +48,8 @@ class TradingClient{
 
         this.tdClient.exit();
         this.mdClient.exit();
+        this.tdClient=null;
+        this.mdClient=null;
     }
 
     Connect() {
@@ -703,6 +705,8 @@ class MdClient{
         this.isConnected=false;
         this.isLogined=false;
         this.MdApi.exit();
+        //删除
+        this.MdApi=null;
     }
 }
 
@@ -875,6 +879,7 @@ class TdClient{
         this.posDic={};
 
         this.TdApi.exit();
+        this.TdApi=null;
     }
 
     connect() {

@@ -49,6 +49,11 @@ class ctpClient{
 
         this.tdClient.exit();
         this.mdClient.exit();
+
+        delete this.tdClient;
+        delete this.mdClient;
+        this.tdClient=null;
+        this.mdClient=null;
     }
 
     Connect() {
@@ -675,6 +680,10 @@ class ctpMdClient{
         this.isConnected=false;
         this.isLogined=false;
         this.ctpMdApi.exit();
+
+        //删除
+        delete this.ctpMdApi;
+        this.ctpMdApi=null;
     }
 }
 
@@ -851,6 +860,9 @@ class ctpTdClient{
         this.posDic={};
 
         this.ctpTdApi.exit();
+        //删除
+        delete this.ctpTdApi;
+        this.ctpTdApi=null;
     }
 
     connect() {
