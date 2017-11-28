@@ -44,8 +44,8 @@ router.get('/', function(req, res, next) {
 
     let stopPrice=parseFloat(marketIfTouchedOrderReq.stopPrice);
 
-    let lastTick = global.Application.StrategyEngine.Symbol_LastTickDic[contractName];
-    global.Application.MainEngine.SendMarketIfTouchedOrder(lastTick.clientName,contractName,direction,openclose,volume,stopPriceCondition,stopPrice,function (clientName,ret) {
+    let lastTick = global.NodeQuant.StrategyEngine.Symbol_LastTickDic[contractName];
+    global.NodeQuant.MainEngine.SendMarketIfTouchedOrder(lastTick.clientName,contractName,direction,openclose,volume,stopPriceCondition,stopPrice,function (clientName,ret) {
 
         if(ret===-99)
             res.render('index', { title: 'SendMarketIfTouchedOrder Failed.Error: Trader client have not logined' });

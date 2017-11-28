@@ -89,18 +89,18 @@ class NodeQuantApp{
         {
             //数据库启动,主引擎才启动
             this.MarketDataDBClient.Start(function () {
-                global.Application.MainEngine.Start();
+                global.NodeQuant.MainEngine.Start();
             });
         }else
         {
-            global.Application.MainEngine.Start();
+            global.NodeQuant.MainEngine.Start();
         }
     }
 
     Exit()
     {
         console.log('NodeQuant Exit');
-        global.Application.MainEngine.Stop(MainEngineStatus.Stop);
+        global.NodeQuant.MainEngine.Stop(MainEngineStatus.Stop);
 
         // 关闭数据库连接(RedisDB)
         this.SystemDBClient.quit();

@@ -29,10 +29,10 @@ router.get('/', function(req, res, next) {
 
     let volume=parseInt(marketOrderReq.volume);
 
-    let DemoStrategy=global.Application.StrategyEngine.GetStrategy("Demo");
+    let DemoStrategy=global.NodeQuant.StrategyEngine.GetStrategy("Demo");
     if(DemoStrategy)
     {
-        let lastTick = global.Application.StrategyEngine.Symbol_LastTickDic[contractName];
+        let lastTick = global.NodeQuant.StrategyEngine.Symbol_LastTickDic[contractName];
         DemoStrategy.SendOrder(lastTick.clientName,contractName,undefined,volume,direction,openclose,OrderType.Market,lastTick);
     }
 

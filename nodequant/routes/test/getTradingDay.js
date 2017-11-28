@@ -9,7 +9,7 @@ require("../../common.js");
 /* GET home page. */
 router.get('/', function(req, res, next) {
 
-    let tradingDay=global.Application.MainEngine.GetTradingDay();
+    let tradingDay=global.NodeQuant.MainEngine.GetTradingDay();
 
     res.end(JSON.stringify({ TradingDay: tradingDay}));
 });

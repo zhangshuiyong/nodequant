@@ -13,7 +13,7 @@ router.get('/', function(req, res, next) {
     let clientName=queryReq.clientName;
 
 
-    global.Application.MainEngine.QueryInvestorPosition(clientName,function (clientName,ret) {
+    global.NodeQuant.MainEngine.QueryInvestorPosition(clientName,function (clientName,ret) {
         if(ret===-99)
            console.log('QueryInvestorPosition Failed.Error: Trader client have not logined');
         else if(ret!==0)

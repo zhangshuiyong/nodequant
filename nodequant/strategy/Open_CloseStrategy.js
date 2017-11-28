@@ -59,7 +59,7 @@ class Open_CloseStrategy extends BaseStrategy{
                 for(let index in unFinishOrderList)
                 {
                     let unFinishOrder=unFinishOrderList[index];
-                    global.Application.StrategyEngine.CancelOrder(unFinishOrder);
+                    global.NodeQuant.StrategyEngine.CancelOrder(unFinishOrder);
                     //再次开仓
                     this.isOpen=false;
                 }

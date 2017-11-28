@@ -110,7 +110,7 @@ function _onFinishLoadTick(strategy,symbol,TickList) {
 //数据从数据库中预先加载
 function _loadTickFromDB(myStrategy,symbol,LookBackDays)
 {
-    global.Application.StrategyEngine.LoadTickFromDB(myStrategy,symbol,LookBackDays,_onFinishLoadTick);
+    global.NodeQuant.StrategyEngine.LoadTickFromDB(myStrategy,symbol,LookBackDays,_onFinishLoadTick);
 }
 
 //预加载Bar完成
@@ -120,7 +120,7 @@ function _onFinishLoadBar(strategy,symbol,BarType,BarInterval,ClosedBarList) {
 
 function _loadBarFromDB(myStrategy,symbol,LookBackCount,BarType,BarInterval)
 {
-    global.Application.StrategyEngine.LoadBarFromDB(myStrategy,symbol,LookBackCount,BarType,BarInterval,_onFinishLoadBar);
+    global.NodeQuant.StrategyEngine.LoadBarFromDB(myStrategy,symbol,LookBackCount,BarType,BarInterval,_onFinishLoadBar);
 }
 
 class BaseStrategy{
@@ -159,7 +159,7 @@ class BaseStrategy{
         this.PreloadConfig=strategyConfig.PreloadConfig;
         if(this.PreloadConfig!==undefined)
         {
-            if(global.Application.MarketDataDBClient)
+            if(global.NodeQuant.MarketDataDBClient)
             {
                 if (this.PreloadConfig.BarType === KBarType.Tick) {
                     for (let symbol in this.symbols) {
@@ -234,7 +234,7 @@ class BaseStrategy{
 
     QueryTradingAccount(clientName)
     {
-        global.Application.StrategyEngine.QueryTradingAccount(clientName,this);
+        global.NodeQuant.StrategyEngine.QueryTradingAccount(clientName,this);
     }
 
     OnQueryTradingAccount(tradingAccountInfo)
@@ -245,12 +245,12 @@ class BaseStrategy{
     //通过合约名字获得合约最新Tick
     GetLastTick(symbol)
     {
-        return global.Application.StrategyEngine.Symbol_LastTickDic[symbol];
+        return global.NodeQuant.StrategyEngine.Symbol_LastTickDic[symbol];
     }
 
     GetUnFinishOrderList()
     {
-        let unFinishOrderList=global.Application.StrategyEngine.GetUnFinishOrderList(this.name);
+        let unFinishOrderList=global.NodeQuant.StrategyEngine.GetUnFinishOrderList(this.name);
         return unFinishOrderList;
     }
 
@@ -264,7 +264,7 @@ class BaseStrategy{
         if(symbol===undefined)
             return undefined;
 
-        let position = global.Application.StrategyEngine.GetPosition(this.name,symbol);
+        let position = global.NodeQuant.StrategyEngine.GetPosition(this.name,symbol);
         return position;
     }
 
@@ -304,7 +304,7 @@ class BaseStrategy{
         switch(sendOrderType)
         {
             case OrderType.Limit:
-                global.Application.StrategyEngine.SendLimitOrder(this,clientName,symbol,direction,openClose,volume,limitePrice);
+                global.NodeQuant.StrategyEngine.SendLimitOrder(this,clientName,symbol,direction,openClose,volume,limitePrice);
 
                 orderRecord.datetime = new Date();
                 orderRecord.clientName=clientName;
@@ -317,10 +317,10 @@ class BaseStrategy{
                 orderRecord.contingentCondition = undefined;
                 orderRecord.stopPrice = undefined;
 
-                global.Application.StrategyEngine.RecordOrder(this.name,orderRecord);
+                global.NodeQuant.StrategyEngine.RecordOrder(this.name,orderRecord);
                 break;
             case OrderType.FAK:
-                global.Application.StrategyEngine.SendFillAndKillLimitOrder(this,clientName,symbol,direction,openClose,volume,limitePrice);
+                global.NodeQuant.StrategyEngine.SendFillAndKillLimitOrder(this,clientName,symbol,direction,openClose,volume,limitePrice);
 
                 orderRecord.datetime = new Date();
                 orderRecord.clientName=clientName;
@@ -333,10 +333,10 @@ class BaseStrategy{
                 orderRecord.contingentCondition = undefined;
                 orderRecord.stopPrice = undefined;
 
-                global.Application.StrategyEngine.RecordOrder(this.name,orderRecord);
+                global.NodeQuant.StrategyEngine.RecordOrder(this.name,orderRecord);
                 break;
             case OrderType.FOK:
-                global.Application.StrategyEngine.SendFillOrKillLimitOrder(this,clientName,symbol,direction,openClose,volume,limitePrice);
+                global.NodeQuant.StrategyEngine.SendFillOrKillLimitOrder(this,clientName,symbol,direction,openClose,volume,limitePrice);
 
                 orderRecord.datetime = new Date();
                 orderRecord.clientName=clientName;
@@ -349,7 +349,7 @@ class BaseStrategy{
                 orderRecord.contingentCondition = undefined;
                 orderRecord.stopPrice = undefined;
 
-                global.Application.StrategyEngine.RecordOrder(this.name,orderRecord);
+                global.NodeQuant.StrategyEngine.RecordOrder(this.name,orderRecord);
 
                 break;
             case OrderType.Market:
@@ -360,7 +360,7 @@ class BaseStrategy{
                     else if(direction===Direction.Sell)
                         limitePrice=tick.lowerLimit;
 
-                    global.Application.StrategyEngine.SendLimitOrder(this,clientName,symbol,direction,openClose,volume,limitePrice);
+                    global.NodeQuant.StrategyEngine.SendLimitOrder(this,clientName,symbol,direction,openClose,volume,limitePrice);
 
                     orderRecord.datetime = new Date();
                     orderRecord.clientName=clientName;
@@ -373,7 +373,7 @@ class BaseStrategy{
                     orderRecord.contingentCondition = undefined;
                     orderRecord.stopPrice = undefined;
 
-                    global.Application.StrategyEngine.RecordOrder(this.name,orderRecord);
+                    global.NodeQuant.StrategyEngine.RecordOrder(this.name,orderRecord);
 
                 }else
                 {
@@ -397,7 +397,7 @@ class BaseStrategy{
                     let error=new NodeQuantError(this.name,ErrorType.StrategyError,message);
                     global.AppEventEmitter.emit(EVENT.OnError,error);
                 }else{
-                    global.Application.StrategyEngine.SendStopLimitOrder(this,clientName,symbol,direction,openClose,volume,limitePrice,contingentCondition,stopPrice);
+                    global.NodeQuant.StrategyEngine.SendStopLimitOrder(this,clientName,symbol,direction,openClose,volume,limitePrice,contingentCondition,stopPrice);
 
                     orderRecord.datetime = new Date();
                     orderRecord.clientName=clientName;
@@ -410,7 +410,7 @@ class BaseStrategy{
                     orderRecord.contingentCondition=ContingentConditionReverseType[contingentCondition];
                     orderRecord.stopPrice=stopPrice;
 
-                    global.Application.StrategyEngine.RecordOrder(this.name,orderRecord);
+                    global.NodeQuant.StrategyEngine.RecordOrder(this.name,orderRecord);
                 }
                 break;
             default:
@@ -434,7 +434,7 @@ class BaseStrategy{
 
         let tickCount= arguments[3]?priceTickCount:2;
         let symbolClientName=this.symbols[symbol].clientName;
-        let contract = global.Application.MainEngine.GetContract(symbolClientName,symbol);
+        let contract = global.NodeQuant.MainEngine.GetContract(symbolClientName,symbol);
         let priceTick=contract.priceTick;
 
         let orderPrice= _trimPriceByPriceTick(price,priceTick);
@@ -464,7 +464,7 @@ class BaseStrategy{
 
         let tickCount= arguments[3] ? priceTickCount:2;
         let symbolClientName=this.symbols[symbol].clientName;
-        let contract = global.Application.MainEngine.GetContract(symbolClientName,symbol);
+        let contract = global.NodeQuant.MainEngine.GetContract(symbolClientName,symbol);
         let priceTick=contract.priceTick;
 
         let orderPrice= _trimPriceByPriceTick(price,priceTick);

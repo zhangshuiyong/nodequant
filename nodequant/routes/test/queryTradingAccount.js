@@ -12,7 +12,7 @@ router.get('/', function(req, res, next) {
     let request = URL.parse(req.url, true).query;
     let clientName=request.clientName;
 
-    global.Application.MainEngine.QueryTradingAccount(clientName);
+    global.NodeQuant.MainEngine.QueryTradingAccount(clientName);
 
     //查询资金账户
     global.AppEventEmitter.once(EVENT.OnQueryTradingAccount,function (tradingAccountInfo) {

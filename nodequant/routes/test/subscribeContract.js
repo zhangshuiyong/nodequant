@@ -13,8 +13,8 @@ router.get('/', function(req, res, next) {
     let SubscribeReq = URL.parse(req.url, true).query;
     let contractName=SubscribeReq.contractName.replace(" ","+");
 
-    let lastTick = global.Application.StrategyEngine.Symbol_LastTickDic[contractName];
-    global.Application.MainEngine.Subscribe(lastTick.clientName,contractName,function (contractName,clientName,ret) {
+    let lastTick = global.NodeQuant.StrategyEngine.Symbol_LastTickDic[contractName];
+    global.NodeQuant.MainEngine.Subscribe(lastTick.clientName,contractName,function (contractName,clientName,ret) {
 
         if(ret===-99)
             res.render('index', { title: clientName+' Subscribe Failed.Error: Trader client have not logined' });

@@ -50,10 +50,10 @@ router.get('/', function(req, res, next) {
     let stopPrice=parseFloat(stopLimitOrderReq.stopPrice);
 
 
-    let DemoStrategy=global.Application.StrategyEngine.GetStrategy("Demo");
+    let DemoStrategy=global.NodeQuant.StrategyEngine.GetStrategy("Demo");
     if(DemoStrategy)
     {
-        let lastTick = global.Application.StrategyEngine.Symbol_LastTickDic[contractName];
+        let lastTick = global.NodeQuant.StrategyEngine.Symbol_LastTickDic[contractName];
         DemoStrategy.SendOrder(lastTick.clientName,contractName,limitPrice,volume,direction,openclose,OrderType.Condition,undefined,stopPriceCondition,stopPrice);
     }
 

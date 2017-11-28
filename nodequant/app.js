@@ -12,8 +12,8 @@ let app = express();
 //启动NodeQuant,绑定请求路由
 let NodeQuantApp=require("./NodeQuantApp");
 let NodeQuantApplication = new NodeQuantApp(app);
-global.Application = NodeQuantApplication;
-global.Application.Start();
+global.NodeQuant = NodeQuantApplication;
+global.NodeQuant.Start();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -63,7 +63,7 @@ process.on('exit',function (code) {
 process.on('SIGINT', function() {
 
     //2秒后程序退出,这两秒需要做程序状态记录
-    global.Application.Exit();
+    global.NodeQuant.Exit();
 
     setTimeout(function () {
         console.log('Got SIGINT.  Press Control-D/Control-C to exit.');

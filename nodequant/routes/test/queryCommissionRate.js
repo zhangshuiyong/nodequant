@@ -13,7 +13,7 @@ router.get('/', function(req, res, next) {
     let contractName=request.contractName.replace(" ","+");
     let clientName=request.clientName;
 
-    global.Application.MainEngine.QueryCommissionRate(clientName,contractName);
+    global.NodeQuant.MainEngine.QueryCommissionRate(clientName,contractName);
 
     //查询合约手续费
     global.AppEventEmitter.once(EVENT.OnQueryCommissionRate,function (commissionRateInfo) {

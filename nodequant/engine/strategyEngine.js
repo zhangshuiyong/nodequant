@@ -169,7 +169,7 @@ function _isPassFilter(clientName,TradingDateConfig,tickDateTime) {
 }
 
 function _isPassTickFilter(tick) {
-    let contract= global.Application.MainEngine.GetContract(tick.clientName,tick.symbol);
+    let contract= global.NodeQuant.MainEngine.GetContract(tick.clientName,tick.symbol);
     let isPass=false;
 
     if(contract!==undefined)
@@ -193,6 +193,8 @@ function _registerEvent(myEngine) {
             return;
         }
 
+        //更新策略-合约中的最新Tick
+        myEngine.Symbol_LastTickDic[tick.symbol]=tick;
         //合约-策略推送字典
         let symbol_StrategyArray=myEngine.Symbol_StrategyArrayDic[tick.symbol];
         for(let strategyIndex in symbol_StrategyArray)
@@ -546,7 +548,7 @@ class StrategyEngine {
             for (let symbol in strategyConfig.symbols) {
                 let symbolConfig=strategyConfig.symbols[symbol];
                 let queryCommissionRateTask=function (callback) {
-                    let ret = global.Application.MainEngine.QueryCommissionRate(symbolConfig.clientName,symbol);
+                    let ret = global.NodeQuant.MainEngine.QueryCommissionRate(symbolConfig.clientName,symbol);
                     //连续查询手续费要相隔1段时间再查
                     setTimeout(function () {
                         if(ret!==0)
@@ -577,7 +579,7 @@ class StrategyEngine {
     //2.要在交割申报后15:30分后才能查询到递延费率与方向
     QueryDeferFeeRate(clientName,contractSymbol)
     {
-        let ret = global.Application.MainEngine.QueryDeferFeeRate(clientName,contractSymbol);
+        let ret = global.NodeQuant.MainEngine.QueryDeferFeeRate(clientName,contractSymbol);
         return ret;
     }
 
@@ -589,7 +591,7 @@ class StrategyEngine {
             return -1;
         }
 
-        let requestId = global.Application.MainEngine.QueryTradingAccount(clientName);
+        let requestId = global.NodeQuant.MainEngine.QueryTradingAccount(clientName);
 
         let queryId = clientName+requestId;
 
@@ -603,10 +605,10 @@ class StrategyEngine {
 
         for (let symbol in strategySymbolCongfigDic) {
             let symbolConfig=strategySymbolCongfigDic[symbol];
-            let contract = global.Application.MainEngine.GetContract(symbolConfig.clientName,symbol);
+            let contract = global.NodeQuant.MainEngine.GetContract(symbolConfig.clientName,symbol);
             //交易客户端的合约存在才能订阅!
             if (contract !== undefined) {
-               let ret = global.Application.MainEngine.Subscribe(contract.clientName, symbol);
+               let ret = global.NodeQuant.MainEngine.Subscribe(contract.clientName, symbol);
                 if (ret !== 0) {
                     let message=strategyName + "在" + contract.clientName + "客户端订阅" + symbol + "请求发送失败,错误码：" + ret;
                     let error=new NodeQuantError(strategyName,ErrorType.StrategyError,message);
@@ -641,7 +643,7 @@ class StrategyEngine {
     SendLimitOrder(strategy,clientName, contractName, direction, openclose, volume, limitPrice) {
         let strategyEngine=this;
 
-        let ret = global.Application.MainEngine.SendLimitOrder(clientName, contractName, direction, openclose, volume, limitPrice);
+        let ret = global.NodeQuant.MainEngine.SendLimitOrder(clientName, contractName, direction, openclose, volume, limitPrice);
         if (ret > 0) {
             //如果下单成功,ret返回码等于orderRefId
             let orderRefId = ret;
@@ -655,7 +657,7 @@ class StrategyEngine {
     SendFillAndKillLimitOrder(strategy,clientName,contractName,direction,openclose,volume,limitPrice) {
         let strategyEngine=this;
 
-        let ret = global.Application.MainEngine.SendFillAndKillLimitOrder(clientName,contractName,direction,openclose,volume,limitPrice);
+        let ret = global.NodeQuant.MainEngine.SendFillAndKillLimitOrder(clientName,contractName,direction,openclose,volume,limitPrice);
         if (ret > 0) {
             //如果下单成功,ret返回码等于orderRefId
             let orderRefId = ret;
@@ -669,7 +671,7 @@ class StrategyEngine {
     SendFillOrKillLimitOrder(strategy,clientName,contractName,direction,openclose,volume,limitPrice) {
         let strategyEngine = this;
 
-        let ret = global.Application.MainEngine.SendFillOrKillLimitOrder(clientName, contractName, direction, openclose, volume, limitPrice);
+        let ret = global.NodeQuant.MainEngine.SendFillOrKillLimitOrder(clientName, contractName, direction, openclose, volume, limitPrice);
 
         if (ret > 0) {
             //如果下单成功,ret返回码等于orderRefId
@@ -683,7 +685,7 @@ class StrategyEngine {
 
     SendStopLimitOrder(strategy,clientName,contractName,direction,openclose,volume,limitPrice,contingentCondition,stopPrice){
         let strategyEngine = this;
-        let ret = global.Application.MainEngine.SendStopLimitOrder(clientName,contractName,direction,openclose,volume,limitPrice,contingentCondition,stopPrice);
+        let ret = global.NodeQuant.MainEngine.SendStopLimitOrder(clientName,contractName,direction,openclose,volume,limitPrice,contingentCondition,stopPrice);
 
         if (ret > 0) {
             //如果下单成功,ret返回码等于orderRefId
@@ -714,7 +716,7 @@ class StrategyEngine {
 
     CancelOrder(order)
     {
-        global.Application.MainEngine.CancelOrder(order.clientName,order);
+        global.NodeQuant.MainEngine.CancelOrder(order.clientName,order);
     }
 
     GetPosition(strategyName, symbol) {
@@ -781,7 +783,7 @@ class StrategyEngine {
                 //确定手续费计算方法
                 if(feeInfo.feeType===FeeType.ByMoney)
                 {
-                    let contractSize=global.Application.MainEngine.GetContractSize(tradeRecord.symbol);
+                    let contractSize=global.NodeQuant.MainEngine.GetContractSize(tradeRecord.symbol);
                     tradeRecordCommission= symbolFee * tradeRecord.volume * tradeRecord.price * contractSize;
                 }else if(feeInfo.feeType===FeeType.ByVolume){
                     tradeRecordCommission = symbolFee * tradeRecord.volume;
@@ -806,7 +808,7 @@ class StrategyEngine {
 
     SettleTradeRecordValue(tradeRecord){
         let tradeRecordValue = undefined;
-        let contractSize=global.Application.MainEngine.GetContractSize(tradeRecord.symbol);
+        let contractSize=global.NodeQuant.MainEngine.GetContractSize(tradeRecord.symbol);
         if(tradeRecord.direction===Direction.Buy)
         {
             tradeRecordValue = tradeRecord.volume * tradeRecord.price * contractSize;
@@ -822,7 +824,7 @@ class StrategyEngine {
     //当天收盘的合约持仓价值
     SettleCurrentTradingDay_Exit_SymbolPositionValue(symbol_position)
     {
-        let contractSize=global.Application.MainEngine.GetContractSize(symbol_position.symbol);
+        let contractSize=global.NodeQuant.MainEngine.GetContractSize(symbol_position.symbol);
 
         let symbol_lastTick= this.Symbol_LastTickDic[symbol_position.symbol];
         let currentTradingDay_Exit_Symbol_PositionValue = 0;
@@ -847,7 +849,7 @@ class StrategyEngine {
     GetTradingDay()
     {
         //飞鼠返回空字符串,暂时不用此接口
-        let currentTradingDate = global.Application.MainEngine.TradingDay;
+        let currentTradingDate = global.NodeQuant.MainEngine.TradingDay;
         return currentTradingDate;
     }
 
@@ -855,7 +857,7 @@ class StrategyEngine {
         let strategyEngine=this;
         //每个策略的净值对象,日期,策略名字,交易品种,盈利,手续费,当日盈利
 
-        let currentTradingDay=global.Application.MainEngine.TradingDay;
+        let currentTradingDay=global.NodeQuant.MainEngine.TradingDay;
 
         //获得上一天的持仓结算价值
         this.GetLastTradingDayStrategySettlement(strategyInstance.name,function (lastSettlement) {
@@ -886,7 +888,7 @@ class StrategyEngine {
                     if(feeInfo===undefined)
                     {
                         //CTP SimNow账号只有futureName的手续费
-                        let contract=global.Application.MainEngine.GetContract(tradeRecord.clientName,tradeRecord.symbol);
+                        let contract=global.NodeQuant.MainEngine.GetContract(tradeRecord.clientName,tradeRecord.symbol);
                         feeInfo=strategyEngine.Client_Symbol_CommissionRateDic[tradeRecord.clientName][contract.futureName];
                     }
 
@@ -916,20 +918,19 @@ class StrategyEngine {
                 strategyEngine.RecordSettlement(strategyInstance.name,DaySettlement);
             });
         });
-
     }
 
-    //仓位是一个策略,一个合约，对应一个仓位,仓位变化要更新数据库，有成交不一定有新的仓位,只会更新之前的仓位
+    //仓位是一个策略,一个合约，对应一个仓位,仓位变化要更新数据库.
     RecordPosition(strategyName,position)
     {
         //记录策略所有品种的key,可以根据这个Key表获得一共有多少个品种的仓位
         let strategyPositionKey = strategyName+".Position";
-        global.Application.SystemDBClient.sadd(strategyPositionKey,position.symbol);
-
+        global.NodeQuant.SystemDBClient.sadd(strategyPositionKey,position.symbol);
 
         let strategyPositionSymbolKey = strategyName+".Position."+position.symbol;
 
-        global.Application.SystemDBClient.del(strategyPositionSymbolKey, function(err, response) {
+        //由于是nosql,一个成交是1条记录,不能更新到记录中的field,所以只能删除了Symbol-PositionTrade表再写入
+        global.NodeQuant.SystemDBClient.del(strategyPositionSymbolKey, function(err, response) {
             if (err) {
                 throw new Error(strategyName+"清空Position失败，原因:"+err.message);
             } else{
@@ -939,23 +940,22 @@ class StrategyEngine {
                 for(let index in position.longPositionTradeRecordList)
                 {
                     let tradeRecord = position.longPositionTradeRecordList[index];
-                    global.Application.StrategyEngine.RecordPositionItem(strategyPositionSymbolKey,tradeRecord);
+                    global.NodeQuant.StrategyEngine.RecordPositionItem(strategyPositionSymbolKey,tradeRecord);
                 }
                 //遍历空仓,记录到数据库
                 for(let index in position.shortPositionTradeRecordList)
                 {
                     let tradeRecord = position.shortPositionTradeRecordList[index];
-                    global.Application.StrategyEngine.RecordPositionItem(strategyPositionSymbolKey,tradeRecord);
+                    global.NodeQuant.StrategyEngine.RecordPositionItem(strategyPositionSymbolKey,tradeRecord);
                 }
             }
         });
-
     }
 
     //将持仓的成交记录到持仓列表当中
     RecordPositionItem(positionBookDBAddress,tradeRecord)
     {
-        global.Application.SystemDBClient.rpush(positionBookDBAddress,JSON.stringify(tradeRecord),function (err,reply) {
+        global.NodeQuant.SystemDBClient.rpush(positionBookDBAddress,JSON.stringify(tradeRecord),function (err,reply) {
             if(err) {
 
                 let message="记录Position失败，原因:"+err.message;
@@ -970,15 +970,15 @@ class StrategyEngine {
     LoadPosition(strategyName)
     {
         let strategyPositionKey = strategyName+".Position";
-        global.Application.SystemDBClient.smembers(strategyPositionKey,function (err,symbolSet) {
+        global.NodeQuant.SystemDBClient.smembers(strategyPositionKey,function (err,symbolSet) {
             if(err)
             {
                 throw new Error("LoadPosition失败，原因:"+err.message);
             }else{
-                let PositionDic = global.Application.StrategyEngine.StrategyName_PositionDic[strategyName];
+                let PositionDic = global.NodeQuant.StrategyEngine.StrategyName_PositionDic[strategyName];
                 if (PositionDic === undefined) {
                     PositionDic = {};
-                    global.Application.StrategyEngine.StrategyName_PositionDic[strategyName] = PositionDic;
+                    global.NodeQuant.StrategyEngine.StrategyName_PositionDic[strategyName] = PositionDic;
                 }
 
                 for(let index in symbolSet)
@@ -995,7 +995,7 @@ class StrategyEngine {
 
                     //查找Position.Symbol所有仓位成交记录
                     let strategyPositionSymbolKey = strategyName+".Position."+symbol;
-                    global.Application.SystemDBClient.lrange(strategyPositionSymbolKey, 0, -1, function(err, tradeRecordStrList) {
+                    global.NodeQuant.SystemDBClient.lrange(strategyPositionSymbolKey, 0, -1, function(err, tradeRecordStrList) {
                         if(err)
                         {
                             throw new Error(strategyPositionSymbolKey+"表LoadPosition失败，原因:"+err.message);
@@ -1025,44 +1025,9 @@ class StrategyEngine {
 
     LoadTickFromDB(strategy,symbol,LookBackDays,OnFinishLoadTick)
     {
-        if(global.Application.MarketDataDBClient!==undefined)
+        if(global.NodeQuant.MarketDataDBClient!==undefined)
         {
-            /*
-            global.Application.MarketDataDBClient.nrrange([symbol, 0,LookBackCount,-1],function (err,TickStrListResults) {
-                if (err){
-                    console.log("从"+symbol+"的行情数据库后往前LoadTick失败原因:"+err);
-
-                    OnFinishLoadTick(strategy,symbol,undefined);
-                    return;
-                }
-
-                //ssdb nrrange获取的是[value,number,value,number]数组
-                //获取Tick的顺序是从后往前,要处理成按时间从前往后
-                // 最后一个是最靠近当前时间
-                //nrrange获取的个数会比需要的多
-                let TickList = [];
-                let TickStrList_LastIndex=TickStrListResults.length-2;
-                for (let i = TickStrList_LastIndex; i >= 0; i -= 2) {
-                    let TickStr = TickStrListResults[i];
-                    let tick = JSON.parse(TickStr);
-                    TickList.push(tick);
-                }
-
-                //最后收集的Tick个数对比想要获取的个数
-                if(LookBackCount<=TickList.length) {
-                    let needTickStartIndex=TickList.length-LookBackCount;
-                    let needTickList=TickList.slice(needTickStartIndex);
-                    OnFinishLoadTick(strategy, symbol, needTickList);
-                }else
-                {
-                    //不够LookBackCount个tick，也是返回undefined
-                    OnFinishLoadTick(strategy, symbol, undefined);
-                }
-
-            });
-            */
-
-            global.Application.MarketDataDBClient.LoadTick(symbol,LookBackDays,function (tickList) {
+            global.NodeQuant.MarketDataDBClient.LoadTick(symbol,LookBackDays,function (tickList) {
                 OnFinishLoadTick(strategy,symbol,tickList);
             });
 
@@ -1074,7 +1039,7 @@ class StrategyEngine {
 
     LoadBarFromDB(strategy,symbol,LookBackCount,BarType,BarInterval,OnFinishLoadBar)
     {
-        if(global.Application.MarketDataDBClient!==undefined)
+        if(global.NodeQuant.MarketDataDBClient!==undefined)
         {
             //获得Tick数据库
             //K线是根据K线的定义而产生的，根据K的交易策略要注意!回测与实盘交易系统一定要一致
@@ -1103,7 +1068,7 @@ class StrategyEngine {
             }
 
 
-            global.Application.MarketDataDBClient.nrrange([symbol, 0,TickLookBackCount,-1],function (err,TickStrListResults) {
+            global.NodeQuant.MarketDataDBClient.nrrange([symbol, 0,TickLookBackCount,-1],function (err,TickStrListResults) {
                 if (err){
                     console.log("从" + symbol + "的行情数据库LoadBar失败原因:" + err);
 
@@ -1177,7 +1142,7 @@ class StrategyEngine {
 
         let strategyOrderBook = strategyName + ".Order";
 
-        global.Application.SystemDBClient.zadd(strategyOrderBook,orderRecord.datetime.getTime(),JSON.stringify(orderRecord), function (err, response) {
+        global.NodeQuant.SystemDBClient.zadd(strategyOrderBook,orderRecord.datetime.getTime(),JSON.stringify(orderRecord), function (err, response) {
             if (err){
                 throw new Error("记录Order失败，原因:"+err.message);
             }
@@ -1189,7 +1154,7 @@ class StrategyEngine {
 
         let strategyTradeBook = strategyName + ".Trade";
 
-        global.Application.SystemDBClient.zadd(strategyTradeBook,trade.tradingDateTimeStamp,JSON.stringify(trade), function (err, response) {
+        global.NodeQuant.SystemDBClient.zadd(strategyTradeBook,trade.tradingDateTimeStamp,JSON.stringify(trade), function (err, response) {
             if (err){
                 throw new Error("记录Order失败，原因:"+err.message);
             }
@@ -1207,9 +1172,9 @@ class StrategyEngine {
 
         let nextTradingDatetime=new Date(currentTradingDatetime.getFullYear(),currentTradingDatetime.getMonth(),currentTradingDatetime.getDate()+1);
         let currentTradingDayQuaryArg = [ strategyTradeBook,currentTradingDatetime.getTime(),nextTradingDatetime.getTime()];
-        if(global.Application.SystemDBClient)
+        if(global.NodeQuant.SystemDBClient)
         {
-            global.Application.SystemDBClient.zrangebyscore(currentTradingDayQuaryArg,function (err, tradeRecordList) {
+            global.NodeQuant.SystemDBClient.zrangebyscore(currentTradingDayQuaryArg,function (err, tradeRecordList) {
                 if (err)
                 {
                     throw new Error("GetTradeRecord失败，原因:"+err.message);
@@ -1224,7 +1189,7 @@ class StrategyEngine {
     RecordSettlement(strategyName,settlement){
         let strategySettlementKey = strategyName+".Settlement";
         //时间序列的结算最好是rpush
-        global.Application.SystemDBClient.rpush(strategySettlementKey,JSON.stringify(settlement),function (err,response) {
+        global.NodeQuant.SystemDBClient.rpush(strategySettlementKey,JSON.stringify(settlement),function (err,response) {
            if(err)
            {
                throw new Error("记录Settlement失败，原因是:"+err.message);
@@ -1235,7 +1200,7 @@ class StrategyEngine {
     GetLastTradingDayStrategySettlement(strategyName,callback){
         let strategySettlementKey = strategyName+".Settlement";
         //返回最后一条结算记录
-        global.Application.SystemDBClient.lrange(strategySettlementKey,-1,-1,function (err,settlementList) {
+        global.NodeQuant.SystemDBClient.lrange(strategySettlementKey,-1,-1,function (err,settlementList) {
             if(err)
             {
                 throw new Error("获取前一个Settlement失败，原因是:"+err.message);

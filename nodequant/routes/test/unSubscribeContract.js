@@ -13,8 +13,8 @@ router.get('/', function(req, res, next) {
     let unSubscribeReq = URL.parse(req.url, true).query;
     let contractName=unSubscribeReq.contractName.replace(" ","+");
 
-    let lastTick = global.Application.StrategyEngine.Symbol_LastTickDic[contractName];
-    global.Application.MainEngine.UnSubscribe(lastTick.clientName,contractName,function (clientName,ret) {
+    let lastTick = global.NodeQuant.StrategyEngine.Symbol_LastTickDic[contractName];
+    global.NodeQuant.MainEngine.UnSubscribe(lastTick.clientName,contractName,function (clientName,ret) {
         if(ret===-99)
             res.render('index', { title: clientName+' UnSubscribe Failed.Error: Market client have not logined' });
         else if(ret!==0)

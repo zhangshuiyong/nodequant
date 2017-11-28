@@ -13,8 +13,9 @@ let ClientFactory=require("../model/client/ClientFactory");
 
 function _isTimeToWork() {
     let systemConfigPath=path.resolve(__dirname+"/../systemConfig.js");
-    delete require.cache[systemConfigPath];
+    require.cache[systemConfigPath]=null;
     require("../systemConfig");
+
     let NowDateTime=new Date();
     let NowDateStr=NowDateTime.toLocaleDateString();
 
@@ -89,7 +90,7 @@ function _registerEvent(myEngine) {
     global.AppEventEmitter.on(EVENT.OnReceivedAllContract,function (clientName) {
 
         //策略引擎是否已经启动
-        if(global.Application.StrategyEngine.IsWorking === false)
+        if(global.NodeQuant.StrategyEngine.IsWorking === false)
         {
             //策略引擎还没启动,检查所有策略引擎所需要的交易客户端是否已经都启动了
             //检查所有交易客户端是否已经都连接上
@@ -126,10 +127,10 @@ function _registerEvent(myEngine) {
 
         //所有配置的客户端，启动策略引擎
 
-        if(global.Application.StrategyEngine.IsWorking===false)
+        if(global.NodeQuant.StrategyEngine.IsWorking===false)
         {
             //没有启动过,但是所有客户端已经连接成功,策略引擎启动过，策略启动过
-            global.Application.StrategyEngine.Start();
+            global.NodeQuant.StrategyEngine.Start();
         }
 
     });
@@ -284,7 +285,7 @@ class MainEngine{
     Stop(mainEngineStatus) {
 
         //1.停止策略引擎
-        global.Application.StrategyEngine.Stop(mainEngineStatus);
+        global.NodeQuant.StrategyEngine.Stop(mainEngineStatus);
 
         //2.断开Clients
         for(let key in this.clientDic)
@@ -294,8 +295,8 @@ class MainEngine{
                 //已经连接上交易前端,断开
                 if(this.clientDic[key].IsMdConnected()){
                     this.clientDic[key].Exit();
-                    //删除对象
-                    delete this.clientDic[key];
+
+                    //删除pointer
                     this.clientDic[key]=null;
                 }
             }
@@ -314,7 +315,7 @@ class MainEngine{
 
     RecordError(error)
     {
-        global.Application.SystemDBClient.lpush(System_Error_DB,JSON.stringify(error),function (err,reply) {
+        global.NodeQuant.SystemDBClient.lpush(System_Error_DB,JSON.stringify(error),function (err,reply) {
             if(err) {
 
                 throw new Error("记录System_Error失败，原因:"+err);
@@ -323,7 +324,7 @@ class MainEngine{
     }
 
     RecordLog(log){
-        global.Application.SystemDBClient.lpush(System_Log_DB,JSON.stringify(log),function (err,reply) {
+        global.NodeQuant.SystemDBClient.lpush(System_Log_DB,JSON.stringify(log),function (err,reply) {
             if(err) {
 
                 let message="记录System_Log失败，原因:"+err;
@@ -377,7 +378,13 @@ class MainEngine{
     }
 
     Subscribe(clientName,contractName) {
-       let ret = this.clientDic[clientName].Subscribe(contractName);
+        let client=this.clientDic[clientName];
+        let ret =-1;
+        if(client)
+        {
+            ret = client.Subscribe(contractName);
+        }
+
        return ret;
     }
 
