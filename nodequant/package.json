@@ -5,6 +5,23 @@
   "scripts": {
     "start": "node ./bin/www"
   },
+  "eslintConfig": {
+    "parserOptions": {
+      "ecmaVersion": 2017,
+      "sourceType": "module"
+    },
+    "env": {
+      "node": true
+    },
+    "rules": {
+      "eqeqeq": [
+        "error"
+      ],
+      "curly": [
+        "error"
+      ]
+    }
+  },
   "dependencies": {
     "async": "^2.5.0",
     "body-parser": "~1.17.1",
