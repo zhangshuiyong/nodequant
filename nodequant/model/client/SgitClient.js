@@ -333,6 +333,7 @@ class TradingClient{
         cancelOrderReq.OrderRef=order.orderID;
         cancelOrderReq.FrontID=order.frontID;
         cancelOrderReq.SessionID=order.sessionID;
+        cancelOrderReq.OrderSysID=order.orderSysID;
 
         return this.tdClient.cancelOrder(cancelOrderReq);
 
@@ -764,6 +765,8 @@ class TdClient{
             order.clientName = tradingClient.ClientName;
             order.symbol = response.InstrumentID;
             order.exchange = response.ExchangeID;
+            order.userID=response.InvestorID;
+            order.orderSysID=response.OrderSysID;
             order.orderID = response.OrderRef;
             order.direction = response.Direction;
             order.offset = response.CombOffsetFlag;
@@ -786,6 +789,8 @@ class TdClient{
             order.clientName = tradingClient.ClientName;
             order.symbol = response.InstrumentID;
             order.exchange = response.ExchangeID;
+            order.userID=response.InvestorID;
+            order.orderSysID=response.OrderSysID;
             order.orderID = response.OrderRef;
             order.direction = response.Direction;
             order.offset = response.CombOffsetFlag;
@@ -814,6 +819,8 @@ class TdClient{
             order.symbol = orderInfo.InstrumentID;
             //交易所ID
             order.exchange = orderInfo.ExchangeID;
+            order.userID=orderInfo.InvestorID;
+            order.orderSysID=response.OrderSysID;
 
             //报单号一致性维护需要基于frontID, sessionID, orderID三个字段
             order.frontID = orderInfo.FrontID;

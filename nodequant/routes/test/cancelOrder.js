@@ -8,18 +8,17 @@ require("../../common.js");
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-    /*
-    global.NodeQuant.MainEngine.CancelOrder("CTP",function (clientName,ret) {
-        if(ret===-99)
-            res.render('index', { title: 'CancelOrder Failed.Error: Trader client have not logined' });
-        else if(ret!==0)
-            res.render('index', { title: 'CancelOrder Failed.Error: '+ret });
-        else
-            res.render('index', { title: 'CancelOrder successfully'});
-    });*/
+
+    let orderList=global.NodeQuant.StrategyEngine.GetUnFinishOrderList("Demo");
+
+    for(let index in orderList)
+    {
+        let order=orderList[index];
+        global.NodeQuant.StrategyEngine.CancelOrder(order);
+    }
 
     //global.NodeQuant.StrategyEngine.LoadTickFromDB("Demo","Au(T+D)",30,undefined);
-    global.NodeQuant.StrategyEngine.LoadBarFromDB("Demo","Au(T+D)",5,KBarType.Minute,5,undefined);
+    //global.NodeQuant.StrategyEngine.LoadBarFromDB("Demo","Au(T+D)",5,KBarType.Minute,5,undefined);
 
     res.render('index', { title: 'CancelOrder successfully'});
 });

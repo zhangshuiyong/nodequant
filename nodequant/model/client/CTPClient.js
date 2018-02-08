@@ -334,6 +334,7 @@ class ctpClient{
         cancelOrderReq.OrderRef=order.orderID;
         cancelOrderReq.FrontID=order.frontID;
         cancelOrderReq.SessionID=order.sessionID;
+        cancelOrderReq.OrderSysID=order.orderSysID;
 
         return this.tdClient.cancelOrder(cancelOrderReq);
 
@@ -738,6 +739,8 @@ class ctpTdClient{
             order.clientName = ctpClient.ClientName;
             order.symbol = response.InstrumentID;
             order.exchange = response.ExchangeID;
+            order.userID=response.InvestorID;
+            order.orderSysID=response.OrderSysID;
             order.orderID = response.OrderRef;
             order.direction = response.Direction;
             order.offset = response.CombOffsetFlag;
@@ -761,6 +764,8 @@ class ctpTdClient{
             order.clientName = ctpClient.ClientName;
             order.symbol = response.InstrumentID;
             order.exchange = response.ExchangeID;
+            order.userID=response.InvestorID;
+            order.orderSysID=response.OrderSysID;
             order.orderID = response.OrderRef;
             order.direction = response.Direction;
             order.offset = response.CombOffsetFlag;
@@ -791,6 +796,8 @@ class ctpTdClient{
             order.symbol = orderInfo.InstrumentID;
             //交易所ID
             order.exchange = orderInfo.ExchangeID;
+            order.userID=orderInfo.InvestorID;
+            order.orderSysID=orderInfo.OrderSysID;
 
             //CTP的报单号一致性维护需要基于frontID, sessionID, orderID三个字段
             order.frontID = orderInfo.FrontID;
