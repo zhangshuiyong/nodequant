@@ -43,7 +43,7 @@ StrategyConfig={
             name:"Demo",
             className:"DemoStrategy",
             symbols: {
-                "i1801":{
+                "i1805":{
                     //要配置在哪个交易客户端订阅该合约，因为上期CTP和飞鼠Sgit都可以交易商品期货
                     clientName:SupportClients.CTP
                 }
