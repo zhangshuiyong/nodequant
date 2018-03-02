@@ -248,8 +248,10 @@ function _registerEvent(myEngine) {
             }
             tradeDic[trade.strategyOrderID]=trade;
 
-            myEngine.UpdateStrategyPosition(strategy.name,trade);
+            //before Update Position to change trade obj
             myEngine.RecordTrade(strategy.name,trade);
+
+            myEngine.UpdateStrategyPosition(strategy.name,trade);
         }
     });
     
@@ -1150,7 +1152,9 @@ class StrategyEngine {
     }
 
     //记录策略成交
-    RecordTrade(strategyName, trade) {
+    RecordTrade(strategyName, tradeObj) {
+        let trade = {};
+        Object.assign(trade,tradeObj);
 
         let strategyTradeBook = strategyName + ".Trade";
 
