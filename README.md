@@ -1,5 +1,5 @@
 # NodeQuant：一个基于Node.js的开源量化金融交易平台
-![image](http://i2.kiimg.com/1949/2fbd754431d72fa9.jpg)
+![image](https://raw.githubusercontent.com/zhangshuiyong/Img/master/nodequant/nodequant_brand.jpg)
 
 ## NodeQuant的愿景
 
@@ -21,7 +21,7 @@
 国内的量化交易平台大多是C、C++、C#、Java、Python等语言编写量化策略。从事量化交易的人员在学会金融数据的分析的同时也要学好一门编程语言，往往学好一门编程语言对于很多人是一个不小的门槛。JavaScript语言是一门简单轻便的脚本语言，学习和编写JavaScript程序都非常简单。脚本语言具有弱类型的特点，不需要开发者在编写程序的过程中适配各种数据类型，入门快速。
 
 而且JavaScript有大量的开发者，它是GitHub上最热门的编程语言
-![image](http://i2.kiimg.com/1949/f5d21c3656d0792c.jpg)
+![image](https://raw.githubusercontent.com/zhangshuiyong/Img/master/nodequant/javascrpt语言.jpg)
 
 JavaScript语言借助Node.js运行环境,可以使得JavaScript也可以像C++、C#等高级语言一样运行在服务器端，可以进行读写文件，数据库，访问网络等操作。
 
@@ -34,7 +34,7 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 所以使用Node.js来编写和运行量化交易策略程序是一个非常好的解决方案，这就是NodeQuant量化交易平台诞生的背景。
 
 ## NodeQuant系统架构
-![node.js](http://i2.nbimg.com/605009/5509796883d486c7.jpg)![加](http://i4.fuimg.com/605009/be9d40cbc1b82106.jpg)![express](http://i2.nbimg.com/605009/eefea14a8a637385.jpg)![加](http://i4.fuimg.com/605009/be9d40cbc1b82106.jpg)![nodequant](http://i2.nbimg.com/605009/038aef6f11b224f4.jpg)![加](http://i4.fuimg.com/605009/be9d40cbc1b82106.jpg)![redis](http://i2.nbimg.com/605009/c0038278cda84ed5.jpg)
+![node.js](https://raw.githubusercontent.com/zhangshuiyong/Img/master/nodequant/nodejs.jpg)![加](https://raw.githubusercontent.com/zhangshuiyong/Img/master/nodequant/add.jpg)![express](https://raw.githubusercontent.com/zhangshuiyong/Img/master/nodequant/express.jpg)![加](https://raw.githubusercontent.com/zhangshuiyong/Img/master/nodequant/add.jpg)![nodequant](https://raw.githubusercontent.com/zhangshuiyong/Img/master/nodequant/nodequant_small.jpg)![加](https://raw.githubusercontent.com/zhangshuiyong/Img/master/nodequant/add.jpg)![redis](https://raw.githubusercontent.com/zhangshuiyong/Img/master/nodequant/redis_small.jpg)
 - **Node.js** —— NodeQuant系统是一个基于Node.js的量化交易平台。JavaScript语言也可以开发量化金融交易策略。
 - **Express** —— NodeQuant系统使用了Node.js平台的Express网络框架。可以使用Express框架将NodeQuant扩展成为一个互联网量化交易平台
 - **NodeQuant** —— NodeQuant系统的核心是NodeQuant量化交易框架。使用NodeQuant量化交易框架，可以运行多个量化交易策略，可以进行多品种、多市场的趋势、套利交易
@@ -43,7 +43,7 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 
 ## NodeQuant量化交易框架
 
-![image](http://i2.kiimg.com/1949/5c05aec0fc211d76.png)
+![image](https://raw.githubusercontent.com/zhangshuiyong/Img/master/nodequant/nodequant架构.png)
 
 1. **策略层**：策略层代表各种量化策略实例。策略实例负责运行交易算法，集成了交易事件响应函数，有OnTick、OnNewBar、OnCloseBar、OnOrder、OnTrade等事件响应函数，驱动量化策略的运行。
 2. **策略引擎层**：NodeQuant系统运行会唯一创建一个策略引擎实例，策略引擎层代表的就是这个策略引擎。策略引擎开始运行会根据用户的策略配置创建策略实例，也可以停止策略实例。响应策略的下单命令，推送策略订阅的合约行情，保存策略运行的仓位、订单、成交、结算信息等状态信息，接收交易Client的订单回报，成交回报。
