@@ -252,9 +252,10 @@ function _registerEvent(myEngine) {
             myEngine.RecordTrade(strategy.name,trade);
 
             myEngine.UpdateStrategyPosition(strategy.name,trade);
+
         }
     });
-    
+
     //查询资金
     global.AppEventEmitter.on(EVENT.OnQueryTradingAccount,function (tradingAccountInfo) {
         let OnQueryTradingAccountCallBack = myEngine.OnQueryTradingAccountCallBackDic[tradingAccountInfo.queryId];
@@ -392,6 +393,11 @@ class StrategyEngine {
         //策略-成交字典
         this.StrategyName_OrderDic = {};
 
+        //用于定时更新仓位
+        this.UpdatePositionTimer=undefined;
+        this.UpdateIndex_PositionDic=new Map();
+
+        //策略-成交字典
         this.StrategyName_TradeDic = {};
         //策略-持仓字典
         this.StrategyName_PositionDic = {};
@@ -430,8 +436,32 @@ class StrategyEngine {
             this.StartStrategy(strategyConfig);
         }
 
-        this.IsWorking=true;
+        this.StartPositionUpdator();
 
+        this.IsWorking=true;
+    }
+
+    //仓位更新器，仓位不随成交事件更新（瞬间多个成交事件）而阶段频繁写数据数据库
+    StartPositionUpdator()
+    {
+        let myEngine=this;
+        this.UpdatePositionTimer = setInterval(function () {
+
+            //每10秒检查1个仓位，是否在之前有过成交
+            for(let [positionKey,position] of myEngine.UpdateIndex_PositionDic.entries())
+            {
+                let KeyArray = positionKey.split(".");
+                let strategyName=KeyArray[0];
+                if(strategyName){
+                    myEngine.RecordPosition(strategyName,position);
+                }
+
+                //更新完删除
+                myEngine.UpdateIndex_PositionDic.delete(positionKey);
+
+                break;
+            }
+        },10000);
     }
 
     Stop(mainEngineStatus){
@@ -465,6 +495,8 @@ class StrategyEngine {
         this.OnQueryTradingAccountCallBackDic={};
 
         this.IsWorking=false;
+
+        clearInterval(this.UpdatePositionTimer);
 
         let log=new NodeQuantLog("StrategyEngine",LogType.INFO,new Date().toLocaleString(),"StrategyEngine Stop");
         global.AppEventEmitter.emit(EVENT.OnLog,log);
@@ -610,7 +642,7 @@ class StrategyEngine {
             let contract = global.NodeQuant.MainEngine.GetContract(symbolConfig.clientName,symbol);
             //交易客户端的合约存在才能订阅!
             if (contract !== undefined) {
-               let ret = global.NodeQuant.MainEngine.Subscribe(contract.clientName, symbol);
+                let ret = global.NodeQuant.MainEngine.Subscribe(contract.clientName, symbol);
                 if (ret !== 0) {
                     let message=strategyName + "在" + contract.clientName + "客户端订阅" + symbol + "请求发送失败,错误码：" + ret;
                     let error=new NodeQuantError(strategyName,ErrorType.StrategyError,message);
@@ -753,7 +785,13 @@ class StrategyEngine {
         }
 
         position.UpdatePosition(trade);
-        this.RecordPosition(strategyName,position);
+
+
+
+        //延迟更新数据库仓位
+        let UpdatePositionIndex=position.strategyName+"."+position.symbol;
+        this.UpdateIndex_PositionDic.set(UpdatePositionIndex,position);
+        //this.RecordPosition(strategyName,position);
     }
 
     SettleCommission(feeInfo,tradeRecord)
@@ -1194,10 +1232,10 @@ class StrategyEngine {
         let strategySettlementKey = strategyName+".Settlement";
         //时间序列的结算最好是rpush
         global.NodeQuant.SystemDBClient.rpush(strategySettlementKey,JSON.stringify(settlement),function (err,response) {
-           if(err)
-           {
-               throw new Error("记录Settlement失败，原因是:"+err.message);
-           }
+            if(err)
+            {
+                throw new Error("记录Settlement失败，原因是:"+err.message);
+            }
         });
     }
 
