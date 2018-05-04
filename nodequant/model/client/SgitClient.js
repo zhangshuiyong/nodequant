@@ -657,7 +657,38 @@ class MdClient{
             tick.datetime = new Date(year,month-1,day,hour,minute,second,marketData.UpdateMillisec);
             tick.timeStamp=tick.datetime.getTime();
             tick.Id = tick.actionDatetime.getTime();
-            //五档价格不做转换,提高速度
+            //五档价格无效值Double的最大值转换为0
+            //五档买价
+            tick.bidPrice1 = marketData.BidPrice1===Number.MAX_VALUE?0:marketData.BidPrice1;
+            tick.bidVolume1 = marketData.BidVolume1;
+
+            tick.bidPrice2 = marketData.BidPrice2===Number.MAX_VALUE?0:marketData.BidPrice2;
+            tick.bidVolume2 = marketData.BidVolume2;
+
+            tick.bidPrice3 = marketData.BidPrice3===Number.MAX_VALUE?0:marketData.BidPrice3;
+            tick.bidVolume3 = marketData.BidVolume3;
+
+            tick.bidPrice4 = marketData.BidPrice4===Number.MAX_VALUE?0:marketData.BidPrice4;
+            tick.bidVolume4 = marketData.BidVolume4;
+
+            tick.bidPrice5 = marketData.BidPrice5===Number.MAX_VALUE?0:marketData.BidPrice5;
+            tick.bidVolume5 = marketData.BidVolume5;
+
+            //五档卖价格
+            tick.askPrice1 = marketData.AskPrice1===Number.MAX_VALUE?0:marketData.AskPrice1;
+            tick.askVolume1 = marketData.AskVolume1;
+
+            tick.askPrice2 = marketData.AskPrice2===Number.MAX_VALUE?0:marketData.AskPrice2;
+            tick.askVolume2 = marketData.AskVolume2;
+
+            tick.askPrice3 = marketData.AskPrice3===Number.MAX_VALUE?0:marketData.AskPrice3;
+            tick.askVolume3 = marketData.AskVolume3;
+
+            tick.askPrice4 = marketData.AskPrice4===Number.MAX_VALUE?0:marketData.AskPrice4;
+            tick.askVolume4 = marketData.AskVolume4;
+
+            tick.askPrice5 = marketData.AskPrice5===Number.MAX_VALUE?0:marketData.AskPrice5;
+            tick.askVolume5 = marketData.AskVolume5;
 
             tradingClient.OnTick(tick);
         });
