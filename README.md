@@ -101,6 +101,7 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 ## Javascript前端图形库
 
 - [echarts 3](http://echarts.baidu.com/)
+- [tradingview中文](https://github.com/zlq4863947/tradingViewWikiCn)
 
 ## 技术交流
 
