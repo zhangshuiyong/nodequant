@@ -1,7 +1,3 @@
----
-description: 一个基于Node.js的开源量化交易平台
----
-
 # NodeQuant
 
 ![](.gitbook/assets/nodequant_brand.jpg)
