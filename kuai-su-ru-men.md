@@ -1,8 +1,8 @@
 # 快速入门
 
-## 如何编写运行一个NodeQuant策略 {#如何编写运行一个nodequant策略}
+## 如何编写运行一个NodeQuant策略
 
-#### 前言： {#前言}
+#### 前言：
 
 文档写到这里，已经默认大家已经搭建好NodeQuant的运行环境了，NodeQuant的源代码也已经用WebStorm打开了，编写NodeQuant策略最好在WebStorm开发环境中编写，因为WebStrom中可以提供代码提示和方便集成require已经安装好的第三方模块。
 
