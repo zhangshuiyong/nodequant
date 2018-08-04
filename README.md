@@ -31,5 +31,7 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 
 这就是NodeQuant量化金融交易平台诞生的背景。
 
+## NodeQuant开发文档
 
+[https://github.com/zhangshuiyong/nodequant/blob/master/SUMMARY.md](https://github.com/zhangshuiyong/nodequant/blob/master/SUMMARY.md)
 
