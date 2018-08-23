@@ -62,6 +62,16 @@ FuturesConfig={
             PMOpen:"13:00:00",
             PMClose:"15:15:00"
         },
+        AP:{
+            name:"苹果",
+            exchange:"CZC",
+            AMOpen:"9:00:00",
+            AMBreak:"10:15:00",
+            AMResume:"10:30:00",
+            AMClose:"11:30:00",
+            PMOpen:"13:30:00",
+            PMClose:"15:00:00"
+        },
         CF:{
             name:"郑棉",
             exchange:"CZC",
