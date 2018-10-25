@@ -14,8 +14,7 @@ SystemConfig={
 };
 
 SupportClients={
-    CTP:"CTP",
-    Sgit:"Sgit"
+    CTP:"CTP"
 };
 
 //可在不同交易客户端订阅的合约

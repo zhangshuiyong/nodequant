@@ -5,7 +5,7 @@ let fs = require("fs");
 require("../../common.js");
 require("../../userConfig.js");
 
-let NodeAddOnPath="./CTP/"+process.platform+"/"+process.arch+"/NodeQuant.node";
+let NodeAddOnPath="./CTP/"+process.platform+"/"+process.arch+"/NodeQuant.node";//"F:\\NodeQuantApp\\NodeQuant_NAPI_32_6.3.11_20180109_tradeapi\\NodeQuant\\NodeQuant\\NodeQuant.node";
 console.log("CtpClient Node Addon Path:"+NodeAddOnPath);
 let CTP= require(NodeAddOnPath);
 
@@ -23,11 +23,12 @@ class ctpClient{
         this.userID= ClientConfig[this.ClientName].userID;
         this.password= ClientConfig[this.ClientName].password;
         this.brokerID= ClientConfig[this.ClientName].brokerID;
+        this.userProductInfo = ClientConfig[this.ClientName].userProductInfo;
         this.mdAddress= ClientConfig[this.ClientName].mdAddress;
         this.tdAddress= ClientConfig[this.ClientName].tdAddress;
 
-        this.mdClient = new ctpMdClient(this.userID,this.password,this.brokerID,this.mdAddress);
-        this.tdClient=new ctpTdClient(this.userID,this.password,this.brokerID,this.tdAddress);
+        this.mdClient = new ctpMdClient(this.userID,this.password,this.brokerID,this.userProductInfo,this.mdAddress);
+        this.tdClient=new ctpTdClient(this.userID,this.password,this.brokerID,this.userProductInfo,this.tdAddress);
     }
 
     IsGetAllContract()
@@ -352,6 +353,10 @@ class ctpClient{
         return this.tdClient.queryTradingAccount();
     }
 
+    //查询结算信息
+    QuerySettlementInfo(){
+        return this.tdClient.querySettlementInfo();
+    }
 
     //查询合约手续费
     QueryCommissionRate(contractSymbol)
@@ -369,6 +374,10 @@ class ctpClient{
     OnQueryCommissionRate(commissionRateInfo)
     {
         global.AppEventEmitter.emit(EVENT.OnQueryCommissionRate,commissionRateInfo);
+    }
+
+    OnQuerySettlementInfo(settlementInfo){
+        global.AppEventEmitter.emit(EVENT.OnQuerySettlementInfo,settlementInfo);
     }
 
     OnInfo(msg) {
@@ -403,13 +412,14 @@ class ctpClient{
 
 class ctpMdClient{
 
-    constructor(userID,password,brokerID,address){
+    constructor(userID,password,brokerID,userProductInfo,address){
         this.userID=userID;
         this.password=password;
         this.brokerID=brokerID;
+        this.userProductInfo = userProductInfo;
         this.address=address;
 
-        this.ctpMdApi = CTP.CreateMdApi();
+        this.ctpMdApi = CTP.SingletonMdClient();
 
         //ctp的市场信息客户端，需要有的状态：
         // 1.是否已经连接：isConnected
@@ -532,7 +542,7 @@ class ctpMdClient{
         });
 
         let ctpClient=global.NodeQuant.MainEngine.clientDic.CTP;
-        let ret = this.ctpMdApi.login(this.userID,this.password,this.brokerID);
+        let ret = this.ctpMdApi.login(this.userID,this.password,this.brokerID,this.userProductInfo);
         ctpClient.OnInfo("Market Front login request sended. return:"+ret);
     }
 
@@ -727,7 +737,6 @@ class ctpMdClient{
         this.subscribedContractSymbolDic={};
         this.isConnected=false;
         this.isLogined=false;
-        this.ctpMdApi.exit();
 
         //请空pointer
         this.ctpMdApi = null;
@@ -736,14 +745,15 @@ class ctpMdClient{
 
 class ctpTdClient{
 
-    constructor(userID,password,brokerID,address,authCode,userProductInfo){
+    constructor(userID,password,brokerID,userProductInfo,address){
 
         this.userID=userID;
         this.password=password;
         this.brokerID=brokerID;
+        this.userProductInfo = userProductInfo;
         this.address=address;
 
-        this.ctpTdApi = CTP.CreateTdApi();
+        this.ctpTdApi = CTP.SingletonTdClient();
         this.isConnected=false;
         this.isLogined=false;
         this.isGetAllContract=false;
@@ -916,8 +926,6 @@ class ctpTdClient{
         //持仓的缓存
         this.posDic={};
 
-        this.ctpTdApi.exit();
-
         //清空pointer
         this.ctpTdApi=null;
     }
@@ -1022,7 +1030,7 @@ class ctpTdClient{
         });
 
         let ctpClient=global.NodeQuant.MainEngine.clientDic.CTP;
-        let ret = this.ctpTdApi.login(this.userID,this.password,this.brokerID);
+        let ret = this.ctpTdApi.login(this.userID,this.password,this.brokerID,this.userProductInfo);
         ctpClient.OnInfo("Trade Front login request sended. Return:"+ret);
     }
 
@@ -1136,8 +1144,9 @@ class ctpTdClient{
             // """持仓查询回报"""
             let ctpClient=global.NodeQuant.MainEngine.clientDic.CTP;
 
-            if(positionInfo.InstrumentID===undefined ||positionInfo.InstrumentID===0 )
+            if(positionInfo === undefined||positionInfo.InstrumentID===undefined ||positionInfo.InstrumentID===0 )
             {
+                ctpClient.OnPosition(ctpClient.tdClient.posDic);
                 return;
             }
 
@@ -1252,6 +1261,41 @@ class ctpTdClient{
         return this.ctpTdApi.queryTradingAccount(this.userID,this.brokerID);
     }
 
+    querySettlementInfo(){
+        //没等登录不能查询
+        if(this.isLogined===false) {
+            let ctpClient=global.NodeQuant.MainEngine.clientDic.CTP;
+
+            let message="Query SettlementInfo Failed. Error:Trade Front have not logined";
+            let error=new NodeQuantError(ctpClient.ClientName,ErrorType.OperationAfterDisconnected,message);
+
+            global.AppEventEmitter.emit(EVENT.OnError,error);
+
+            return -99;
+        }
+
+        this.ctpTdApi.on("RspQrySettlementInfo",function (SettlementInfo,err,requestID,isLast) {
+            // 查询回报
+            let ctpClient=global.NodeQuant.MainEngine.clientDic.CTP;
+
+            if(err!==undefined && err.ErrorID!==0)
+            {
+                err.ErrorMsg="Query SettlementInfo Failed. Error Id:"+err.ErrorID+",Error msg:"+err.ErrorMsg;
+                let error=new NodeQuantError(ctpClient.ClientName,ErrorType.ClientRspError,err.ErrorMsg);
+                global.AppEventEmitter.emit(EVENT.OnError,error);
+            }
+
+            if(SettlementInfo)
+            {
+                //设置客户端名字
+                SettlementInfo.clientName = ctpClient.ClientName;
+            }
+
+            ctpClient.OnQuerySettlementInfo(SettlementInfo);
+        });
+
+        return this.ctpTdApi.querySettlementInfo(this.userID,this.brokerID);
+    }
 
     queryCommissionRate(contractSymbol)
     {

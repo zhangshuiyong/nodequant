@@ -32,6 +32,7 @@ class NodeQuantApp{
         let queryInvestorPosition = require('./routes/test/queryInvestorPosition');
         let queryTradingAccount = require('./routes/test/queryTradingAccount');
         let getTradingDay = require('./routes/test/getTradingDay');
+        let querySettlementInfo = require('./routes/test/querySettlementInfo');
 
         application.use('/sendMarketOrder',sendMarketOrder);
         application.use('/sendLimitOrder',sendLimitOrder);
@@ -49,6 +50,8 @@ class NodeQuantApp{
         application.use('/queryInvestorPosition',queryInvestorPosition);
         application.use('/queryTradingAccount',queryTradingAccount);
         application.use('/getTradingDay',getTradingDay);
+
+        application.use('/querySettlementInfo',querySettlementInfo);
 
         let redis =require("redis");
         //初始化配置系统数据库

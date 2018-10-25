@@ -436,6 +436,11 @@ class MainEngine{
         return ret;
     }
 
+    QuerySettlementInfo(clientName){
+        let ret = this.clientDic[clientName].QuerySettlementInfo();
+        return ret;
+    }
+
     QueryCommissionRate(clientName,contractSymbol)
     {
         let ret = this.clientDic[clientName].QueryCommissionRate(contractSymbol);

@@ -409,6 +409,8 @@ EVENT={
     //重新连接客户端事件
     OnReconnected:"EventReconnectedClient",
 
+    //结算信息
+    OnQuerySettlementInfo:"EventQuerySettlementInfo",
 };
 
 //Disconnect ReasonID
