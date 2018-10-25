@@ -1,6 +1,6 @@
 {
   "name": "nodequant",
-  "version": "1.8.2",
+  "version": "1.10.0",
   "scripts": {
     "start": "node ./bin/www"
   },
