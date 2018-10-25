@@ -5,7 +5,7 @@ let fs = require("fs");
 require("../../common.js");
 require("../../userConfig.js");
 
-let NodeAddOnPath="./CTP/"+process.platform+"/"+process.arch+"/NodeQuant.node";//"F:\\NodeQuantApp\\NodeQuant_NAPI_32_6.3.11_20180109_tradeapi\\NodeQuant\\NodeQuant\\NodeQuant.node";
+let NodeAddOnPath="./CTP/"+process.platform+"/"+process.arch+"/NodeQuant.node";
 console.log("CtpClient Node Addon Path:"+NodeAddOnPath);
 let CTP= require(NodeAddOnPath);
 
