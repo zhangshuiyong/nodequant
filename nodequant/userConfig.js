@@ -22,20 +22,13 @@ MarketData_DBConfig={
 ClientConfig={
 
     CTP:{
-        userID:"073572",
-        password:"qq632386504",
+        userID:"8888888",
+        password:"888888",
         brokerID:"9999",
         userProductInfo:"",
         mdAddress:"tcp://180.168.146.187:10010",
         tdAddress:"tcp://180.168.146.187:10000"
-    }/*,
-    Sgit:{
-        userID:"888888",
-        password: "888888",
-        brokerID:"",
-        mdAddress: "tcp://140.206.81.6:27777",
-        tdAddress: "tcp://140.206.81.6:27776"
-    }*/
+    }
 };
 
 StrategyConfig={
