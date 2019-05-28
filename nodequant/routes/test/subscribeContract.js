@@ -14,7 +14,7 @@ router.get('/', function(req, res, next) {
     let contractName=SubscribeReq.contractName.replace(" ","+");
 
     let lastTick = global.NodeQuant.StrategyEngine.Symbol_LastTickDic[contractName];
-    global.NodeQuant.MainEngine.Subscribe(lastTick.clientName,contractName,function (contractName,clientName,ret) {
+    global.NodeQuant.MainEngine.Subscribe("CTP",contractName,function (contractName,clientName,ret) {
 
         if(ret===-99)
             res.render('index', { title: clientName+' Subscribe Failed.Error: Trader client have not logined' });

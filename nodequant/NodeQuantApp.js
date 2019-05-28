@@ -32,6 +32,8 @@ class NodeQuantApp{
         let queryInvestorPosition = require('./routes/test/queryInvestorPosition');
         let queryTradingAccount = require('./routes/test/queryTradingAccount');
         let getTradingDay = require('./routes/test/getTradingDay');
+        let getMdApiVersion = require('./routes/test/md/getApiVersion');
+        let getTdApiVersion = require('./routes/test/td/getApiVersion');
         let querySettlementInfo = require('./routes/test/querySettlementInfo');
 
         application.use('/sendMarketOrder',sendMarketOrder);
@@ -50,7 +52,8 @@ class NodeQuantApp{
         application.use('/queryInvestorPosition',queryInvestorPosition);
         application.use('/queryTradingAccount',queryTradingAccount);
         application.use('/getTradingDay',getTradingDay);
-
+        application.use('/md/getApiVersion',getMdApiVersion);
+        application.use('/td/getApiVersion',getTdApiVersion);
         application.use('/querySettlementInfo',querySettlementInfo);
 
         let redis =require("redis");

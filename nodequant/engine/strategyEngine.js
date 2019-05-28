@@ -186,6 +186,7 @@ function _registerEvent(myEngine) {
 
     global.AppEventEmitter.on(EVENT.OnTick,function (tick) {
 
+        //console.log("OnTick:",tick);
         //先过滤Tick
         let isPass=_isPassTickFilter(tick);
         if(isPass===false)

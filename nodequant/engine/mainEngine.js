@@ -357,6 +357,26 @@ class MainEngine{
         return undefined;
     }
 
+    GetMdApiVersion()
+    {
+        for(let clientName in this.clientDic)
+        {
+            return this.clientDic[clientName].GetMdApiVersion();
+        }
+
+        return undefined;
+    }
+
+    GetTdApiVersion()
+    {
+        for(let clientName in this.clientDic)
+        {
+            return this.clientDic[clientName].GetTdApiVersion();
+        }
+
+        return undefined;
+    }
+
     GetContract(clientName,contractName){
         if(this.contractDic[clientName])
         {
