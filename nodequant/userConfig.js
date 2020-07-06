@@ -22,12 +22,13 @@ MarketData_DBConfig={
 ClientConfig={
 
     CTP:{
-        userID:"8888888",
-        password:"888888",
-        brokerID:"9999",
-        userProductInfo:"",
-        mdAddress:"tcp://180.168.146.187:10010",
-        tdAddress:"tcp://180.168.146.187:10000"
+        userID:"0",
+        password:"0",
+        brokerID:"0",
+        AppID:"client_nodequant_2.0.0",
+        AuthCode:"0",
+        mdAddress:"tcp://ip:port",
+        tdAddress:"tcp://ip:port"
     }
 };
 
@@ -37,7 +38,7 @@ StrategyConfig={
             name:"Demo",
             className:"DemoStrategy",
             symbols: {
-                "au1812":{
+                "au1912":{
                     //要配置在哪个交易客户端订阅该合约，因为上期CTP和飞鼠Sgit都可以交易商品期货
                     clientName:SupportClients.CTP
                 }

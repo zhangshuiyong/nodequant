@@ -23,12 +23,23 @@ class ctpClient{
         this.userID= ClientConfig[this.ClientName].userID;
         this.password= ClientConfig[this.ClientName].password;
         this.brokerID= ClientConfig[this.ClientName].brokerID;
-        this.userProductInfo = ClientConfig[this.ClientName].userProductInfo;
+        this.AppID = ClientConfig[this.ClientName].AppID;
+        this.AuthCode = ClientConfig[this.ClientName].AuthCode;
         this.mdAddress= ClientConfig[this.ClientName].mdAddress;
         this.tdAddress= ClientConfig[this.ClientName].tdAddress;
 
-        this.mdClient = new ctpMdClient(this.userID,this.password,this.brokerID,this.userProductInfo,this.mdAddress);
-        this.tdClient=new ctpTdClient(this.userID,this.password,this.brokerID,this.userProductInfo,this.tdAddress);
+        this.mdClient = new ctpMdClient(
+            this.userID,
+            this.password,
+            this.brokerID,
+            this.mdAddress);
+        this.tdClient=new ctpTdClient(
+            this.userID,
+            this.password,
+            this.brokerID,
+            this.AppID,
+            this.AuthCode,
+            this.tdAddress);
     }
 
     IsGetAllContract()
@@ -81,6 +92,18 @@ class ctpClient{
     {
         let tradingDay=this.mdClient.getTradingDay();
         return tradingDay;
+    }
+
+    GetMdApiVersion()
+    {
+        let ApiVersion=this.mdClient.getApiVersion();
+        return ApiVersion;
+    }
+
+    GetTdApiVersion()
+    {
+        let ApiVersion=this.tdClient.getApiVersion();
+        return ApiVersion;
     }
 
     //订阅合约
@@ -412,11 +435,10 @@ class ctpClient{
 
 class ctpMdClient{
 
-    constructor(userID,password,brokerID,userProductInfo,address){
+    constructor(userID,password,brokerID,address){
         this.userID=userID;
         this.password=password;
         this.brokerID=brokerID;
-        this.userProductInfo = userProductInfo;
         this.address=address;
 
         this.ctpMdApi = CTP.SingletonMdClient();
@@ -444,12 +466,15 @@ class ctpMdClient{
 
             if(ctpClient)
             {
-                ctpClient.OnInfo("Market Front connected. --> Then Login");
-
                 ctpClient.mdClient.isConnected = true;
 
+                let apiVersion= ctpClient.mdClient.getApiVersion();
+                ctpClient.OnInfo("Market Front "+apiVersion+" connected. --> Then Login");
+
+                //ctpClient.OnInfo("Trade Front "+apiVersion+" connected. --> Then Authentication");
                 //FrontConnected事件都要重新登录,前面是connect或者FrontDisconnected
                 ctpClient.mdClient.login();
+
             }
         });
 
@@ -542,7 +567,12 @@ class ctpMdClient{
         });
 
         let ctpClient=global.NodeQuant.MainEngine.clientDic.CTP;
-        let ret = this.ctpMdApi.login(this.userID,this.password,this.brokerID,this.userProductInfo);
+        let userProductInfo = "";
+        let ret = this.ctpMdApi.login(
+            this.userID,
+            this.password,
+            this.brokerID,
+            userProductInfo);
         ctpClient.OnInfo("Market Front login request sended. return:"+ret);
     }
 
@@ -715,6 +745,10 @@ class ctpMdClient{
         return this.ctpMdApi.unSubscribeMarketData(contractName);
     }
 
+    getApiVersion() {
+        return this.ctpMdApi.getApiVersion();
+    }
+
     getTradingDay() {
         if(this.isLogined)
         {
@@ -745,12 +779,13 @@ class ctpMdClient{
 
 class ctpTdClient{
 
-    constructor(userID,password,brokerID,userProductInfo,address){
+    constructor(userID,password,brokerID,AppID,AuthCode,address){
 
         this.userID=userID;
         this.password=password;
         this.brokerID=brokerID;
-        this.userProductInfo = userProductInfo;
+        this.AppID=AppID;
+        this.AuthCode= AuthCode;
         this.address=address;
 
         this.ctpTdApi = CTP.SingletonTdClient();
@@ -942,9 +977,15 @@ class ctpTdClient{
                 ctpClient.tdClient.isConnected = true;
 
                 //如果断线重新连上,不用等Market Front再次连上再登录Trade Front,因为如果Market Front没有连上,也就没有tick驱动,就不会交易
-                ctpClient.tdClient.login();
+
+                let apiVersion=ctpClient.tdClient.getApiVersion();
+                ctpClient.OnInfo("Trade Front "+apiVersion+" connected. --> Then Authentication");
+
+                ctpClient.tdClient.authenticate();
             }
         });
+
+
 
         this.ctpTdApi.on("FrontDisconnected",function (reasonId) {
             let ctpClient=global.NodeQuant.MainEngine.clientDic.CTP;
@@ -1004,6 +1045,38 @@ class ctpTdClient{
         }
     }
 
+    getApiVersion() {
+        return this.ctpTdApi.getApiVersion();
+    }
+
+    authenticate(){
+        this.ctpTdApi.on("RspAuthenticate",function (response,err,requestId,isLast) {
+            //console.log(new Date().toLocaleString()+":TdApi FrontConnected.");
+            let ctpClient=global.NodeQuant.MainEngine.clientDic.CTP;
+            if(err.ErrorID===0)
+            {
+                if(ctpClient)
+                {
+                    ctpClient.OnInfo("Trade Front Authenticate Successfully.--> The Login");
+                    ctpClient.tdClient.login();
+                }
+            }else{
+                ctpClient.OnInfo("Trade Front Authenticate Failed.");
+            }
+        });
+
+        let userProductInfo="";
+        let ret =  this.ctpTdApi.authenticate(
+            this.userID,
+            this.brokerID,
+            this.AppID,
+            this.AuthCode,
+            userProductInfo);
+
+        let ctpClient=global.NodeQuant.MainEngine.clientDic.CTP;
+        ctpClient.OnInfo("Trade Front Authentication request sent. Return:"+ret);
+    }
+
     login() {
 
         //login的回调函数，登录的回调函数
@@ -1029,8 +1102,13 @@ class ctpTdClient{
             }
         });
 
+        let userProductInfo = "";
         let ctpClient=global.NodeQuant.MainEngine.clientDic.CTP;
-        let ret = this.ctpTdApi.login(this.userID,this.password,this.brokerID,this.userProductInfo);
+        let ret = this.ctpTdApi.login(
+            this.userID,
+            this.password,
+            this.brokerID,
+            userProductInfo);
         ctpClient.OnInfo("Trade Front login request sended. Return:"+ret);
     }
 
