@@ -34,7 +34,7 @@ ClientConfig={
         brokerID:"9999",
         AppID:"simnow_client_test",
         AuthCode:"0000000000000000",
-	    mdAddress:"tcp://180.168.146.187:10131",
+	mdAddress:"tcp://180.168.146.187:10131",
         tdAddress:"tcp://180.168.146.187:10130"
     },
 };
