@@ -46,7 +46,7 @@ StrategyConfig={
             className:"DemoStrategy",
             symbols: {
                 "au2112":{
-                    //要配置在哪个交易客户端订阅该合约，因为上期CTP和飞鼠Sgit都可以交易商品期货
+                    //要配置在哪个交易客户端订阅该合约
                     clientName:SupportClients.CTP
                 }
             },
