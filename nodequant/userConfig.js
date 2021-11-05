@@ -19,17 +19,24 @@ MarketData_DBConfig={
 };
 
 //配置客户端,NodeQuant启动,会连接已经配置的交易客户端
+//Simnow 非交易时间(交易日下午4:00开始可用或者周末可用)
+//mdAddress:"tcp://180.168.146.187:10131"
+//tdAddress:"tcp://180.168.146.187:10130"
+
+//Simnow 交易时间
+//mdAddress:"tcp://180.168.146.187:10212"
+//tdAddress:"tcp://180.168.146.187:10202"
 ClientConfig={
 
     CTP:{
-        userID:"0",
-        password:"0",
-        brokerID:"0",
-        AppID:"client_nodequant_2.0.0",
-        AuthCode:"0",
-        mdAddress:"tcp://ip:port",
-        tdAddress:"tcp://ip:port"
-    }
+        userID:"simnow user",
+        password:"simnow password",
+        brokerID:"9999",
+        AppID:"simnow_client_test",
+        AuthCode:"0000000000000000",
+	    mdAddress:"tcp://180.168.146.187:10131",
+        tdAddress:"tcp://180.168.146.187:10130"
+    },
 };
 
 StrategyConfig={
@@ -38,7 +45,7 @@ StrategyConfig={
             name:"Demo",
             className:"DemoStrategy",
             symbols: {
-                "au1912":{
+                "au2112":{
                     //要配置在哪个交易客户端订阅该合约，因为上期CTP和飞鼠Sgit都可以交易商品期货
                     clientName:SupportClients.CTP
                 }
