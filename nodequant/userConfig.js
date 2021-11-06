@@ -19,11 +19,11 @@ MarketData_DBConfig={
 };
 
 //配置客户端,NodeQuant启动,会连接已经配置的交易客户端
-//Simnow 非交易时间(交易日下午4:00开始可用或者周末可用)
+//Simnow 非交易时间可用(交易日下午4:00开始可用或者周末可用)
 //mdAddress:"tcp://180.168.146.187:10131"
 //tdAddress:"tcp://180.168.146.187:10130"
 
-//Simnow 交易时间
+//Simnow 交易时间可用
 //mdAddress:"tcp://180.168.146.187:10212"
 //tdAddress:"tcp://180.168.146.187:10202"
 ClientConfig={
