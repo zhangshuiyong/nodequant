@@ -71,7 +71,7 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 
 ## 入门教程
 
-[NodeQuant开发文档](https://www.markbj.com/book/2ui9718/15921)
+[NodeQuant开发文档](https://github.com/zhangshuiyong/nodequant-doc/blob/master/SUMMARY.md)
 
 ## Node.js科学计算库
 
