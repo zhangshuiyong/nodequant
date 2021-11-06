@@ -10,7 +10,7 @@
   * [主引擎层](nodequant-liang-hua-jiao-yi-kuang-jia/zhu-yin-qing-ceng.md)
   * [交易客户端层](nodequant-liang-hua-jiao-yi-kuang-jia/jiao-yi-ke-hu-duan-ceng/README.md)
     * [上期CTP](nodequant-liang-hua-jiao-yi-kuang-jia/jiao-yi-ke-hu-duan-ceng/shang-qi-ctp.md)
-* [搭建Linux系统运行环境](linux-run.md)
+* [搭建Docker/Linux运行环境](linux-run.md)
 * [快速入门](kuai-su-ru-men.md)
 * [策略例子](ce-lve-li-zi.md)
 * [Node.js量化策略开发扩展库](node.js-liang-hua-ce-lve-kai-fa-kuo-zhan-ku.md)
