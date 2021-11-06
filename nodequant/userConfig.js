@@ -50,7 +50,7 @@ StrategyConfig={
                     clientName:SupportClients.CTP
                 }
             },
-            BarType:KBarType.Tick,  //K线类型是: 分钟
+            BarType:KBarType.Minute,  //K线类型是: 分钟
             BarInterval:1,             //1分钟K线
         }
     ]
