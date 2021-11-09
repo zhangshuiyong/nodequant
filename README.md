@@ -29,7 +29,7 @@ Node.js 的包管理器 npm，是全球最大的开源库生态系统。使用np
 
 ## NodeQuant开发文档
 
-[NodeQuant开发文档](https://github.com/zhangshuiyong/nodequant-doc/blob/master/SUMMARY.md)
+[NodeQuant开发文档](https://github.com/zhangshuiyong/nodequant-doc)
 
 ## NodeQuant交流
 欢迎有兴趣使用NodeQuant做量化金融策略的Quanter加群进行交流和建议
