@@ -29,13 +29,13 @@ MarketData_DBConfig={
 ClientConfig={
 
     CTP:{
-        userID:"simnow user",
-        password:"simnow password",
+        userID:"193559",
+        password:"simnow@123",
         brokerID:"9999",
         AppID:"simnow_client_test",
         AuthCode:"0000000000000000",
-	mdAddress:"tcp://180.168.146.187:10131",
-        tdAddress:"tcp://180.168.146.187:10130"
+	    mdAddress:"tcp://180.168.146.187:10212",
+        tdAddress:"tcp://180.168.146.187:10202"
     },
 };
 

@@ -30,7 +30,69 @@ var server = http.createServer(app);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+const io = require('socket.io')(server, { cors: true });
+ global.io = io;
+ const subscribeContracts = new Set();
+ global.topFive = {
+   increase: [],
+   decrease: [],
+   volume: [],
+ };
+ io.on('connection', (socket) => {
+  
+   setInterval(function () {
+    
+     const originContracts = global.NodeQuant.MainEngine.contractDic['CTP'] || {isNull:true};
+     const contractArray = [];
+ 
+     const keys = Object.keys(originContracts);
+ 
+     keys.forEach(key => {
+       contractArray.push(originContracts[key])
+     });
+     if(global.topFive.volume.length ===0){
+      contractArray.sort((a, b) => ((a.ticket && a.ticket.volume) ? a.ticket.volume : 0) - ((b.ticket && b.ticket.volume) ? b.ticket.voluvolumemn : 0));
+      global.topFive.volume = contractArray.slice(0, 5);
+     }
+   
+     if(global.topFive.increase.length ===0){
+      contractArray.sort((a, b) => ((a.ticket && a.ticket.increase) ? a.ticket.increase : 0) - ((b.ticket && b.ticket.increase) ? b.ticket.increase : 0));
+      global.topFive.increase = contractArray.slice(0, 5);
+     }
 
+     if(global.topFive.decrease.length ===0){
+      contractArray.sort((a, b) => ((a.ticket && a.ticket.decrease) ? a.ticket.decrease : 0) - ((b.ticket && b.ticket.decrease) ? b.ticket.decrease : 0));
+      global.topFive.decrease = contractArray.slice(0, 5);
+     }
+
+    const data = [];
+     if(!originContracts.isNull){
+       Array.from(subscribeContracts).forEach(c => {
+         data.push(originContracts[c]);        
+       });
+     }
+     socket.emit('subscribeContracts', { contracts: data });
+   }, 5000);
+   setInterval(function () {
+     socket.emit('market', global.topFive);
+   }, 5000);
+   socket.on('subscribe', name => {
+     subscribeContracts.add(name)
+   });
+   socket.on('unsubscribe', name => {
+     subscribeContracts.delete(name)
+   });
+   socket.on('resubscribe', contracts => {
+     subscribeContracts.clear();
+     contracts.forEach(c => {
+       subscribeContracts.add(c);
+     })
+   });
+   socket.on('testNotify',() => {
+     socket.emit('test')
+   })
+ 
+ })
 /**
  * Normalize a port into a number, string, or false.
  */

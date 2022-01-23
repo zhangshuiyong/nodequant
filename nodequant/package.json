@@ -31,6 +31,7 @@
     "influx": "^5.0.7",
     "morgan": "~1.9.1",
     "redis": "^2.7.1",
-    "serve-favicon": "~2.4.2"
+    "serve-favicon": "~2.4.2",
+    "socket.io": "^4.1.3"
   }
 }
