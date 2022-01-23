@@ -1,0 +1,49 @@
+.contracts .editting div.name b,
+.contracts .editting span.extra .anticon-edit
+{
+    display: none;
+}
+.contracts  div.name b {
+    margin-right: 1rem;
+}
+.contracts .normal div.name .input{
+    display: none;
+    
+}
+
+.contracts li{
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    flex-direction: column;
+}
+.contracts li > div {
+    width: 100%;;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin: 0.5rem 0;
+}
+.contracts li > div > span{
+    padding-right:1rem;
+}
+.contracts li .extra{
+    visibility: hidden;
+}
+.contracts li .extra > span{
+    margin: 0 1rem;
+}
+.contracts li:hover {
+    background-color: #1890ff;
+    color:#fff;
+}
+.contracts li:hover .extra{
+    visibility: visible;
+}
+p{
+    display: flex;
+    padding-top: 0.5rem;
+    justify-content: flex-end;
+}

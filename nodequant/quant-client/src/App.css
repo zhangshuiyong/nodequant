@@ -1,0 +1,13 @@
+#root{
+  height: 100%;
+}
+.app{
+  height: 100%;
+}
+.content{
+  padding: 1rem;
+}
+.ant-list-item {
+  display: flex;
+  justify-content: space-between;
+}
