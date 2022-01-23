@@ -11,10 +11,10 @@ let app = express();
 app.use('/', express.static(path.join(__dirname, '/quant-client/dist/')));
 
 //启动NodeQuant,绑定请求路由
-// let NodeQuantApp=require("./NodeQuantApp");
-// let NodeQuantApplication = new NodeQuantApp(app);
-// global.NodeQuant = NodeQuantApplication;
-// global.NodeQuant.Start();
+let NodeQuantApp=require("./NodeQuantApp");
+let NodeQuantApplication = new NodeQuantApp(app);
+global.NodeQuant = NodeQuantApplication;
+global.NodeQuant.Start();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
