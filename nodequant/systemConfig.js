@@ -3,7 +3,7 @@
  */
 
 AppConfig={
-    Port:"3000"
+    Port:"80"
 };
 
 SystemConfig={
