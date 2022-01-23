@@ -3,7 +3,7 @@
  */
  let path=require("path");
  require("../common.js");
- require("../systemConfig.js");
+ require("../systemConfig");
  require("../userConfig.js");
  
  let NodeQuantLog=require("../util/NodeQuantLog");
@@ -14,7 +14,7 @@
  function _isTimeToWork() {
      let systemConfigPath=path.resolve(__dirname+"/../systemConfig.js");
      require.cache[systemConfigPath]=null;
-    //  require("../systemConfig.js");
+    //  require("../systemConfig");
  
      let NowDateTime=new Date();
      let NowDateStr=NowDateTime.toLocaleDateString();
