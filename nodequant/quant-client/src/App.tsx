@@ -9,8 +9,8 @@ import { Socket } from 'socket.io';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 const { Sider, Content } = Layout;
 const { SubMenu } = Menu;
-const server = 'http://101.132.116.130/';
-const port = '80';
+const server = 'http://101.132.116.130';
+const port = '8081';
 const address = server + ':' + port;
 declare global {
   interface Window {

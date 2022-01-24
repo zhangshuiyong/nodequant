@@ -10,7 +10,7 @@ function ViewContarct() {
     })
     useEffect(() => {
         const interval = window.setInterval(() => {
-            const topFive = JSON.parse(localStorage.topFive) ?? {};
+            const topFive = localStorage.topFive?JSON.parse(localStorage.topFive):{};
             if (topFive) {
                 setTopFive(topFive);
             }
