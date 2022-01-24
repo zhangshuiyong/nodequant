@@ -7,6 +7,8 @@
 var app = require('../app');
 var debug = require('debug')('nodequantjs:server');
 var http = require('http');
+const port = 80;
+const portSocket = 8081;
 
 // require('../systemConfig');
 
@@ -14,7 +16,7 @@ var http = require('http');
  * Get port from environment and store in Express.
  */
 
-app.set('port', 80);
+app.set('port', port);
 
 /**
  * Create HTTP server.
@@ -26,8 +28,8 @@ var serverSocket = http.createServer();
 /**
  * Listen on provided port, on all network interfaces.
  */
-
-server.listen(80);
+server.listen(port);
+serverSocket.listen(portSocket);
 server.on('error', onError);
 server.on('listening', onListening);
 const io = require('socket.io')(serverSocket, { cors: true });
