@@ -8,7 +8,7 @@ let bodyParser = require('body-parser');
 let index = require('./routes/index');
 
 let app = express();
-app.use('/', express.static(path.join(__dirname, '/quant-client/dist/')));
+// app.use('/', express.static(path.join(__dirname, '/quant-client/dist/')));
 
 //启动NodeQuant,绑定请求路由
 let NodeQuantApp=require("./NodeQuantApp");
@@ -29,7 +29,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-app.use('/', index);
+// app.use('/', index);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

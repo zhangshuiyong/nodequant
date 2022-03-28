@@ -22,16 +22,16 @@ app.set('port', port);
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+// var server = http.createServer(app);
 var serverSocket = http.createServer();
 
 /**
  * Listen on provided port, on all network interfaces.
  */
-server.listen(port);
+// server.listen(port);
 serverSocket.listen(portSocket);
-server.on('error', onError);
-server.on('listening', onListening);
+// server.on('error', onError);
+// server.on('listening', onListening);
 const io = require('socket.io')(serverSocket, { cors: true });
  global.io = io;
  const subscribeContracts = new Set();

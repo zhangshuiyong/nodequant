@@ -1,9 +1,9 @@
 {
   "version": "0.0.0",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite && node ../nodequant/bin/www ",
     "build": "vite build",
-    "serve": "vite preview",
+    "serve": "vite preview && node ../nodequant/bin/www ",
     "test": "jest"
   },
   "dependencies": {
