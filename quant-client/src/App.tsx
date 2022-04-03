@@ -9,7 +9,7 @@ import { Socket } from 'socket.io';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 const { Sider, Content } = Layout;
 const { SubMenu } = Menu;
-const server = 'http://101.132.116.130';
+const server = import.meta.env['VITE_SERVER'] || 'http://101.132.116.130';
 const port = '8081';
 const address = server + ':' + port;
 declare global {
@@ -20,7 +20,7 @@ declare global {
 
 
 const socket = io( address);
-window.socket = socket;
+(window as any).socket = socket;
 
 socket.on('subscribeContracts', (data: unknown) => {
   localStorage.contracts = JSON.stringify(data);
@@ -52,7 +52,7 @@ function notifyMe() {
 
           // 用户同意使用通知
           if (!('permission' in Notification)) {
-              Notification.permission = permission;
+              (Notification as any).permission = permission;
           }
 
           if (permission === "granted") {
